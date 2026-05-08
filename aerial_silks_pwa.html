@@ -2,395 +2,353 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="theme-color" content="#120d10">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>Silk & Flow</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-/* ════════════════════════════════════════════
-   TOKENS
-════════════════════════════════════════════ */
 :root {
-  --ink:        #120d10;
-  --ink2:       #2a1e25;
-  --parchment:  #f8f3ee;
-  --warm:       #f0e8df;
-  --blush:      #e4ccc0;
-  --rose:       #c9948a;
-  --deep-rose:  #9e5e54;
-  --gold:       #c8a97e;
-  --gold-pale:  #e8d9c0;
-  --sage:       #8a9e8c;
-  --mauve:      #7a6070;
-  --lilac:      #a090a8;
-  --surface:    #fdf9f6;
-  --surface2:   #f2ebe0;
-  --border:     rgba(138,96,88,0.13);
-  --border-med: rgba(138,96,88,0.28);
-  --r:   14px;
-  --r-sm: 8px;
-  --r-xs: 6px;
-  --shadow:    0 2px 16px rgba(18,13,16,0.07);
-  --shadow-lg: 0 8px 32px rgba(18,13,16,0.13);
-  --serif: 'Cormorant Garamond', Georgia, serif;
-  --sans:  'DM Sans', system-ui, sans-serif;
+  --ink:#120d10;--ink2:#2a1e25;--parchment:#f8f3ee;--warm:#f0e8df;
+  --blush:#e4ccc0;--rose:#c9948a;--deep-rose:#9e5e54;--gold:#c8a97e;
+  --gold-pale:#e8d9c0;--sage:#8a9e8c;--mauve:#7a6070;
+  --surface:#fdf9f6;--surface2:#f2ebe0;
+  --border:rgba(138,96,88,0.13);--border-med:rgba(138,96,88,0.28);
+  --r:14px;--r-sm:8px;--r-xs:6px;
+  --shadow:0 2px 16px rgba(18,13,16,0.07);--shadow-lg:0 8px 32px rgba(18,13,16,0.13);
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
 }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:var(--sans);background:var(--parchment);color:var(--ink);max-width:430px;margin:0 auto;overflow-x:hidden;min-height:100vh}
+.app-shell{display:flex;flex-direction:column;height:100dvh}
 
-/* ════════════════════════════════════════════
-   RESET & BASE
-════════════════════════════════════════════ */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* AUTH SCREEN */
+.auth-screen{display:flex;flex-direction:column;min-height:100dvh;background:var(--ink);position:fixed;inset:0;z-index:1000;max-width:430px;margin:0 auto}
+.auth-screen.hidden{display:none}
+.auth-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 24px;position:relative;overflow:hidden}
+.auth-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(200,169,126,0.12) 0%,transparent 70%)}
+.auth-hero::after{content:'';position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,148,138,0.1) 0%,transparent 70%)}
+.auth-eyebrow{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
+.auth-title{font-family:var(--serif);font-size:48px;font-weight:300;color:var(--parchment);font-style:italic;text-align:center;line-height:1;margin-bottom:6px}
+.auth-tagline{font-size:12px;color:rgba(247,242,236,0.4);letter-spacing:1px;text-align:center;margin-bottom:40px}
+.auth-form{background:rgba(255,255,255,0.04);border:1px solid rgba(200,169,126,0.15);border-radius:var(--r);padding:24px;width:100%;backdrop-filter:blur(10px)}
+.auth-tabs{display:flex;margin-bottom:20px;border-bottom:1px solid rgba(200,169,126,0.15)}
+.auth-tab{flex:1;padding:8px;background:none;border:none;border-bottom:2px solid transparent;font-size:12px;font-family:var(--sans);color:rgba(247,242,236,0.4);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s}
+.auth-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.auth-field{margin-bottom:14px}
+.auth-field label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(200,169,126,0.7);margin-bottom:5px;font-weight:500}
+.auth-field input,.auth-field select{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(200,169,126,0.2);border-radius:var(--r-sm);padding:10px 12px;font-family:var(--sans);font-size:13px;color:var(--parchment);outline:none;transition:border-color 0.2s;-webkit-appearance:none;appearance:none}
+.auth-field input::placeholder{color:rgba(247,242,236,0.25)}
+.auth-field input:focus,.auth-field select:focus{border-color:var(--gold)}
+.auth-field select option{background:var(--ink2);color:var(--parchment)}
+.auth-btn{width:100%;padding:12px;background:var(--gold);color:var(--ink);border:none;border-radius:var(--r-sm);font-family:var(--sans);font-size:13px;font-weight:600;cursor:pointer;letter-spacing:0.3px;margin-top:4px;transition:opacity 0.15s}
+.auth-btn:active{opacity:0.85}
+.auth-btn:disabled{opacity:0.5;cursor:not-allowed}
+.auth-error{font-size:11.5px;color:#e88;margin-top:10px;text-align:center;line-height:1.4}
+.auth-footer{padding:20px 24px;text-align:center;font-size:10px;color:rgba(247,242,236,0.2);letter-spacing:0.5px}
 
-html, body { height: 100%; }
+/* LOADING */
+.loading-screen{display:flex;align-items:center;justify-content:center;height:100dvh;background:var(--parchment);position:fixed;inset:0;z-index:999;max-width:430px;margin:0 auto}
+.loading-screen.hidden{display:none}
+.loading-dots{display:flex;gap:6px}
+.loading-dot{width:8px;height:8px;border-radius:50%;background:var(--rose);animation:ldot 1.2s ease-in-out infinite}
+.loading-dot:nth-child(2){animation-delay:0.2s;background:var(--gold)}
+.loading-dot:nth-child(3){animation-delay:0.4s;background:var(--mauve)}
+@keyframes ldot{0%,80%,100%{opacity:0.2;transform:scale(0.7)}40%{opacity:1;transform:scale(1)}}
 
-body {
-  font-family: var(--sans);
-  background: var(--parchment);
-  color: var(--ink);
-  max-width: 430px;
-  margin: 0 auto;
-  overflow-x: hidden;
-  min-height: 100vh;
-}
+/* HEADER */
+.app-header{background:var(--ink);padding:14px 18px 10px;flex-shrink:0;position:relative;z-index:50}
+.header-row{display:flex;align-items:center;justify-content:space-between}
+.app-eyebrow{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
+.app-title{font-family:var(--serif);font-size:22px;font-weight:300;color:var(--parchment);font-style:italic}
+.header-right{display:flex;align-items:center;gap:8px}
+.mode-toggle{display:flex;background:rgba(255,255,255,0.07);border-radius:20px;border:1px solid rgba(200,169,126,0.2);overflow:hidden}
+.mode-btn{padding:5px 12px;background:none;border:none;font-size:10px;font-family:var(--sans);color:rgba(247,242,236,0.45);cursor:pointer;letter-spacing:0.8px;text-transform:uppercase;transition:all 0.2s}
+.mode-btn.active{background:var(--gold);color:var(--ink);font-weight:600}
+.signout-btn{background:none;border:1px solid rgba(200,169,126,0.2);border-radius:20px;padding:5px 10px;font-size:9px;color:rgba(247,242,236,0.35);cursor:pointer;font-family:var(--sans);letter-spacing:0.5px;text-transform:uppercase}
+.user-chip{font-size:9px;color:var(--gold);letter-spacing:0.5px;margin-top:3px}
 
-/* ════════════════════════════════════════════
-   LAYOUT SHELL
-════════════════════════════════════════════ */
-.app-shell { display: flex; flex-direction: column; height: 100dvh; }
+/* TABS */
+.tab-bar{background:var(--ink2);display:flex;border-bottom:1px solid rgba(200,169,126,0.12);overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:9px 14px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,242,236,0.38);font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;font-family:var(--sans);cursor:pointer;white-space:nowrap;transition:all 0.2s}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.main-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen{display:none;padding:15px 15px 100px}
+.screen.active{display:block}
 
-.app-header {
-  background: var(--ink);
-  padding: 14px 18px 10px;
-  flex-shrink: 0;
-  position: relative;
-  z-index: 50;
-}
-.header-row { display: flex; align-items: center; justify-content: space-between; }
-.app-eyebrow { font-size: 8px; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 2px; }
-.app-title { font-family: var(--serif); font-size: 22px; font-weight: 300; color: var(--parchment); font-style: italic; letter-spacing: 0.3px; }
-.mode-toggle { display: flex; background: rgba(255,255,255,0.07); border-radius: 20px; border: 1px solid rgba(200,169,126,0.2); overflow: hidden; }
-.mode-btn { padding: 5px 12px; background: none; border: none; font-size: 10px; font-family: var(--sans); color: rgba(247,242,236,0.45); cursor: pointer; letter-spacing: 0.8px; text-transform: uppercase; transition: all 0.2s; }
-.mode-btn.active { background: var(--gold); color: var(--ink); font-weight: 600; }
+/* ATOMS */
+.sec{font-size:8.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--rose);font-weight:600;margin:20px 0 9px}
+.field-label{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mauve);margin-bottom:5px;font-weight:500}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase}
+.badge-beginner{background:#e5f0e5;color:#3d6b42}
+.badge-intermediate{background:#f6ede0;color:#8a5520}
+.badge-advanced{background:#f0e3e3;color:#8a3030}
+.badge-gold{background:var(--gold);color:var(--ink)}
+.badge-teacher{background:var(--blush);color:var(--deep-rose)}
+.badge-student{background:#e2ede3;color:#3d6b42}
+input[type="text"],input[type="url"],input[type="date"],input[type="email"],select{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm);padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--ink);background:white;outline:none;margin-bottom:10px;appearance:none;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,148,138,0.12)}
+textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm);padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--ink);background:white;outline:none;resize:vertical;min-height:72px;margin-bottom:10px}
+.btn-primary{background:var(--deep-rose);color:white;border:none;border-radius:var(--r-sm);padding:10px 20px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;letter-spacing:0.3px;transition:opacity 0.15s}
+.btn-primary:active,.btn-primary:disabled{opacity:0.7}
+.btn-secondary{background:none;border:1px solid var(--border-med);border-radius:var(--r-sm);padding:9px 16px;font-size:12px;font-family:var(--sans);color:var(--mauve);cursor:pointer}
+.btn-gold{background:var(--gold);color:var(--ink);border:none;border-radius:var(--r-sm);padding:10px 20px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
+.btn-row{display:flex;gap:8px;margin-top:6px}
+.btn-full{width:100%;text-align:center;display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
+.card-body{padding:14px 16px}
+.filter-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.filter-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border-med);background:var(--surface);font-size:10px;font-family:var(--sans);cursor:pointer;color:var(--mauve);transition:all 0.15s}
+.filter-btn.active{background:var(--deep-rose);border-color:var(--deep-rose);color:white;font-weight:600}
 
-.tab-bar {
-  background: var(--ink2);
-  display: flex;
-  border-bottom: 1px solid rgba(200,169,126,0.12);
-  overflow-x: auto;
-  scrollbar-width: none;
-  flex-shrink: 0;
-}
-.tab-bar::-webkit-scrollbar { display: none; }
-.tab-btn {
-  flex-shrink: 0; padding: 9px 14px;
-  background: none; border: none; border-bottom: 2px solid transparent;
-  color: rgba(247,242,236,0.38); font-size: 9.5px; letter-spacing: 1.5px;
-  text-transform: uppercase; font-family: var(--sans); cursor: pointer; white-space: nowrap;
-  transition: all 0.2s;
-}
-.tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+/* MOVE CARDS */
+.move-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;cursor:pointer;box-shadow:var(--shadow);transition:transform 0.13s}
+.move-card:active{transform:scale(0.985)}
+.move-card-inner{padding:12px 14px;display:flex;align-items:center;gap:12px}
+.move-icon{width:38px;height:38px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.move-info{flex:1;min-width:0}
+.move-name{font-size:14px;font-weight:500}
+.move-meta{font-size:10.5px;color:var(--mauve);margin-top:2px}
+.move-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--blush);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:transparent;transition:all 0.2s;cursor:pointer}
+.move-check.done{background:var(--sage);border-color:var(--sage);color:white}
 
-.main-scroll { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
-.screen { display: none; padding: 15px 15px 100px; }
-.screen.active { display: block; }
+/* OVERLAYS */
+.overlay{display:none;position:fixed;inset:0;background:var(--parchment);z-index:200;overflow-y:auto;max-width:430px;margin:0 auto;animation:slideUp 0.22s ease}
+.overlay.open{display:block}
+@keyframes slideUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+.overlay-header{background:var(--ink);padding:18px;position:sticky;top:0;z-index:10}
+.back-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);color:var(--parchment);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;margin-bottom:12px;display:inline-flex;align-items:center;gap:5px;font-family:var(--sans)}
+.overlay-title{font-family:var(--serif);font-size:26px;font-weight:300;font-style:italic;color:var(--parchment);line-height:1.2}
+.overlay-body{padding:16px}
 
-/* ════════════════════════════════════════════
-   TYPOGRAPHY & ATOMS
-════════════════════════════════════════════ */
-.sec { font-size: 8.5px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--rose); font-weight: 600; margin: 20px 0 9px; }
-.field-label { display: block; font-size: 8.5px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--mauve); margin-bottom: 5px; font-weight: 500; }
+/* VIDEO */
+.video-tip{background:var(--surface2);border:1px solid var(--border-med);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:12px;font-size:11.5px;line-height:1.7;color:var(--mauve)}
+.add-video-btn{width:100%;padding:9px;background:var(--surface2);border:1.5px dashed var(--blush);border-radius:var(--r-sm);font-family:var(--sans);font-size:11px;color:var(--mauve);cursor:pointer;text-align:center;transition:all 0.15s;margin-bottom:8px}
+.add-video-btn:hover{border-color:var(--rose);color:var(--deep-rose)}
+.video-url-entry{background:white;border:1px solid var(--border-med);border-radius:var(--r-sm);padding:12px;margin-bottom:8px;position:relative}
+.video-url-entry .remove-entry{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--rose);font-size:18px;cursor:pointer}
+.video-url-entry input{margin-bottom:6px}
+.video-url-preview{margin-top:8px;border-radius:var(--r-xs);overflow:hidden}
+.video-url-preview iframe{width:100%;height:175px;border:none;border-radius:var(--r-xs)}
+.open-link{display:flex;align-items:center;gap:8px;background:var(--ink2);border-radius:var(--r-xs);padding:10px 12px;text-decoration:none;cursor:pointer}
+.open-link-icon{font-size:20px}
+.open-link-text{font-size:12px;font-weight:500;color:var(--gold)}
+.open-link-sub{font-size:10px;color:rgba(247,242,236,0.45);margin-top:1px}
 
-.badge { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 9px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
-.badge-beginner    { background: #e5f0e5; color: #3d6b42; }
-.badge-intermediate{ background: #f6ede0; color: #8a5520; }
-.badge-advanced    { background: #f0e3e3; color: #8a3030; }
-.badge-gold        { background: var(--gold); color: var(--ink); }
-.badge-sage        { background: #e2ede3; color: #4a7050; }
+/* VIDEO GALLERY */
+.video-gallery{display:flex;flex-direction:column;gap:8px}
+.video-entry{background:white;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden}
+.video-entry-head{padding:8px 12px;background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
+.video-entry-date{font-size:10.5px;font-weight:600;color:var(--ink)}
+.video-entry-tag{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600}
+.tag-teacher{background:var(--blush);color:var(--deep-rose)}
+.tag-student{background:#e2ede3;color:#3d6b42}
+.tag-best{background:var(--gold);color:var(--ink)}
+.video-entry-body{padding:10px 12px}
+.video-entry-title{font-size:12px;font-weight:600;margin-bottom:3px}
+.video-entry-sub{font-size:10.5px;color:var(--mauve);margin-bottom:6px}
+.sort-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.sort-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--mauve)}
+.sort-btn{padding:4px 10px;border-radius:20px;border:1px solid var(--border-med);background:var(--surface);font-size:10px;font-family:var(--sans);cursor:pointer;color:var(--mauve)}
+.sort-btn.active{background:var(--ink2);border-color:var(--ink2);color:var(--gold)}
 
-input[type="text"], input[type="url"], input[type="date"], input[type="email"], select {
-  width: 100%; border: 1px solid var(--border-med); border-radius: var(--r-sm);
-  padding: 9px 12px; font-family: var(--sans); font-size: 13px; color: var(--ink);
-  background: white; outline: none; margin-bottom: 10px; appearance: none;
-}
-input:focus, select:focus, textarea:focus { border-color: var(--rose); box-shadow: 0 0 0 3px rgba(201,148,138,0.12); }
-textarea { width: 100%; border: 1px solid var(--border-med); border-radius: var(--r-sm); padding: 9px 12px; font-family: var(--sans); font-size: 13px; color: var(--ink); background: white; outline: none; resize: vertical; min-height: 72px; margin-bottom: 10px; }
+/* STEPS */
+.steps-list{list-style:none}
+.step-item{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--border)}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--blush);color:var(--deep-rose);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.step-text{font-size:12.5px;color:var(--ink);padding-top:2px;line-height:1.55}
+.next-move-btn{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-xs);padding:10px 13px;margin-bottom:6px;cursor:pointer;width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;transition:background 0.15s}
+.next-move-btn:hover{background:var(--blush)}
+.next-move-name{font-size:13px;font-weight:500}
+.next-move-hint{font-size:10px;color:var(--mauve);margin-top:2px}
 
-.btn-primary   { background: var(--deep-rose); color: white; border: none; border-radius: var(--r-sm); padding: 10px 20px; font-family: var(--sans); font-size: 12px; font-weight: 600; cursor: pointer; letter-spacing: 0.3px; transition: opacity 0.15s; }
-.btn-primary:active { opacity: 0.82; }
-.btn-secondary { background: none; border: 1px solid var(--border-med); border-radius: var(--r-sm); padding: 9px 16px; font-size: 12px; font-family: var(--sans); color: var(--mauve); cursor: pointer; }
-.btn-gold      { background: var(--gold); color: var(--ink); border: none; border-radius: var(--r-sm); padding: 10px 20px; font-family: var(--sans); font-size: 12px; font-weight: 600; cursor: pointer; }
-.btn-row       { display: flex; gap: 8px; margin-top: 6px; }
-.btn-full      { width: 100%; text-align: center; display: block; }
+/* ADVENTURE */
+.adv-card{background:var(--ink);border-radius:var(--r);padding:20px;margin-bottom:12px;position:relative;overflow:hidden}
+.adv-card::after{content:'';position:absolute;bottom:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:rgba(200,169,126,0.07);pointer-events:none}
+.adv-label{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.adv-title{font-family:var(--serif);font-size:21px;font-weight:300;color:var(--parchment);font-style:italic;margin-bottom:14px;line-height:1.3}
+.adv-choice{background:rgba(247,242,236,0.07);border:1px solid rgba(200,169,126,0.18);border-radius:var(--r-sm);padding:10px 13px;margin-bottom:7px;cursor:pointer;width:100%;text-align:left;transition:background 0.15s}
+.adv-choice:hover{background:rgba(200,169,126,0.15)}
+.adv-choice-name{font-size:13px;font-weight:500;color:var(--parchment)}
+.adv-choice-hint{font-size:10px;color:rgba(200,169,126,0.65);margin-top:2px}
+.adv-crumbs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.adv-crumb{background:rgba(247,242,236,0.1);padding:2px 8px;border-radius:20px;font-size:9px;color:rgba(247,242,236,0.55)}
 
-/* ════════════════════════════════════════════
-   CARDS
-════════════════════════════════════════════ */
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); }
-.card-body { padding: 14px 16px; }
-.card-header { padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface2); display: flex; align-items: center; justify-content: space-between; }
-.card-title { font-size: 14px; font-weight: 600; }
+/* SEQUENCES */
+.seq-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
+.seq-head{padding:12px 14px;background:var(--surface2);display:flex;align-items:flex-start;justify-content:space-between}
+.seq-name{font-size:14px;font-weight:600;margin-bottom:3px}
+.seq-flow{padding:10px 14px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.flow-pill{background:var(--blush);color:var(--deep-rose);padding:3px 9px;border-radius:20px;font-size:10px;font-weight:500}
+.flow-arrow{color:var(--rose);font-size:11px}
+.seq-note-text{padding:0 14px 12px;font-size:11.5px;color:var(--mauve);font-style:italic}
 
-/* ════════════════════════════════════════════
-   FILTER ROW
-════════════════════════════════════════════ */
-.filter-row { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
-.filter-btn { padding: 5px 12px; border-radius: 20px; border: 1px solid var(--border-med); background: var(--surface); font-size: 10px; font-family: var(--sans); cursor: pointer; color: var(--mauve); transition: all 0.15s; }
-.filter-btn.active { background: var(--deep-rose); border-color: var(--deep-rose); color: white; font-weight: 600; }
+/* INSPIRATION */
+.insp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;cursor:pointer;box-shadow:var(--shadow)}
+.insp-thumb{height:80px;background:var(--ink2);display:flex;align-items:center;justify-content:center;position:relative}
+.insp-thumb-glyph{font-family:var(--serif);font-size:42px;color:rgba(200,169,126,0.25);font-style:italic}
+.insp-info{padding:11px 14px 8px}
+.insp-title{font-size:13px;font-weight:600;margin-bottom:3px}
+.insp-url{font-size:10px;color:var(--rose);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px}
+.insp-parsed-line{font-size:11px;color:var(--mauve)}
+.insp-actions{display:flex;gap:6px;padding:0 14px 12px}
+.insp-action{flex:1;padding:7px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-xs);font-size:10px;font-weight:600;color:var(--deep-rose);cursor:pointer;text-align:center}
+.ai-parse-wrap{background:linear-gradient(135deg,#12090f 0%,#1e1020 100%);border-radius:var(--r);padding:16px;margin-top:10px}
+.ai-parse-title{font-family:var(--serif);font-size:16px;font-style:italic;color:var(--parchment);margin-bottom:3px}
+.ai-parse-sub{font-size:9.5px;color:var(--gold);letter-spacing:0.5px;margin-bottom:12px}
+.ai-move-card{background:rgba(247,242,236,0.05);border:1px solid rgba(200,169,126,0.13);border-radius:var(--r-xs);padding:11px;margin-bottom:7px}
+.ai-move-name{font-size:13px;font-weight:500;color:var(--parchment)}
+.ai-move-detail{font-size:11px;color:rgba(200,169,126,0.75);margin-top:3px;line-height:1.5}
+.ai-tip{font-size:10.5px;color:var(--gold);margin-top:4px}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:aipulse 1.2s ease-in-out infinite;display:inline-block;margin-right:3px}
+.ai-dot:nth-child(2){animation-delay:0.2s}
+.ai-dot:nth-child(3){animation-delay:0.4s}
+@keyframes aipulse{0%,80%,100%{opacity:0.25;transform:scale(0.75)}40%{opacity:1;transform:scale(1)}}
 
-/* ════════════════════════════════════════════
-   MOVE CARDS (student view)
-════════════════════════════════════════════ */
-.move-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 8px; cursor: pointer; box-shadow: var(--shadow); transition: transform 0.13s; }
-.move-card:active { transform: scale(0.985); }
-.move-card-inner { padding: 12px 14px; display: flex; align-items: center; gap: 12px; }
-.move-icon { width: 38px; height: 38px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
-.move-info { flex: 1; min-width: 0; }
-.move-name { font-size: 14px; font-weight: 500; }
-.move-meta { font-size: 10.5px; color: var(--mauve); margin-top: 2px; }
-.move-check { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--blush); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 11px; color: transparent; transition: all 0.2s; }
-.move-check.done { background: var(--sage); border-color: var(--sage); color: white; }
+/* TEACHER */
+.teacher-hero{background:linear-gradient(135deg,var(--ink) 0%,#2a1428 100%);border-radius:var(--r);padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.teacher-hero::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(200,169,126,0.08)}
+.teacher-hero-title{font-family:var(--serif);font-size:20px;font-style:italic;font-weight:300;color:var(--parchment);margin-bottom:4px}
+.teacher-hero-sub{font-size:10px;color:var(--gold);letter-spacing:0.5px}
 
-/* ════════════════════════════════════════════
-   DETAIL OVERLAY
-════════════════════════════════════════════ */
-.overlay { display: none; position: fixed; inset: 0; background: var(--parchment); z-index: 200; overflow-y: auto; max-width: 430px; margin: 0 auto; animation: slideUp 0.22s ease; }
-.overlay.open { display: block; }
-@keyframes slideUp { from { transform: translateY(18px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+/* CLASS CARDS */
+.class-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
+.class-card-head{background:var(--ink2);padding:13px 15px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.class-card-title{font-size:14px;font-weight:600;color:var(--parchment)}
+.class-card-meta{font-size:10px;color:rgba(247,242,236,0.45);margin-top:2px}
+.class-card-date{font-size:10px;color:var(--gold)}
+.class-expand-icon{color:rgba(247,242,236,0.4);font-size:12px;transition:transform 0.2s}
+.class-expand-icon.open{transform:rotate(180deg)}
+.class-card-body{padding:12px 15px;display:none}
+.class-card-body.open{display:block}
 
-.overlay-header { background: var(--ink); padding: 18px; position: sticky; top: 0; z-index: 10; }
-.back-btn { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.18); color: var(--parchment); padding: 5px 12px; border-radius: 20px; font-size: 11px; cursor: pointer; margin-bottom: 12px; display: inline-flex; align-items: center; gap: 5px; font-family: var(--sans); }
-.overlay-title { font-family: var(--serif); font-size: 26px; font-weight: 300; font-style: italic; color: var(--parchment); line-height: 1.2; }
-.overlay-body { padding: 16px; }
+/* STUDENT ROWS */
+.student-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.student-row:last-child{border-bottom:none}
+.student-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blush),var(--rose));display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:16px;color:white;font-style:italic;flex-shrink:0}
+.student-row-name{font-size:13px;font-weight:500}
+.student-row-meta{font-size:10.5px;color:var(--mauve);margin-top:1px}
 
-/* ════════════════════════════════════════════
-   VIDEO BLOCKS
-════════════════════════════════════════════ */
-.video-block { background: white; border: 1px solid var(--border-med); border-radius: var(--r); overflow: hidden; margin-bottom: 12px; }
-.video-block-label { font-size: 8.5px; text-transform: uppercase; letter-spacing: 1.5px; color: var(--mauve); font-weight: 500; padding: 11px 14px 0; display: block; }
-.vtabs { display: flex; border-bottom: 1px solid var(--border); }
-.vtab { flex: 1; padding: 7px 8px; background: none; border: none; border-bottom: 2px solid transparent; font-size: 10px; font-family: var(--sans); color: var(--mauve); cursor: pointer; transition: all 0.15s; letter-spacing: 0.3px; }
-.vtab.active { color: var(--deep-rose); border-bottom-color: var(--deep-rose); }
-.vtab-body { padding: 12px 14px 13px; }
-.vpanel { display: none; }
-.vpanel.active { display: block; }
+/* LESSON TIMELINE */
+.lesson-entry{border-left:2px solid var(--blush);padding:10px 14px;margin-bottom:10px;position:relative}
+.lesson-entry::before{content:'';position:absolute;left:-5px;top:14px;width:8px;height:8px;border-radius:50%;background:var(--rose)}
+.lesson-date-label{font-size:9.5px;font-weight:600;color:var(--deep-rose);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:3px}
+.lesson-title-text{font-size:13px;font-weight:600;margin-bottom:4px}
+.lesson-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px}
+.lesson-pill{padding:2px 8px;border-radius:20px;font-size:9.5px;font-weight:500}
+.pill-moves{background:var(--blush);color:var(--deep-rose)}
+.pill-achieve{background:#e2ede3;color:#3d6b42}
+.pill-help{background:#f6ede0;color:#8a5520}
+.lesson-notes-text{font-size:11.5px;color:var(--mauve);margin-bottom:6px;line-height:1.5}
+.lesson-video-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.lesson-video-chip{display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:10.5px;cursor:pointer;text-decoration:none;color:var(--ink)}
 
-.upload-zone { border: 1.5px dashed var(--blush); border-radius: var(--r-sm); padding: 18px 14px; text-align: center; cursor: pointer; position: relative; transition: all 0.15s; }
-.upload-zone:hover { border-color: var(--rose); background: #fdf5f2; }
-.upload-zone input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
-.upload-zone p { font-size: 11.5px; color: var(--mauve); line-height: 1.5; margin-top: 6px; }
-.upload-zone strong { color: var(--deep-rose); }
-.upload-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--surface2); display: flex; align-items: center; justify-content: center; margin: 0 auto 6px; }
+/* STUDENT NOTES SECTION */
+.student-note-entry{background:white;border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;margin-bottom:8px}
+.student-note-date{font-size:9.5px;color:var(--rose);font-weight:600;margin-bottom:4px;text-transform:uppercase;letter-spacing:0.5px}
+.student-note-text{font-size:12.5px;color:var(--ink);line-height:1.55}
 
-.video-preview { margin-bottom: 8px; position: relative; }
-.video-preview video { width: 100%; border-radius: var(--r-sm); max-height: 170px; background: #0f0a0d; display: block; }
-.remove-btn { position: absolute; top: 7px; right: 7px; background: rgba(18,13,16,0.7); border: none; color: white; width: 24px; height: 24px; border-radius: 50%; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-.file-chip { background: var(--surface2); border-radius: var(--r-xs); padding: 8px 11px; display: flex; align-items: center; gap: 8px; font-size: 11px; }
-.file-chip-name { font-weight: 500; color: var(--ink); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.file-chip-size { color: var(--mauve); flex-shrink: 0; }
+/* PROGRESS */
+.prog-hero{background:var(--ink);border-radius:var(--r);padding:22px;text-align:center;margin-bottom:12px}
+.prog-pct{font-family:var(--serif);font-size:60px;font-weight:300;color:var(--gold);font-style:italic;line-height:1}
+.prog-sub{font-size:10.5px;color:rgba(247,242,236,0.45);margin-top:5px;letter-spacing:0.5px}
+.stat-row{display:flex;gap:8px;margin-bottom:8px}
+.stat-box{flex:1;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px;text-align:center;box-shadow:var(--shadow)}
+.stat-num{font-family:var(--serif);font-size:26px;font-weight:300;color:var(--deep-rose)}
+.stat-label{font-size:8.5px;text-transform:uppercase;letter-spacing:1px;color:var(--mauve);margin-top:2px}
 
-.camera-btn { width: 100%; padding: 12px; background: var(--surface2); border: 1px solid var(--border-med); border-radius: var(--r-sm); font-family: var(--sans); font-size: 13px; color: var(--deep-rose); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 500; transition: background 0.15s; margin-bottom: 8px; }
-.camera-btn:hover { background: var(--blush); }
-
-/* ════════════════════════════════════════════
-   VIDEO GALLERY (date sorted)
-════════════════════════════════════════════ */
-.video-gallery { display: flex; flex-direction: column; gap: 10px; }
-.video-entry { background: white; border: 1px solid var(--border); border-radius: var(--r-sm); overflow: hidden; }
-.video-entry-header { padding: 9px 12px; background: var(--surface2); display: flex; align-items: center; justify-content: space-between; }
-.video-entry-date { font-size: 11px; font-weight: 600; color: var(--ink); }
-.video-entry-tag { font-size: 9px; color: var(--mauve); letter-spacing: 0.5px; text-transform: uppercase; }
-.video-entry-body { padding: 10px 12px; }
-.video-thumb { width: 100%; height: 130px; background: #0f0a0d; border-radius: var(--r-xs); display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; margin-bottom: 6px; overflow: hidden; }
-.video-thumb video { width: 100%; height: 100%; object-fit: cover; }
-.video-thumb-play { position: absolute; width: 40px; height: 40px; border-radius: 50%; background: rgba(200,169,126,0.85); display: flex; align-items: center; justify-content: center; pointer-events: none; }
-.video-title { font-size: 12px; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
-.video-notes-text { font-size: 11px; color: var(--mauve); }
-
-/* ════════════════════════════════════════════
-   ADVENTURE
-════════════════════════════════════════════ */
-.adv-card { background: var(--ink); border-radius: var(--r); padding: 20px; margin-bottom: 12px; position: relative; overflow: hidden; }
-.adv-card::after { content: ''; position: absolute; bottom: -40px; right: -40px; width: 130px; height: 130px; border-radius: 50%; background: rgba(200,169,126,0.07); pointer-events: none; }
-.adv-label { font-size: 8px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold); margin-bottom: 5px; }
-.adv-title { font-family: var(--serif); font-size: 21px; font-weight: 300; color: var(--parchment); font-style: italic; margin-bottom: 14px; line-height: 1.3; }
-.adv-choice { background: rgba(247,242,236,0.07); border: 1px solid rgba(200,169,126,0.18); border-radius: var(--r-sm); padding: 10px 13px; margin-bottom: 7px; cursor: pointer; width: 100%; text-align: left; transition: background 0.15s; }
-.adv-choice:hover { background: rgba(200,169,126,0.15); }
-.adv-choice-name { font-size: 13px; font-weight: 500; color: var(--parchment); }
-.adv-choice-hint { font-size: 10px; color: rgba(200,169,126,0.65); margin-top: 2px; }
-.adv-crumbs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
-.adv-crumb { background: rgba(247,242,236,0.1); padding: 2px 8px; border-radius: 20px; font-size: 9px; color: rgba(247,242,236,0.55); }
-
-/* ════════════════════════════════════════════
-   SEQUENCES
-════════════════════════════════════════════ */
-.seq-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 10px; overflow: hidden; box-shadow: var(--shadow); }
-.seq-head { padding: 12px 14px; background: var(--surface2); display: flex; align-items: flex-start; justify-content: space-between; }
-.seq-name { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
-.seq-flow { padding: 10px 14px; display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
-.flow-pill { background: var(--blush); color: var(--deep-rose); padding: 3px 9px; border-radius: 20px; font-size: 10px; font-weight: 500; }
-.flow-arrow { color: var(--rose); font-size: 11px; }
-.seq-note-text { padding: 0 14px 12px; font-size: 11.5px; color: var(--mauve); font-style: italic; }
-
-/* ════════════════════════════════════════════
-   INSPIRATION
-════════════════════════════════════════════ */
-.insp-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 10px; overflow: hidden; cursor: pointer; box-shadow: var(--shadow); }
-.insp-thumb { height: 88px; background: var(--ink2); display: flex; align-items: center; justify-content: center; position: relative; }
-.insp-thumb-glyph { font-family: var(--serif); font-size: 42px; color: rgba(200,169,126,0.25); font-style: italic; }
-.insp-info { padding: 11px 14px 12px; }
-.insp-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
-.insp-url { font-size: 10px; color: var(--rose); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-bottom: 5px; }
-.insp-parsed-line { font-size: 11px; color: var(--mauve); }
-.insp-actions { display: flex; gap: 6px; padding: 0 14px 12px; }
-.insp-action { flex: 1; padding: 7px; background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r-xs); font-size: 10px; font-weight: 600; color: var(--deep-rose); cursor: pointer; text-align: center; }
-
-.ai-parse-wrap { background: linear-gradient(135deg, #12090f 0%, #1e1020 100%); border-radius: var(--r); padding: 16px; margin-top: 10px; }
-.ai-parse-title { font-family: var(--serif); font-size: 16px; font-style: italic; color: var(--parchment); margin-bottom: 3px; }
-.ai-parse-sub { font-size: 9.5px; color: var(--gold); letter-spacing: 0.5px; margin-bottom: 12px; }
-.ai-move-card { background: rgba(247,242,236,0.05); border: 1px solid rgba(200,169,126,0.13); border-radius: var(--r-xs); padding: 11px; margin-bottom: 7px; }
-.ai-move-name { font-size: 13px; font-weight: 500; color: var(--parchment); }
-.ai-move-detail { font-size: 11px; color: rgba(200,169,126,0.75); margin-top: 3px; line-height: 1.5; }
-.ai-tip { font-size: 10.5px; color: var(--gold); margin-top: 4px; }
-.ai-loading { display: flex; align-items: center; gap: 9px; padding: 10px 0; }
-.ai-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--gold); animation: aipulse 1.2s ease-in-out infinite; }
-.ai-dot:nth-child(2) { animation-delay: 0.2s; }
-.ai-dot:nth-child(3) { animation-delay: 0.4s; }
-@keyframes aipulse { 0%,80%,100%{opacity:0.25;transform:scale(0.75)}40%{opacity:1;transform:scale(1)} }
-.ai-loading-text { font-size: 12px; color: rgba(200,169,126,0.6); }
-
-/* ════════════════════════════════════════════
-   TEACHER VIEW
-════════════════════════════════════════════ */
-.teacher-header { background: linear-gradient(135deg, var(--ink) 0%, #2a1428 100%); border-radius: var(--r); padding: 18px; margin-bottom: 14px; position: relative; overflow: hidden; }
-.teacher-header::before { content: ''; position: absolute; top: -20px; right: -20px; width: 100px; height: 100px; border-radius: 50%; background: rgba(200,169,126,0.08); }
-.teacher-title { font-family: var(--serif); font-size: 20px; font-style: italic; font-weight: 300; color: var(--parchment); margin-bottom: 4px; }
-.teacher-sub { font-size: 10px; color: var(--gold); letter-spacing: 0.5px; }
-
-.student-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 9px; overflow: hidden; cursor: pointer; box-shadow: var(--shadow); transition: transform 0.13s; }
-.student-card:active { transform: scale(0.985); }
-.student-card-inner { padding: 13px 15px; display: flex; align-items: center; gap: 12px; }
-.student-avatar { width: 42px; height: 42px; border-radius: 50%; background: linear-gradient(135deg, var(--blush), var(--rose)); display: flex; align-items: center; justify-content: center; font-family: var(--serif); font-size: 18px; color: white; font-style: italic; flex-shrink: 0; }
-.student-info { flex: 1; min-width: 0; }
-.student-name { font-size: 14px; font-weight: 600; }
-.student-meta { font-size: 11px; color: var(--mauve); margin-top: 2px; }
-.student-arrow { color: var(--rose); font-size: 16px; }
-
-.class-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 9px; overflow: hidden; box-shadow: var(--shadow); }
-.class-card-head { background: var(--ink2); padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; }
-.class-card-title { font-size: 14px; font-weight: 600; color: var(--parchment); }
-.class-card-date { font-size: 10px; color: var(--gold); }
-.class-card-body { padding: 12px 15px; }
-
-.lesson-entry { border-left: 2px solid var(--blush); padding: 10px 14px; margin-bottom: 10px; }
-.lesson-date { font-size: 10px; font-weight: 600; color: var(--deep-rose); letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 4px; }
-.lesson-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
-.lesson-meta { font-size: 11px; color: var(--mauve); margin-bottom: 6px; }
-.lesson-pills { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 6px; }
-.lesson-pill { padding: 2px 8px; border-radius: 20px; font-size: 9.5px; font-weight: 500; }
-.pill-moves   { background: var(--blush); color: var(--deep-rose); }
-.pill-achieve { background: #e2ede3; color: #3d6b42; }
-.pill-help    { background: #f6ede0; color: #8a5520; }
-
-.lesson-video-list { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
-.lesson-video-item { background: var(--surface2); border-radius: var(--r-xs); padding: 8px 11px; display: flex; align-items: center; gap: 8px; cursor: pointer; }
-.lesson-video-icon { font-size: 16px; }
-.lesson-video-info { flex: 1; min-width: 0; }
-.lesson-video-name { font-size: 11.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.lesson-video-sub { font-size: 10px; color: var(--mauve); }
-.lesson-video-tag { font-size: 9px; padding: 2px 7px; border-radius: 20px; background: var(--gold-pale); color: var(--deep-rose); font-weight: 600; flex-shrink: 0; }
-
-/* ════════════════════════════════════════════
-   PROGRESS
-════════════════════════════════════════════ */
-.prog-hero { background: var(--ink); border-radius: var(--r); padding: 22px; text-align: center; margin-bottom: 12px; }
-.prog-pct { font-family: var(--serif); font-size: 60px; font-weight: 300; color: var(--gold); font-style: italic; line-height: 1; }
-.prog-sub { font-size: 10.5px; color: rgba(247,242,236,0.45); margin-top: 5px; letter-spacing: 0.5px; }
-.stat-row { display: flex; gap: 8px; margin-bottom: 8px; }
-.stat-box { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-sm); padding: 12px; text-align: center; box-shadow: var(--shadow); }
-.stat-num { font-family: var(--serif); font-size: 26px; font-weight: 300; color: var(--deep-rose); }
-.stat-label { font-size: 8.5px; text-transform: uppercase; letter-spacing: 1px; color: var(--mauve); margin-top: 2px; }
-
-/* ════════════════════════════════════════════
-   FAB & TOAST
-════════════════════════════════════════════ */
-.fab { position: fixed; bottom: 20px; right: 16px; width: 50px; height: 50px; border-radius: 50%; background: var(--deep-rose); color: white; border: none; font-size: 22px; cursor: pointer; box-shadow: 0 4px 18px rgba(158,94,84,0.42); display: flex; align-items: center; justify-content: center; z-index: 150; }
-.toast { position: fixed; bottom: 84px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--parchment); padding: 8px 18px; border-radius: 20px; font-size: 12px; z-index: 400; opacity: 0; transition: opacity 0.25s; pointer-events: none; white-space: nowrap; border: 1px solid rgba(200,169,126,0.25); }
-.toast.show { opacity: 1; }
-
-/* ════════════════════════════════════════════
-   INSTALL BANNER
-════════════════════════════════════════════ */
-.install-banner { background: var(--deep-rose); color: white; padding: 9px 14px; display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
-.install-banner p { font-size: 11px; line-height: 1.4; flex: 1; }
-.install-banner strong { display: block; font-size: 12px; font-weight: 600; }
-.install-x { background: none; border: none; color: rgba(255,255,255,0.55); font-size: 18px; cursor: pointer; padding: 0 2px; flex-shrink: 0; }
-
-.spacer-80 { height: 80px; }
-.mt-4 { margin-top: 4px; }
-.mt-8 { margin-top: 8px; }
-.mt-12 { margin-top: 12px; }
-.clearfix::after { content: ''; display: table; clear: both; }
-
-/* Sort controls */
-.sort-row { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
-.sort-label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--mauve); }
-.sort-btn { padding: 4px 10px; border-radius: 20px; border: 1px solid var(--border-med); background: var(--surface); font-size: 10px; font-family: var(--sans); cursor: pointer; color: var(--mauve); }
-.sort-btn.active { background: var(--ink2); border-color: var(--ink2); color: var(--gold); }
-
-/* Step list */
-.steps-list { list-style: none; }
-.step-item { display: flex; gap: 11px; padding: 9px 0; border-bottom: 1px solid var(--border); }
-.step-num { width: 22px; height: 22px; border-radius: 50%; background: var(--blush); color: var(--deep-rose); display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; flex-shrink: 0; }
-.step-text { font-size: 12.5px; color: var(--ink); padding-top: 2px; line-height: 1.55; }
-
-/* Next move btns */
-.next-move-btn { background: var(--surface2); border: 1px solid var(--border); border-radius: var(--r-xs); padding: 10px 13px; margin-bottom: 6px; cursor: pointer; width: 100%; text-align: left; display: flex; align-items: center; justify-content: space-between; transition: background 0.15s; }
-.next-move-btn:hover { background: var(--blush); }
-.next-move-name { font-size: 13px; font-weight: 500; }
-.next-move-hint { font-size: 10px; color: var(--mauve); margin-top: 2px; }
+.fab{position:fixed;bottom:20px;right:16px;width:50px;height:50px;border-radius:50%;background:var(--deep-rose);color:white;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 18px rgba(158,94,84,0.42);display:flex;align-items:center;justify-content:center;z-index:150}
+.toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--parchment);padding:8px 18px;border-radius:20px;font-size:12px;z-index:400;opacity:0;transition:opacity 0.25s;pointer-events:none;white-space:nowrap;border:1px solid rgba(200,169,126,0.25)}
+.toast.show{opacity:1}
+.spacer-80{height:80px}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}
+.empty-state{font-size:13px;color:var(--mauve);font-style:italic;padding:8px 0}
+.divider{height:1px;background:var(--border);margin:12px 0}
+.sync-indicator{font-size:9px;color:var(--gold);letter-spacing:0.5px;display:flex;align-items:center;gap:4px}
+.sync-dot{width:5px;height:5px;border-radius:50%;background:var(--sage)}
 </style>
 </head>
 <body>
-<div class="app-shell">
 
-  <!-- INSTALL BANNER -->
-  <div id="install-banner" class="install-banner">
-    <p><strong>Install Silk & Flow</strong>iOS: Share → Add to Home Screen · Android: ⋮ → Install App</p>
-    <button class="install-x" onclick="this.parentElement.style.display='none'">×</button>
+<!-- LOADING -->
+<div id="loading-screen" class="loading-screen">
+  <div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
+</div>
+
+<!-- AUTH -->
+<div id="auth-screen" class="auth-screen hidden">
+  <div class="auth-hero">
+    <div class="auth-eyebrow">Aerial Silks</div>
+    <div class="auth-title">Silk & Flow</div>
+    <div class="auth-tagline">Learn · Teach · Ascend</div>
+    <div class="auth-form">
+      <div class="auth-tabs">
+        <button class="auth-tab active" onclick="switchAuthTab('signin')">Sign In</button>
+        <button class="auth-tab" onclick="switchAuthTab('signup')">Create Account</button>
+      </div>
+      <!-- SIGN IN -->
+      <div id="signin-form">
+        <div class="auth-field"><label>Email</label><input type="email" id="signin-email" placeholder="you@email.com"></div>
+        <div class="auth-field"><label>Password</label><input type="password" id="signin-password" placeholder="••••••••"></div>
+        <button class="auth-btn" onclick="signIn()">Sign In</button>
+        <div id="signin-error" class="auth-error"></div>
+      </div>
+      <!-- SIGN UP -->
+      <div id="signup-form" style="display:none">
+        <div class="auth-field"><label>Full Name</label><input type="text" id="signup-name" placeholder="Your name"></div>
+        <div class="auth-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@email.com"></div>
+        <div class="auth-field"><label>Password</label><input type="password" id="signup-password" placeholder="Min. 6 characters"></div>
+        <div class="auth-field"><label>I am a</label>
+          <select id="signup-role">
+            <option value="student">Student</option>
+            <option value="teacher">Teacher</option>
+          </select>
+        </div>
+        <button class="auth-btn" onclick="signUp()">Create Account</button>
+        <div id="signup-error" class="auth-error"></div>
+      </div>
+    </div>
   </div>
+  <div class="auth-footer">Your data is private & secure · Synced across all your devices</div>
+</div>
 
-  <!-- HEADER -->
+<!-- MAIN APP -->
+<div id="app-shell" class="app-shell" style="display:none">
   <div class="app-header">
     <div class="app-eyebrow">Aerial Silks</div>
     <div class="header-row">
-      <div class="app-title">Silk & Flow</div>
-      <div class="mode-toggle">
-        <button class="mode-btn active" id="mode-student" onclick="setMode('student')">Student</button>
-        <button class="mode-btn" id="mode-teacher" onclick="setMode('teacher')">Teacher</button>
+      <div>
+        <div class="app-title">Silk & Flow</div>
+        <div class="user-chip" id="user-chip"></div>
+      </div>
+      <div class="header-right">
+        <div class="mode-toggle" id="mode-toggle" style="display:none">
+          <button class="mode-btn active" id="mode-student" onclick="setMode('student')">Student</button>
+          <button class="mode-btn" id="mode-teacher" onclick="setMode('teacher')">Teacher</button>
+        </div>
+        <button class="signout-btn" onclick="signOut()">Sign out</button>
       </div>
     </div>
   </div>
 
-  <!-- STUDENT TABS -->
   <div id="student-tabs" class="tab-bar">
     <button class="tab-btn active" onclick="showTab('moves',this,'student-tabs')">Moves</button>
     <button class="tab-btn" onclick="showTab('adventure',this,'student-tabs')">Adventure</button>
     <button class="tab-btn" onclick="showTab('sequences',this,'student-tabs')">Sequences</button>
     <button class="tab-btn" onclick="showTab('inspiration',this,'student-tabs')">Inspiration ✦</button>
+    <button class="tab-btn" onclick="showTab('my-lessons',this,'student-tabs')">My Lessons</button>
     <button class="tab-btn" onclick="showTab('progress',this,'student-tabs')">Progress</button>
   </div>
-
-  <!-- TEACHER TABS -->
   <div id="teacher-tabs" class="tab-bar" style="display:none">
     <button class="tab-btn active" onclick="showTab('t-classes',this,'teacher-tabs')">Classes</button>
     <button class="tab-btn" onclick="showTab('t-students',this,'teacher-tabs')">Students</button>
-    <button class="tab-btn" onclick="showTab('t-lesson',this,'teacher-tabs')">Log Lesson</button>
   </div>
 
   <div class="main-scroll">
-    <!-- ── STUDENT SCREENS ── -->
     <div id="screen-moves" class="screen active">
       <div class="filter-row">
         <button class="filter-btn active" onclick="filterMoves('all',this)">All</button>
@@ -400,1034 +358,818 @@ textarea { width: 100%; border: 1px solid var(--border-med); border-radius: var(
       </div>
       <div id="moves-list"></div>
     </div>
-
-    <div id="screen-adventure" class="screen">
-      <div id="adventure-container"></div>
-    </div>
-
+    <div id="screen-adventure" class="screen"><div id="adventure-container"></div></div>
     <div id="screen-sequences" class="screen">
       <div id="sequences-list"></div>
-      <button class="fab" onclick="openOverlay('add-seq-overlay')">+</button>
+      <button class="fab" onclick="openOv('add-seq-ov')">+</button>
     </div>
-
     <div id="screen-inspiration" class="screen">
       <div class="card"><div class="card-body">
         <div style="font-family:var(--serif);font-size:18px;font-style:italic;margin-bottom:12px">Save a reel</div>
-        <label class="field-label">Instagram / Video URL</label>
-        <input type="url" id="reel-url" placeholder="https://www.instagram.com/reel/...">
-        <label class="field-label">Title</label>
-        <input type="text" id="reel-title" placeholder="e.g. Cross Back Straddle entries">
-        <label class="field-label">Paste caption or describe what you saw</label>
-        <textarea id="reel-caption" rows="4" placeholder="Paste the caption, or describe the moves..."></textarea>
-        <label class="field-label">Your notes</label>
-        <input type="text" id="reel-notes" placeholder="What to try first, why you saved it...">
-        <div class="btn-row">
-          <button class="btn-secondary" onclick="saveReelOnly()">Save link only</button>
-          <button class="btn-gold" onclick="parseAndSave()">✦ Parse with AI</button>
-        </div>
+        <label class="field-label">Instagram / Video URL</label><input type="url" id="reel-url" placeholder="https://www.instagram.com/reel/...">
+        <label class="field-label">Title</label><input type="text" id="reel-title" placeholder="e.g. Cross Back Straddle entries">
+        <label class="field-label">Paste caption or describe what you saw</label><textarea id="reel-caption" rows="4" placeholder="Paste the caption, or describe the moves..."></textarea>
+        <label class="field-label">Your notes</label><input type="text" id="reel-notes" placeholder="What to try, why you saved it...">
+        <div class="btn-row"><button class="btn-secondary" onclick="saveReelOnly()">Save link only</button><button class="btn-gold" onclick="parseAndSave()">✦ Parse with AI</button></div>
       </div></div>
-      <div class="sec">Saved Reels</div>
-      <div id="inspiration-list"></div>
+      <div class="sec">Saved Reels</div><div id="inspiration-list"></div>
     </div>
-
-    <div id="screen-progress" class="screen">
-      <div id="progress-content"></div>
+    <div id="screen-my-lessons" class="screen">
+      <div class="teacher-hero"><div class="teacher-hero-title">My Lessons</div><div class="teacher-hero-sub">Lessons logged by your teacher · tap to view</div></div>
+      <div id="my-lessons-list"></div>
     </div>
-
-    <!-- ── TEACHER SCREENS ── -->
+    <div id="screen-progress" class="screen"><div id="progress-content"></div></div>
     <div id="screen-t-classes" class="screen" style="display:none">
-      <div class="teacher-header">
-        <div class="teacher-title">My Classes</div>
-        <div class="teacher-sub">Manage sessions & student progress</div>
-      </div>
+      <div class="teacher-hero"><div class="teacher-hero-title">Classes</div><div class="teacher-hero-sub">Tap to expand · tap a student to view their full record</div></div>
       <div id="classes-list"></div>
-      <button class="btn-primary btn-full mt-8" onclick="openOverlay('add-class-overlay')">+ New Class</button>
+      <button class="btn-primary btn-full mt-8" onclick="openAddClassOv()">+ New Class</button>
     </div>
-
     <div id="screen-t-students" class="screen" style="display:none">
-      <div class="sec" style="margin-top:0">All Students</div>
+      <div class="teacher-hero"><div class="teacher-hero-title">Students</div><div class="teacher-hero-sub">Tap any student to view lessons & log new ones</div></div>
       <div id="students-list"></div>
-      <button class="btn-primary btn-full mt-8" onclick="openOverlay('add-student-overlay')">+ Add Student</button>
-    </div>
-
-    <div id="screen-t-lesson" class="screen" style="display:none">
-      <div id="lesson-log-form"></div>
+      <button class="btn-primary btn-full mt-8" onclick="openOv('add-student-ov')">+ Add Student</button>
     </div>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════════
-     OVERLAYS
-══════════════════════════════════════════ -->
+<!-- OVERLAYS -->
+<div id="move-detail-ov" class="overlay"><div id="move-detail-content"></div></div>
+<div id="insp-detail-ov" class="overlay"><div id="insp-detail-content"></div></div>
+<div id="student-detail-ov" class="overlay"><div id="student-detail-content"></div></div>
+<div id="lesson-detail-ov" class="overlay"><div id="lesson-detail-content"></div></div>
 
-<!-- MOVE DETAIL -->
-<div id="move-detail-overlay" class="overlay">
-  <div id="move-detail-content"></div>
-</div>
-
-<!-- ADD SEQUENCE -->
-<div id="add-seq-overlay" class="overlay">
-  <div class="overlay-header">
-    <button class="back-btn" onclick="closeOverlay('add-seq-overlay')">← Back</button>
-    <div class="overlay-title">New Sequence</div>
-  </div>
+<div id="add-seq-ov" class="overlay">
+  <div class="overlay-header"><button class="back-btn" onclick="closeOv('add-seq-ov')">← Back</button><div class="overlay-title">New Sequence</div></div>
   <div class="overlay-body">
-    <label class="field-label">Name</label>
-    <input type="text" id="sq-name" placeholder="e.g. Opening Blossom">
-    <label class="field-label">Moves (comma-separated, in order)</label>
-    <input type="text" id="sq-moves" placeholder="Climb, Hip Key, Mermaid, Drop">
-    <label class="field-label">Exit move</label>
-    <input type="text" id="sq-exit" placeholder="Controlled descent">
+    <label class="field-label">Name</label><input type="text" id="sq-name" placeholder="e.g. Opening Blossom">
+    <label class="field-label">Moves (comma-separated)</label><input type="text" id="sq-moves" placeholder="Climb, Hip Key, Mermaid, Drop">
+    <label class="field-label">Exit move</label><input type="text" id="sq-exit" placeholder="Controlled descent">
     <div class="filter-row mt-4">
-      <button class="filter-btn active" id="slvl-b" onclick="setSeqLvl('beginner',this)">Beginner</button>
-      <button class="filter-btn" id="slvl-i" onclick="setSeqLvl('intermediate',this)">Intermediate</button>
-      <button class="filter-btn" id="slvl-a" onclick="setSeqLvl('advanced',this)">Advanced</button>
+      <button class="filter-btn active" onclick="setSeqLvl('beginner',this)">Beginner</button>
+      <button class="filter-btn" onclick="setSeqLvl('intermediate',this)">Intermediate</button>
+      <button class="filter-btn" onclick="setSeqLvl('advanced',this)">Advanced</button>
     </div>
-    <label class="field-label">Video URL</label>
-    <input type="url" id="sq-video" placeholder="https://...">
-    <label class="field-label">Notes</label>
-    <textarea id="sq-notes" placeholder="Flow notes, tips, transitions..."></textarea>
+    <label class="field-label">Notes</label><textarea id="sq-notes" placeholder="Flow notes, tips..."></textarea>
     <button class="btn-primary btn-full" onclick="saveSeq()">Save Sequence</button>
     <div class="spacer-80"></div>
   </div>
 </div>
 
-<!-- INSPIRATION DETAIL -->
-<div id="insp-detail-overlay" class="overlay">
-  <div id="insp-detail-content"></div>
-</div>
-
-<!-- STUDENT DETAIL (teacher) -->
-<div id="student-detail-overlay" class="overlay">
-  <div id="student-detail-content"></div>
-</div>
-
-<!-- ADD CLASS -->
-<div id="add-class-overlay" class="overlay">
-  <div class="overlay-header">
-    <button class="back-btn" onclick="closeOverlay('add-class-overlay')">← Back</button>
-    <div class="overlay-title">New Class</div>
-  </div>
+<div id="add-class-ov" class="overlay">
+  <div class="overlay-header"><button class="back-btn" onclick="closeOv('add-class-ov')">← Back</button><div class="overlay-title">New Class</div></div>
   <div class="overlay-body">
-    <label class="field-label">Class name</label>
-    <input type="text" id="cls-name" placeholder="e.g. Tuesday Beginners">
-    <label class="field-label">Date</label>
-    <input type="date" id="cls-date">
-    <label class="field-label">Students (comma-separated names)</label>
-    <input type="text" id="cls-students" placeholder="Olive, Mia, Rin...">
-    <label class="field-label">What did we cover?</label>
-    <textarea id="cls-notes" placeholder="Moves practised, themes, focus areas..."></textarea>
-    <button class="btn-primary btn-full" onclick="saveClass()">Save Class</button>
-  </div>
-</div>
-
-<!-- ADD STUDENT -->
-<div id="add-student-overlay" class="overlay">
-  <div class="overlay-header">
-    <button class="back-btn" onclick="closeOverlay('add-student-overlay')">← Back</button>
-    <div class="overlay-title">Add Student</div>
-  </div>
-  <div class="overlay-body">
-    <label class="field-label">Name</label>
-    <input type="text" id="st-name" placeholder="Student name">
-    <label class="field-label">Level</label>
-    <select id="st-level">
-      <option value="beginner">Beginner</option>
-      <option value="intermediate">Intermediate</option>
-      <option value="advanced">Advanced</option>
-    </select>
-    <label class="field-label">Notes</label>
-    <textarea id="st-notes" placeholder="Injuries, goals, background..."></textarea>
-    <button class="btn-primary btn-full" onclick="saveStudent()">Add Student</button>
-  </div>
-</div>
-
-<!-- LOG LESSON (teacher) -->
-<div id="log-lesson-overlay" class="overlay">
-  <div class="overlay-header">
-    <button class="back-btn" onclick="closeOverlay('log-lesson-overlay')">← Back</button>
-    <div class="overlay-title" id="log-lesson-title">Log Lesson</div>
-  </div>
-  <div class="overlay-body">
-    <label class="field-label">Date</label>
-    <input type="date" id="ll-date">
-    <label class="field-label">Lesson title / focus</label>
-    <input type="text" id="ll-title" placeholder="e.g. Hip Key entries & mermaid">
-    <label class="field-label">Moves covered (comma-separated)</label>
-    <input type="text" id="ll-moves" placeholder="Hip Key, Mermaid, S-Wrap">
-    <label class="field-label">Achievements this session</label>
-    <input type="text" id="ll-achieve" placeholder="First inversion, held mermaid for 5s...">
-    <label class="field-label">Needs help with</label>
-    <input type="text" id="ll-help" placeholder="Foot lock timing, straddle flexibility...">
-    <label class="field-label">Notes</label>
-    <textarea id="ll-notes" placeholder="General observations, what clicked, what to revisit..."></textarea>
-
-    <!-- Teacher videos -->
-    <div class="sec">Teacher Videos</div>
-    <div id="ll-teacher-videos"></div>
-    <button class="btn-secondary btn-full mt-4" onclick="addTeacherVideoField()">+ Add teacher video</button>
-
-    <!-- Student videos -->
-    <div class="sec">Student Videos (this session)</div>
-    <div id="ll-student-videos"></div>
-    <button class="btn-secondary btn-full mt-4" onclick="addStudentVideoField()">+ Add student video</button>
-
-    <!-- Best of day -->
-    <div class="sec">Best of Day</div>
-    <div id="ll-best-video-block">
-      <div id="ll-best-block" class="video-block">
-        <span class="video-block-label">Student's best attempt today</span>
-        <div class="vtabs">
-          <button class="vtab active" onclick="vtab('ll-best','upload',this)">Upload</button>
-          <button class="vtab" onclick="vtab('ll-best','camera',this)">Record</button>
-          <button class="vtab" onclick="vtab('ll-best','url',this)">URL</button>
-        </div>
-        <div class="vtab-body">
-          <div class="vpanel active" id="ll-best-upload">
-            <div class="upload-zone" ondragover="event.preventDefault()" ondrop="handleDrop(event,'ll-best')">
-              <input type="file" accept="video/*" onchange="handleFile(event,'ll-best')">
-              <div class="upload-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9e5e54" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-              <p><strong>Tap to upload best attempt</strong><br><span style="font-size:10px;opacity:0.7">MP4, MOV</span></p>
-            </div>
-            <div id="ll-best-preview"></div>
-          </div>
-          <div class="vpanel" id="ll-best-camera">
-            <button class="camera-btn" onclick="startCamera('ll-best')">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-              Record from camera
-            </button>
-          </div>
-          <div class="vpanel" id="ll-best-url">
-            <label class="field-label">Video URL</label>
-            <input type="url" id="ll-best-url-input" placeholder="https://...">
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="mt-8"></div>
-
-    <!-- AI Parse caption -->
-    <div class="sec">Parse moves from video caption</div>
-    <textarea id="ll-caption" rows="3" placeholder="Paste instructor video caption or describe the moves taught..."></textarea>
-    <button class="btn-gold btn-full" onclick="parseLessonCaption()">✦ Parse moves with AI</button>
-    <div id="ll-parse-result" class="mt-8"></div>
-
-    <div class="mt-12"></div>
-    <button class="btn-primary btn-full" onclick="saveLesson()" style="padding:12px">Save Lesson</button>
+    <label class="field-label">Class name</label><input type="text" id="cls-name" placeholder="e.g. Tuesday Beginners">
+    <label class="field-label">Date</label><input type="date" id="cls-date">
+    <label class="field-label">What did we cover?</label><textarea id="cls-notes" placeholder="Moves, themes, focus areas..."></textarea>
+    <div class="sec" style="margin-top:0">Students in this class</div>
+    <div id="cls-student-checklist"></div>
+    <button class="btn-primary btn-full mt-8" onclick="saveClass()">Save Class</button>
     <div class="spacer-80"></div>
   </div>
 </div>
 
-<!-- LESSON HISTORY OVERLAY -->
-<div id="lesson-history-overlay" class="overlay">
-  <div id="lesson-history-content"></div>
+<div id="add-student-ov" class="overlay">
+  <div class="overlay-header"><button class="back-btn" onclick="closeOv('add-student-ov')">← Back</button><div class="overlay-title">Add Student</div></div>
+  <div class="overlay-body">
+    <p style="font-size:13px;color:var(--mauve);line-height:1.6;margin-bottom:16px">Enter the email address of the student. They need to have already created an account in Silk & Flow — then they'll be linked to you as their teacher and will see lessons you log for them.</p>
+    <label class="field-label">Student's email address</label><input type="email" id="st-email" placeholder="student@email.com">
+    <label class="field-label">Level</label>
+    <select id="st-level"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select>
+    <label class="field-label">Notes (injuries, goals, background)</label><textarea id="st-notes" placeholder="e.g. Tight hamstrings, working on inversions..."></textarea>
+    <button class="btn-primary btn-full" onclick="addStudent()">Add Student</button>
+    <div id="add-student-error" class="auth-error" style="color:var(--rose)"></div>
+    <div class="spacer-80"></div>
+  </div>
+</div>
+
+<div id="log-lesson-ov" class="overlay">
+  <div class="overlay-header"><button class="back-btn" onclick="closeOv('log-lesson-ov')">← Back</button><div class="overlay-title" id="ll-title-heading">Log Lesson</div></div>
+  <div class="overlay-body">
+    <label class="field-label">Date</label><input type="date" id="ll-date">
+    <label class="field-label">Lesson title / focus</label><input type="text" id="ll-title" placeholder="e.g. Hip Key entries & mermaid">
+    <label class="field-label">Moves covered (comma-separated)</label><input type="text" id="ll-moves" placeholder="Hip Key, Mermaid, S-Wrap">
+    <label class="field-label">Achievements this session</label><input type="text" id="ll-achieve" placeholder="First inversion, held mermaid for 5s...">
+    <label class="field-label">Needs help with</label><input type="text" id="ll-help" placeholder="Foot lock timing, straddle flexibility...">
+    <label class="field-label">Notes</label><textarea id="ll-notes" placeholder="Observations, what clicked, what to revisit..."></textarea>
+
+    <div class="sec">Teacher Videos</div>
+    <div class="video-tip">📁 <strong>Use Google Drive</strong> — film on iPhone → Drive app → Upload → ⋯ → Share → Copy link → set <strong>"Anyone with the link"</strong> → paste below.<br>On Mac: drag to Drive folder in Finder → right-click → Share → Copy link.</div>
+    <div id="ll-teacher-videos"></div>
+    <button class="add-video-btn" onclick="addVideoField('ll-teacher-videos')">+ Add teacher video</button>
+
+    <div class="sec">Student Videos</div>
+    <div id="ll-student-videos"></div>
+    <button class="add-video-btn" onclick="addVideoField('ll-student-videos')">+ Add student video</button>
+
+    <div class="sec">Best of Day ✦</div>
+    <div id="ll-best-video"></div>
+    <button class="add-video-btn" id="ll-best-add-btn" onclick="addBestVideo()">+ Add best of day video</button>
+
+    <div class="sec">Parse moves from caption</div>
+    <textarea id="ll-caption" rows="3" placeholder="Paste instructor video caption or describe moves taught..."></textarea>
+    <button class="btn-gold btn-full" onclick="parseLessonCaption()">✦ Identify moves with AI</button>
+    <div id="ll-parse-result" class="mt-8"></div>
+    <div class="mt-12"></div>
+    <button class="btn-primary btn-full" id="ll-save-btn" onclick="saveLesson()" style="padding:12px">Save Lesson</button>
+    <div class="spacer-80"></div>
+  </div>
 </div>
 
 <div id="toast" class="toast"></div>
 
 <script>
-/* ═══════════════════════════════════════════
-   DATA
-═══════════════════════════════════════════ */
-const MOVES = [
-  { id:'climb', name:'Basic Climb', level:'beginner', icon:'🧗', category:'Foundational', description:'The essential skill for all aerial work.', steps:['Stand between silks, grip at shoulder height thumbs up.','Step one foot onto the silk, wrap outside of foot.','Place second foot on top, pinch silk between feet.','Press through legs to rise, re-grip higher.','Repeat to ascend.'], nextMoves:['s-wrap','hip-key','foot-lock'], exitMoves:['controlled-descent'], conditioning:['Pull-up negatives','Dead hang holds'] },
-  { id:'foot-lock', name:'Foot Lock', level:'beginner', icon:'🦶', category:'Foundational', description:'A secure foot configuration for transitions.', steps:['Bring one silk across top of foot.','Step same foot down, catching silk under arch.','Pinch silk between foot and surface.','Test weight gradually.','Keep ankle relaxed but grip firm.'], nextMoves:['climb','mermaid'], exitMoves:['controlled-descent'], conditioning:['Calf raises','Ankle mobility'] },
-  { id:'s-wrap', name:'S-Wrap', level:'beginner', icon:'〰️', category:'Wraps', description:'One of the first inversions.', steps:['Hold both silks, step one fabric behind hip.','Reach same-side arm through to grab silk.','Tuck head and roll hips up.','Extend legs toward ceiling.','Lower with control, unwrap in reverse.'], nextMoves:['hip-key','star','mermaid'], exitMoves:['forward-roll-out','controlled-descent'], conditioning:['Hollow body holds','Pike stretches'] },
-  { id:'hip-key', name:'Hip Key', level:'beginner', icon:'🔑', category:'Locks', description:'A versatile hip-lock position opening many pathways.', steps:['Pass one silk across hip from front to back.','Hook silk in crease of hip joint.','Settle weight into the key.','Release hands to test balance.','Transition by releasing or tilting pelvis.'], nextMoves:['mermaid','scorpion','cross-back-straddle','hip-key-spin'], exitMoves:['caterpillar-walk-down','controlled-descent'], conditioning:['Hip flexor stretches','Lat strengthening'] },
-  { id:'cross-back-straddle', name:'Cross Back Straddle', level:'intermediate', icon:'✕', category:'Inversions', description:'A foundational inverted straddle with multiple entry pathways.', steps:['Entry 1 (Knee Tangle): Egg beater wraps → reach arm through → knee tangle → Flamenco grip → pull up and invert.','Entry 2 (Hip Key): Hip key → toss free silk over top leg → form X above bum → egg beat and invert.','Entry 3 (Flamenco Grip): Practice on ground → squeeze feet → Flamenco grip for X → pull up as shoulders pass through.','Exit: grab silk closest to back.'], nextMoves:['star','mermaid','scorpion'], exitMoves:['grab-back-silk-exit','hip-key'], conditioning:['Side leg kicks','Shoulder mobility','Straddle flexibility'] },
-  { id:'mermaid', name:'Mermaid', level:'intermediate', icon:'🧜', category:'Poses', description:'An elegant side-lying pose beloved for graceful lines.', steps:['Begin in hip key.','Extend lower leg down, point toes.','Arch upper body back, reach top arm overhead.','Silk wraps around hip and thigh.','Find balance where silk holds you.'], nextMoves:['mermaid-spin','back-balance','shooting-star'], exitMoves:['hip-key','controlled-descent'], conditioning:['Side stretches','Hip flexor work','Back extension'] },
-  { id:'star', name:'Star / Straddle', level:'intermediate', icon:'⭐', category:'Inversions', description:'An inverted straddle — radiant and striking.', steps:['From S-wrap or hip key, enter inversion.','Open both legs wide to the sides.','Silk supports through hips and lower back.','Arms extend to sides or overhead.','Fully invert, straddle, release upper body tension.'], nextMoves:['star-drop','twisted-star','pike'], exitMoves:['pike-out','controlled-descent'], conditioning:['Straddle flexibility','Core stability'] },
-  { id:'scorpion', name:'Scorpion', level:'intermediate', icon:'🦂', category:'Backbends', description:'Legs curving overhead like a scorpion\'s tail.', steps:['Begin from secure hip key.','Allow upper body to drop back into back hang.','Bend both knees, draw heels toward head.','Silk wraps around hips and lower back.','Breathe through the back extension.'], nextMoves:['scorpion-drop','back-balance','mermaid'], exitMoves:['tuck-out','hip-key'], conditioning:['Backbend stretches','Shoulder opening'] },
-  { id:'hip-key-drop', name:'Hip Key Drop', level:'intermediate', icon:'💫', category:'Drops', description:'A controlled fall from hip key — one of the first drops.', steps:['Ensure proper hip key wrap is verified.','Take both silks in hands, check wrap.','Confirm drop will unravel correctly.','Release weight in controlled manner.','Keep body in set shape throughout.'], nextMoves:['pencil-drop','star-drop'], exitMoves:['land-and-stand'], conditioning:['Trust exercises','Landing position holds'] },
-  { id:'back-balance', name:'Back Balance', level:'advanced', icon:'🌙', category:'Balance', description:'A serene floating position — appears effortless.', steps:['Enter from hip key.','Shift weight back, allow lower spine to meet silk.','Find exact point where silk supports sacrum.','Let legs float upward.','Breathe slowly — movement disrupts balance.'], nextMoves:['shooting-star'], exitMoves:['pike-up','controlled-return'], conditioning:['Core hollowing','Spinal flexibility'] },
+/* ═══════ SUPABASE ═══════ */
+const SUPA_URL = 'https://tywveppjkvxyungiocyw.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5d3ZlcHBqa3Z4eXVuZ2lvY3l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNzE4ODgsImV4cCI6MjA5Mzg0Nzg4OH0.MVCuejf3-jpdhXgKVbRxf2vnHjBI0rCkOUPVrEcQr4Q';
+const { createClient } = supabase;
+const db = createClient(SUPA_URL, SUPA_KEY);
+
+/* ═══════ MOVES DATA ═══════ */
+const MOVES=[
+  {id:'climb',name:'Basic Climb',level:'beginner',icon:'🧗',category:'Foundational',description:'The essential skill for all aerial work.',steps:['Stand between silks, grip at shoulder height thumbs up.','Step one foot onto the silk, wrap outside of foot.','Place second foot on top, pinch silk between feet.','Press through legs to rise, re-grip higher.','Repeat to ascend.'],nextMoves:['s-wrap','hip-key','foot-lock'],exitMoves:['controlled-descent'],conditioning:['Pull-up negatives','Dead hang holds','Foot flex exercises']},
+  {id:'foot-lock',name:'Foot Lock',level:'beginner',icon:'🦶',category:'Foundational',description:'A secure foot configuration that bears weight for transitions.',steps:['Bring one silk across top of foot.','Step same foot down, catching silk under arch.','Pinch silk securely.','Test weight gradually.','Keep ankle relaxed, grip firm through sole.'],nextMoves:['climb','mermaid'],exitMoves:['controlled-descent'],conditioning:['Calf raises','Ankle mobility','Foot articulation']},
+  {id:'s-wrap',name:'S-Wrap',level:'beginner',icon:'〰️',category:'Wraps',description:'One of the first inversions.',steps:['Hold both silks, step one fabric behind hip.','Reach same-side arm through to grab silk.','Tuck head, roll hips up with tension.','Extend legs toward ceiling.','Lower with control, unwrap in reverse.'],nextMoves:['hip-key','star','mermaid'],exitMoves:['forward-roll-out','controlled-descent'],conditioning:['Hollow body holds','Pike stretches','Core work']},
+  {id:'hip-key',name:'Hip Key',level:'beginner',icon:'🔑',category:'Locks',description:'A versatile hip-lock opening countless pathways.',steps:['Pass one silk across hip from front to back.','Hook silk in crease of hip joint.','Settle weight into the key.','Release hands to test balance.','Transition by releasing or tilting pelvis.'],nextMoves:['mermaid','scorpion','cross-back-straddle'],exitMoves:['caterpillar-walk-down','controlled-descent'],conditioning:['Hip flexor stretches','Lat strengthening','Balance practice']},
+  {id:'cross-back-straddle',name:'Cross Back Straddle',level:'intermediate',icon:'✕',category:'Inversions',description:'A foundational inverted straddle with multiple entry pathways.',steps:['Entry 1 (Knee Tangle): Egg beater wraps → reach arm through → knee tangle → Flamenco grip → pull up and invert.','Entry 2 (Hip Key): Hip key → toss free silk over top leg → form X above bum → egg beat and invert.','Entry 3 (Flamenco Grip): Practice on ground → squeeze feet → Flamenco grip for X → pull up as shoulders pass through.','Exit: grab silk closest to back.'],nextMoves:['star','mermaid','scorpion'],exitMoves:['grab-back-silk-exit','hip-key'],conditioning:['Side leg kicks','Shoulder mobility','Straddle flexibility']},
+  {id:'mermaid',name:'Mermaid',level:'intermediate',icon:'🧜',category:'Poses',description:'An elegant side-lying pose beloved for graceful lines.',steps:['Begin in hip key.','Extend lower leg down, point toes.','Arch upper body back, reach top arm overhead.','Silk wraps around hip and thigh.','Find balance where silk holds you.'],nextMoves:['mermaid-spin','back-balance','shooting-star'],exitMoves:['hip-key','controlled-descent'],conditioning:['Side stretches','Hip flexor work','Back extension']},
+  {id:'star',name:'Star / Straddle',level:'intermediate',icon:'⭐',category:'Inversions',description:'An inverted straddle — radiant and striking.',steps:['From S-wrap or hip key, enter inversion.','Open both legs wide to the sides.','Silk supports through hips and lower back.','Arms extend to sides or overhead.','Fully invert, straddle, release upper body tension.'],nextMoves:['star-drop','twisted-star'],exitMoves:['pike-out','controlled-descent'],conditioning:['Straddle flexibility','Core stability','Inversion prep']},
+  {id:'scorpion',name:'Scorpion',level:'intermediate',icon:'🦂',category:'Backbends',description:'Legs curving overhead — requires openness and trust.',steps:['Begin from secure hip key.','Allow upper body to drop into back hang.','Bend both knees, draw heels toward head.','Silk wraps around hips and lower back.','Breathe through the back extension.'],nextMoves:['scorpion-drop','back-balance','mermaid'],exitMoves:['tuck-out','hip-key'],conditioning:['Backbend stretches','Shoulder opening','Quad stretches']},
+  {id:'hip-key-drop',name:'Hip Key Drop',level:'intermediate',icon:'💫',category:'Drops',description:'A controlled fall from hip key.',steps:['Ensure proper hip key wrap is verified.','Take both silks in hands.','Confirm drop will unravel correctly.','Release weight in controlled manner.','Keep body in set shape throughout.'],nextMoves:['pencil-drop','star-drop'],exitMoves:['land-and-stand'],conditioning:['Trust exercises','Landing position holds']},
+  {id:'back-balance',name:'Back Balance',level:'advanced',icon:'🌙',category:'Balance',description:'A serene floating position — appears effortless.',steps:['Enter from hip key.','Shift weight back, lower spine meets silk.','Find exact point where silk supports sacrum.','Let legs float upward.','Breathe slowly — movement disrupts balance.'],nextMoves:['shooting-star'],exitMoves:['pike-up','controlled-return'],conditioning:['Core hollowing','Spinal flexibility','Balance progression']},
 ];
 
-const DEFAULT_SEQS = [
-  { id:'sq1', name:'Opening Blossom', level:'beginner', moves:['Climb','Foot Lock','S-Wrap','Hip Key'], exitMove:'Controlled Descent', notes:'Gentle warm-up to find confidence at height.' },
-  { id:'sq2', name:'The Mermaid Flow', level:'intermediate', moves:['Climb','Hip Key','Mermaid','Hip Key Spin','Drop'], exitMove:'Seated Landing', notes:'Fluid and feminine — each transition like water.' },
-  { id:'sq3', name:'Star & Sky', level:'intermediate', moves:['Climb','S-Wrap','Star','Scorpion','Back Balance'], exitMove:'Pike Out', notes:'Three dramatic poses — hold each for 4 counts.' },
+const DEFAULT_SEQS=[
+  {id:'sq1',name:'Opening Blossom',level:'beginner',moves:['Climb','Foot Lock','S-Wrap','Hip Key'],exit_move:'Controlled Descent',notes:'Gentle warm-up to find confidence at height.'},
+  {id:'sq2',name:'The Mermaid Flow',level:'intermediate',moves:['Climb','Hip Key','Mermaid','Hip Key Spin','Drop'],exit_move:'Seated Landing',notes:'Fluid and feminine — each transition like water.'},
+  {id:'sq3',name:'Star & Sky',level:'intermediate',moves:['Climb','S-Wrap','Star','Scorpion','Back Balance'],exit_move:'Pike Out',notes:'Three dramatic poses — hold each for 4 counts.'},
 ];
 
-let state = {
-  mastered: [],
-  userSeqs: [],
-  userNotes: {},
-  inspirations: [],
-  classes: [],
-  students: [],
-  lessons: [],   // { id, studentId, date, title, moves[], achieve[], help[], notes, teacherVideos[], studentVideos[], bestVideo, parsedMoves[] }
-  mode: 'student',
-  activeFilter: 'all',
-  seqLevel: 'beginner',
-  currentStudentId: null,
-  videoSort: 'date',
-};
+/* ═══════ STATE ═══════ */
+let currentUser = null;
+let currentProfile = null;
+let currentMode = 'student';
+let _filter = 'all';
+let _vsort = 'date';
+let _seqLvl = 'beginner';
+let _llStudentId = null;
+let _bestAdded = false;
+let _vcounts = {};
+let _adv = { move: MOVES[0], history: [] };
+// local caches
+let _mastered = [];
+let _sequences = [];
+let _inspirations = [];
+let _students = [];
+let _classes = [];
+let _lessons = [];
+let _myLessons = [];
 
-function loadState() {
-  try { const s = localStorage.getItem('sf-state'); if(s) Object.assign(state, JSON.parse(s)); } catch(e) {}
+/* ═══════ HELPERS ═══════ */
+function uid(){return 'id'+Date.now()+Math.random().toString(36).slice(2,6);}
+function fmtId(id){return id.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
+function fmtDate(d){if(!d)return '';try{return new Date(d+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});}catch(e){return d;}}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function openOv(id){document.getElementById(id).classList.add('open');}
+function closeOv(id){document.getElementById(id).classList.remove('open');}
+function showLoading(){document.getElementById('loading-screen').classList.remove('hidden');}
+function hideLoading(){document.getElementById('loading-screen').classList.add('hidden');}
+
+/* ═══════ VIDEO HELPERS ═══════ */
+function getVideoEmbed(url){
+  if(!url)return null;
+  const yt=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
+  if(yt)return{type:'youtube',embedUrl:`https://www.youtube.com/embed/${yt[1]}`};
+  const gd=url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if(gd)return{type:'gdrive',embedUrl:`https://drive.google.com/file/d/${gd[1]}/preview`};
+  return{type:'link',url};
 }
-function saveState() {
-  try {
-    // strip blob URLs before saving (they expire)
-    const s = JSON.parse(JSON.stringify(state));
-    localStorage.setItem('sf-state', JSON.stringify(s));
-  } catch(e) {}
+function videoPreviewHtml(url,title){
+  if(!url)return '';
+  const e=getVideoEmbed(url);if(!e)return '';
+  if(e.type==='youtube'||e.type==='gdrive')return`<div class="video-url-preview"><iframe src="${e.embedUrl}" allowfullscreen allow="autoplay"></iframe></div>`;
+  const isInsta=url.includes('instagram.com');
+  return`<div class="video-url-preview"><a class="open-link" href="${url}" target="_blank" rel="noopener"><span class="open-link-icon">${isInsta?'📸':'🎬'}</span><div><div class="open-link-text">Open ${isInsta?'Instagram Reel':'Video'} ↗</div><div class="open-link-sub">${(title||url).slice(0,45)}</div></div></a></div>`;
+}
+let _vc=0;
+function addVideoField(containerId){
+  _vc++;const id='v'+_vc;
+  const div=document.createElement('div');div.className='video-url-entry';div.id=id+'-wrap';
+  div.innerHTML=`<button class="remove-entry" onclick="this.parentElement.remove()">×</button>
+    <label class="field-label">Title / label</label><input type="text" id="${id}-t" placeholder="e.g. Hip key entry demo" style="margin-bottom:6px">
+    <label class="field-label">Video URL</label><input type="url" id="${id}-u" placeholder="Paste Google Drive, YouTube, or any shareable URL..." oninput="document.getElementById('${id}-p').innerHTML=videoPreviewHtml(this.value,document.getElementById('${id}-t').value)">
+    <div id="${id}-p"></div>`;
+  document.getElementById(containerId).appendChild(div);
+}
+function addBestVideo(){
+  if(_bestAdded)return;_bestAdded=true;
+  document.getElementById('ll-best-add-btn').style.display='none';
+  const div=document.createElement('div');div.className='video-url-entry';
+  div.innerHTML=`<button class="remove-entry" onclick="this.remove();_bestAdded=false;document.getElementById('ll-best-add-btn').style.display='block'">×</button>
+    <label class="field-label">Best of day — Video URL</label>
+    <input type="url" id="ll-best-url" placeholder="Paste Google Drive, YouTube, or shareable URL..." oninput="document.getElementById('ll-best-p').innerHTML=videoPreviewHtml(this.value,'Best of day')">
+    <div id="ll-best-p"></div>`;
+  document.getElementById('ll-best-video').appendChild(div);
+}
+function collectVideos(containerId){
+  const vids=[];
+  document.getElementById(containerId).querySelectorAll('.video-url-entry').forEach(w=>{
+    const inputs=w.querySelectorAll('input');
+    let title='',url='';
+    inputs.forEach(i=>{if(i.type==='text')title=i.value.trim();if(i.type==='url')url=i.value.trim();});
+    if(url)vids.push({title,url});
+  });
+  return vids;
+}
+function videoChipsHtml(videos,tag,tagClass){
+  if(!videos||!videos.length)return '';
+  return videos.map(v=>`<a class="lesson-video-chip" href="${v.url}" target="_blank" rel="noopener">🎬 <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.title||tag}</span> <span class="badge ${tagClass}">${tag}</span></a>`).join('');
+}
+function videoGalleryHtml(allVideos,sort){
+  if(!allVideos.length)return '<p class="empty-state">No videos yet — paste URLs when logging a lesson.</p>';
+  const sorted=[...allVideos].sort((a,b)=>sort==='title'?(a.title||'').localeCompare(b.title||''):(b.date||'').localeCompare(a.date||''));
+  return sorted.map(v=>`<div class="video-entry"><div class="video-entry-head"><span class="video-entry-date">${fmtDate(v.date)}</span><span class="video-entry-tag ${v.tagClass}">${v.tag}</span></div><div class="video-entry-body">${v.title?`<div class="video-entry-title">${v.title}</div>`:''}${v.lessonTitle?`<div class="video-entry-sub">${v.lessonTitle}</div>`:''}${videoPreviewHtml(v.url,v.title)}</div></div>`).join('');
 }
 
-loadState();
+/* ═══════ AUTH ═══════ */
+function switchAuthTab(tab){
+  document.querySelectorAll('.auth-tab').forEach((b,i)=>b.classList.toggle('active',(tab==='signin'&&i===0)||(tab==='signup'&&i===1)));
+  document.getElementById('signin-form').style.display=tab==='signin'?'block':'none';
+  document.getElementById('signup-form').style.display=tab==='signup'?'block':'none';
+}
 
-/* ═══════════════════════════════════════════
-   HELPERS
-═══════════════════════════════════════════ */
-function fmtId(id) { return id.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); }
-function fmtDate(d) { if(!d) return ''; try { return new Date(d+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'}); } catch(e){ return d; } }
-function uid() { return 'id-'+Date.now()+'-'+Math.random().toString(36).slice(2,7); }
-function toast(msg) { const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+async function signIn(){
+  const email=document.getElementById('signin-email').value.trim();
+  const pass=document.getElementById('signin-password').value;
+  const errEl=document.getElementById('signin-error');errEl.textContent='';
+  if(!email||!pass){errEl.textContent='Please fill in all fields.';return;}
+  showLoading();
+  const{error}=await db.auth.signInWithPassword({email,password:pass});
+  if(error){hideLoading();errEl.textContent=error.message;}
+}
 
-function openOverlay(id) { document.getElementById(id).classList.add('open'); }
-function closeOverlay(id) { document.getElementById(id).classList.remove('open'); }
+async function signUp(){
+  const name=document.getElementById('signup-name').value.trim();
+  const email=document.getElementById('signup-email').value.trim();
+  const pass=document.getElementById('signup-password').value;
+  const role=document.getElementById('signup-role').value;
+  const errEl=document.getElementById('signup-error');errEl.textContent='';
+  if(!name||!email||!pass){errEl.textContent='Please fill in all fields.';return;}
+  if(pass.length<6){errEl.textContent='Password must be at least 6 characters.';return;}
+  showLoading();
+  const{error}=await db.auth.signUp({email,password:pass,options:{data:{full_name:name,role}}});
+  if(error){hideLoading();errEl.textContent=error.message;}
+  else{hideLoading();errEl.style.color='var(--sage)';errEl.textContent='Account created! Signing you in...';}
+}
 
-function setMode(m) {
-  state.mode = m;
-  document.getElementById('mode-student').classList.toggle('active', m==='student');
-  document.getElementById('mode-teacher').classList.toggle('active', m==='teacher');
-  document.getElementById('student-tabs').style.display = m==='student'?'flex':'none';
-  document.getElementById('teacher-tabs').style.display = m==='teacher'?'flex':'none';
-  // switch visible screens
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  if(m==='student') {
-    document.getElementById('screen-moves').classList.add('active');
+async function signOut(){
+  await db.auth.signOut();
+  currentUser=null;currentProfile=null;
+  document.getElementById('app-shell').style.display='none';
+  document.getElementById('auth-screen').classList.remove('hidden');
+}
+
+async function loadProfile(user){
+  const{data}=await db.from('profiles').select('*').eq('id',user.id).single();
+  return data;
+}
+
+async function initApp(user){
+  showLoading();
+  currentUser=user;
+  currentProfile=await loadProfile(user);
+  if(!currentProfile){hideLoading();return;}
+  // Show app
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('app-shell').style.display='flex';
+  document.getElementById('user-chip').textContent=`${currentProfile.full_name} · ${currentProfile.role}`;
+  // If teacher, show mode toggle
+  if(currentProfile.role==='teacher'){
+    document.getElementById('mode-toggle').style.display='flex';
+  }
+  await loadAllData();
+  hideLoading();
+  setMode(currentProfile.role==='teacher'?'teacher':'student');
+}
+
+/* ═══════ DATA LOADING ═══════ */
+async function loadAllData(){
+  if(currentProfile.role==='teacher'){
+    await Promise.all([loadStudents(),loadClasses(),loadTeacherLessons(),loadMastered(),loadSequences(),loadInspirations()]);
+  } else {
+    await Promise.all([loadMyLessons(),loadMastered(),loadSequences(),loadInspirations()]);
+  }
+}
+
+async function loadMastered(){
+  const{data}=await db.from('move_progress').select('*').eq('student_id',currentUser.id).eq('mastered',true);
+  _mastered=(data||[]).map(r=>r.move_id);
+}
+
+async function loadSequences(){
+  const{data}=await db.from('sequences').select('*').eq('created_by',currentUser.id).order('created_at',{ascending:false});
+  _sequences=data||[];
+}
+
+async function loadInspirations(){
+  const{data}=await db.from('inspirations').select('*').eq('created_by',currentUser.id).order('created_at',{ascending:false});
+  _inspirations=data||[];
+}
+
+async function loadStudents(){
+  const{data}=await db.from('teacher_students').select('*,student:student_id(id,full_name,role)').eq('teacher_id',currentUser.id);
+  _students=(data||[]).map(r=>({id:r.student_id,name:r.student?.full_name||'Unknown',level:r.level,notes:r.notes,tsId:r.id}));
+}
+
+async function loadClasses(){
+  const{data}=await db.from('classes').select('*,class_students(student_id)').eq('teacher_id',currentUser.id).order('date',{ascending:false});
+  _classes=data||[];
+}
+
+async function loadTeacherLessons(){
+  const{data}=await db.from('lessons').select('*,lesson_videos(*),student:student_id(full_name)').eq('teacher_id',currentUser.id).order('date',{ascending:false});
+  _lessons=data||[];
+}
+
+async function loadMyLessons(){
+  const{data}=await db.from('lessons').select('*,lesson_videos(*),teacher:teacher_id(full_name)').eq('student_id',currentUser.id).order('date',{ascending:false});
+  _myLessons=data||[];
+}
+
+/* ═══════ MODE / TAB ═══════ */
+function setMode(m){
+  currentMode=m;
+  document.getElementById('mode-student').classList.toggle('active',m==='student');
+  document.getElementById('mode-teacher').classList.toggle('active',m==='teacher');
+  document.getElementById('student-tabs').style.display=m==='student'?'flex':'none';
+  document.getElementById('teacher-tabs').style.display=m==='teacher'?'flex':'none';
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+  if(m==='student'){
+    const el=document.getElementById('screen-moves');el.style.display='block';el.classList.add('active');
     document.querySelectorAll('#student-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
     renderMoves();
   } else {
-    document.getElementById('screen-t-classes').classList.add('active');
-    document.getElementById('screen-t-classes').style.display='block';
+    const el=document.getElementById('screen-t-classes');el.style.display='block';el.classList.add('active');
     document.querySelectorAll('#teacher-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
     renderClasses();
-    renderStudents();
-    renderLessonForm();
   }
-  saveState();
 }
 
-function showTab(tab, btn, barId) {
-  const isTeacher = tab.startsWith('t-');
-  document.querySelectorAll('.screen').forEach(s=>{
-    const tid = s.id.replace('screen-','');
-    const isT = tid.startsWith('t-');
-    if(isTeacher === isT) s.classList.remove('active');
-    if(isTeacher === isT) s.style.display = 'none';
-  });
+function showTab(tab,btn,barId){
+  const isT=tab.startsWith('t-');
+  document.querySelectorAll('.screen').forEach(s=>{const tid=s.id.replace('screen-','');if(tid.startsWith('t-')===isT){s.classList.remove('active');s.style.display='none';}});
   document.querySelectorAll('#'+barId+' .tab-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  const el = document.getElementById('screen-'+tab);
-  el.style.display = 'block';
-  el.classList.add('active');
-  if(tab==='progress') renderProgress();
-  if(tab==='adventure') renderAdventure();
-  if(tab==='sequences') renderSeqs();
-  if(tab==='inspiration') renderInspirations();
-  if(tab==='t-classes') renderClasses();
-  if(tab==='t-students') renderStudents();
-  if(tab==='t-lesson') renderLessonForm();
+  const el=document.getElementById('screen-'+tab);el.style.display='block';el.classList.add('active');
+  if(tab==='progress')renderProgress();
+  if(tab==='adventure')renderAdventure();
+  if(tab==='sequences')renderSeqs();
+  if(tab==='inspiration')renderInspirations();
+  if(tab==='my-lessons')renderMyLessons();
+  if(tab==='t-classes')renderClasses();
+  if(tab==='t-students')renderStudents();
 }
 
-/* ═══════════════════════════════════════════
-   VIDEO HELPERS
-═══════════════════════════════════════════ */
-function vtab(block, tab, btn) {
-  const el = document.getElementById(block+'-block') || btn.closest('.video-block');
-  el.querySelectorAll('.vtab').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  ['upload','camera','url'].forEach(t=>{
-    const p = document.getElementById(block+'-'+t);
-    if(p) p.classList.toggle('active', t===tab);
-  });
-}
-
-function handleFile(event, block) {
-  const file = event.target.files[0];
-  if(file) showFilePreview(file, block);
-}
-
-function handleDrop(event, block) {
-  event.preventDefault();
-  const file = event.dataTransfer.files[0];
-  if(file && file.type.startsWith('video/')) showFilePreview(file, block);
-}
-
-function showFilePreview(file, block) {
-  const zone = document.querySelector(`#${block}-upload .upload-zone`);
-  const preview = document.getElementById(block+'-preview');
-  if(!zone||!preview) return;
-  const url = URL.createObjectURL(file);
-  zone.style.display = 'none';
-  preview.innerHTML = `
-    <div class="video-preview">
-      <video src="${url}" controls></video>
-      <button class="remove-btn" onclick="removeVideo('${block}','${url}')">×</button>
-    </div>
-    <div class="file-chip">
-      <span>🎬</span>
-      <span class="file-chip-name">${file.name}</span>
-      <span class="file-chip-size">${(file.size/1024/1024).toFixed(1)}MB</span>
-    </div>`;
-  preview.__blobUrl = url;
-  preview.__fileName = file.name;
-  preview.__fileSize = file.size;
-}
-
-function removeVideo(block, url) {
-  const zone = document.querySelector(`#${block}-upload .upload-zone`);
-  const preview = document.getElementById(block+'-preview');
-  if(zone) zone.style.display='block';
-  if(preview) { URL.revokeObjectURL(url); preview.innerHTML=''; }
-}
-
-function startCamera(block) {
-  const input = document.createElement('input');
-  input.type='file'; input.accept='video/*'; input.capture='environment';
-  input.onchange=e=>{ if(e.target.files[0]) showFilePreview(e.target.files[0], block); };
-  input.click();
-}
-
-function makeVideoBlock(id, label) {
-  return `<div class="video-block" id="${id}-block">
-    <span class="video-block-label">${label}</span>
-    <div class="vtabs">
-      <button class="vtab active" onclick="vtab('${id}','upload',this)">Upload</button>
-      <button class="vtab" onclick="vtab('${id}','camera',this)">Record</button>
-      <button class="vtab" onclick="vtab('${id}','url',this)">URL</button>
-    </div>
-    <div class="vtab-body">
-      <div class="vpanel active" id="${id}-upload">
-        <div class="upload-zone" ondragover="event.preventDefault()" ondrop="handleDrop(event,'${id}')">
-          <input type="file" accept="video/*" onchange="handleFile(event,'${id}')">
-          <div class="upload-icon"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#9e5e54" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></div>
-          <p><strong>Tap to upload</strong><br><span style="font-size:10px;opacity:0.7">MP4, MOV</span></p>
-        </div>
-        <div id="${id}-preview"></div>
-      </div>
-      <div class="vpanel" id="${id}-camera">
-        <button class="camera-btn" onclick="startCamera('${id}')">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-          Record from camera
-        </button>
-      </div>
-      <div class="vpanel" id="${id}-url">
-        <label class="field-label">Video URL</label>
-        <input type="url" id="${id}-url-input" placeholder="https://...">
-      </div>
-    </div>
-  </div>`;
-}
-
-let teacherVideoCount = 0;
-let studentVideoCount = 0;
-
-function addTeacherVideoField() {
-  teacherVideoCount++;
-  const id = 'tv-'+teacherVideoCount;
-  const wrap = document.createElement('div');
-  wrap.innerHTML = `<label class="field-label" style="margin-bottom:4px">Video ${teacherVideoCount} — Title / focus</label>
-    <input type="text" id="${id}-title" placeholder="e.g. Hip key entry demo">
-    ${makeVideoBlock(id, 'Teacher video '+teacherVideoCount)}`;
-  document.getElementById('ll-teacher-videos').appendChild(wrap);
-}
-
-function addStudentVideoField() {
-  studentVideoCount++;
-  const id = 'sv-'+studentVideoCount;
-  const wrap = document.createElement('div');
-  wrap.innerHTML = `<label class="field-label" style="margin-bottom:4px">Video ${studentVideoCount} — Label</label>
-    <input type="text" id="${id}-title" placeholder="e.g. First attempt at mermaid">
-    ${makeVideoBlock(id, 'Student video '+studentVideoCount)}`;
-  document.getElementById('ll-student-videos').appendChild(wrap);
-}
-
-/* ═══════════════════════════════════════════
-   MOVES (STUDENT)
-═══════════════════════════════════════════ */
-function filterMoves(level, btn) {
-  state.activeFilter=level;
-  document.querySelectorAll('#screen-moves .filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  renderMoves();
-}
-
-function renderMoves() {
-  const list = state.activeFilter==='all' ? MOVES : MOVES.filter(m=>m.level===state.activeFilter);
-  document.getElementById('moves-list').innerHTML = list.map(m=>`
+/* ═══════ MOVES ═══════ */
+function filterMoves(level,btn){_filter=level;document.querySelectorAll('#screen-moves .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderMoves();}
+function renderMoves(){
+  const list=_filter==='all'?MOVES:MOVES.filter(m=>m.level===_filter);
+  document.getElementById('moves-list').innerHTML=list.map(m=>`
     <div class="move-card" onclick="openMoveDetail('${m.id}')">
       <div class="move-card-inner">
         <div class="move-icon">${m.icon}</div>
-        <div class="move-info">
-          <div class="move-name">${m.name}</div>
-          <div class="move-meta"><span class="badge badge-${m.level}">${m.level}</span> · ${m.category}</div>
-        </div>
-        <div class="move-check ${state.mastered.includes(m.id)?'done':''}" onclick="toggleMastered(event,'${m.id}')">
-          ${state.mastered.includes(m.id)?'✓':''}
-        </div>
+        <div class="move-info"><div class="move-name">${m.name}</div><div class="move-meta"><span class="badge badge-${m.level}">${m.level}</span> · ${m.category}</div></div>
+        <div class="move-check ${_mastered.includes(m.id)?'done':''}" onclick="toggleMastered(event,'${m.id}')">${_mastered.includes(m.id)?'✓':''}</div>
       </div>
     </div>`).join('');
 }
 
-function toggleMastered(e, id) {
+async function toggleMastered(e,id){
   e.stopPropagation();
-  const i=state.mastered.indexOf(id);
-  if(i===-1){state.mastered.push(id);toast('Move mastered! ✦');}else{state.mastered.splice(i,1);}
-  saveState(); renderMoves();
+  const isMastered=_mastered.includes(id);
+  if(isMastered){
+    await db.from('move_progress').delete().eq('student_id',currentUser.id).eq('move_id',id);
+    _mastered=_mastered.filter(x=>x!==id);
+  } else {
+    await db.from('move_progress').upsert({student_id:currentUser.id,move_id:id,mastered:true,updated_at:new Date().toISOString()});
+    _mastered.push(id);toast('Mastered! ✦');
+  }
+  renderMoves();
 }
 
-function openMoveDetail(id) {
-  const m = MOVES.find(x=>x.id===id); if(!m) return;
-  const notes = state.userNotes[id]||{};
-
-  // Build video gallery for this move
-  const moveVideos = (state.lessons || []).flatMap(l => {
-    const arr = [];
-    (l.teacherVideos||[]).forEach(v=>{ if((l.moves||[]).map(x=>x.toLowerCase()).includes(m.name.toLowerCase())) arr.push({...v, date:l.date, tag:'Teacher', lessonTitle:l.title}); });
-    (l.studentVideos||[]).forEach(v=>arr.push({...v, date:l.date, tag:'Student', lessonTitle:l.title}));
-    if(l.bestVideo && (l.moves||[]).map(x=>x.toLowerCase()).includes(m.name.toLowerCase())) arr.push({name:'Best of day', url:l.bestVideo, date:l.date, tag:'Best ✦', lessonTitle:l.title});
-    return arr;
-  }).filter(v=>v.url);
-
-  const stepsHtml = m.steps.map((s,i)=>`<li class="step-item"><div class="step-num">${i+1}</div><div class="step-text">${s}</div></li>`).join('');
-  const nextHtml = m.nextMoves.map(n=>`<button class="next-move-btn" onclick="openMoveDetail('${n}')"><div><div class="next-move-name">${fmtId(n)}</div><div class="next-move-hint">Explore this path</div></div><span style="color:var(--rose)">→</span></button>`).join('');
-  const exitHtml = m.exitMoves.map(e=>`<button class="next-move-btn" style="border-color:rgba(200,169,126,0.3)"><div><div class="next-move-name" style="color:var(--gold)">${fmtId(e)}</div><div class="next-move-hint">Exit strategy</div></div><span style="color:var(--gold)">↙</span></button>`).join('');
-
-  let galleryHtml = '';
-  if(moveVideos.length) {
-    const sorted = [...moveVideos].sort((a,b)=>state.videoSort==='date'?b.date?.localeCompare(a.date||''):a.name?.localeCompare(b.name||''));
-    galleryHtml = `
-      <div class="sort-row">
-        <span class="sort-label">Sort</span>
-        <button class="sort-btn ${state.videoSort==='date'?'active':''}" onclick="setVideoSort('date','${id}')">By date</button>
-        <button class="sort-btn ${state.videoSort==='title'?'active':''}" onclick="setVideoSort('title','${id}')">By title</button>
-      </div>
-      <div class="video-gallery">
-        ${sorted.map(v=>`
-          <div class="video-entry">
-            <div class="video-entry-header">
-              <span class="video-entry-date">${fmtDate(v.date)}</span>
-              <span class="video-entry-tag">${v.tag}</span>
-            </div>
-            <div class="video-entry-body">
-              ${v.url.startsWith('blob:')||v.url.startsWith('data:')?
-                `<video src="${v.url}" controls style="width:100%;border-radius:var(--r-xs);max-height:150px;background:#0f0a0d;display:block;margin-bottom:5px"></video>`:
-                `<a href="${v.url}" target="_blank" style="display:block;background:var(--surface2);border-radius:var(--r-xs);padding:10px;font-size:12px;color:var(--deep-rose);margin-bottom:5px">Open video ↗</a>`
-              }
-              <div class="video-title">${v.name||'Video'}</div>
-              ${v.lessonTitle?`<div class="video-notes-text">${v.lessonTitle}</div>`:''}
-            </div>
-          </div>`).join('')}
-      </div>`;
-  }
-
-  document.getElementById('move-detail-content').innerHTML = `
-    <div class="overlay-header">
-      <button class="back-btn" onclick="closeOverlay('move-detail-overlay')">← Back</button>
-      <div style="display:flex;align-items:center;gap:12px">
-        <span style="font-size:28px">${m.icon}</span>
-        <div>
-          <div class="overlay-title">${m.name}</div>
-          <span class="badge badge-${m.level}">${m.level}</span>
-          <span style="margin-left:6px;font-size:10px;color:rgba(247,242,236,0.45)">${m.category}</span>
-        </div>
+function openMoveDetail(id){
+  const m=MOVES.find(x=>x.id===id);if(!m)return;
+  // collect lesson videos for this move
+  const src=currentProfile.role==='teacher'?_lessons:_myLessons;
+  const allVideos=[];
+  src.forEach(l=>{
+    const mn=(l.moves||[]).map(x=>x.toLowerCase());
+    const inLesson=mn.includes(m.name.toLowerCase())||mn.some(n=>n.includes(m.name.split(' ')[0].toLowerCase()));
+    (l.lesson_videos||[]).filter(v=>v.type==='teacher'&&v.url).forEach(v=>allVideos.push({...v,date:l.date,tag:'Teacher',tagClass:'tag-teacher',lessonTitle:l.title}));
+    if(inLesson)(l.lesson_videos||[]).filter(v=>v.type==='student'&&v.url).forEach(v=>allVideos.push({...v,date:l.date,tag:'Student',tagClass:'tag-student',lessonTitle:l.title}));
+    if(inLesson&&l.best_video_url)allVideos.push({title:'Best of day',url:l.best_video_url,date:l.date,tag:'Best ✦',tagClass:'tag-best',lessonTitle:l.title});
+  });
+  const stepsHtml=m.steps.map((s,i)=>`<li class="step-item"><div class="step-num">${i+1}</div><div class="step-text">${s}</div></li>`).join('');
+  const nextHtml=m.nextMoves.map(n=>`<button class="next-move-btn" onclick="openMoveDetail('${n}')"><div><div class="next-move-name">${fmtId(n)}</div><div class="next-move-hint">Explore this path</div></div><span style="color:var(--rose)">→</span></button>`).join('');
+  const exitHtml=m.exitMoves.map(e=>`<button class="next-move-btn" style="border-color:rgba(200,169,126,0.3)"><div><div class="next-move-name" style="color:var(--gold)">${fmtId(e)}</div><div class="next-move-hint">Exit strategy</div></div><span style="color:var(--gold)">↙</span></button>`).join('');
+  document.getElementById('move-detail-content').innerHTML=`
+    <div class="overlay-header"><button class="back-btn" onclick="closeOv('move-detail-ov')">← Back</button>
+      <div style="display:flex;align-items:center;gap:12px"><span style="font-size:28px">${m.icon}</span>
+        <div><div class="overlay-title">${m.name}</div><span class="badge badge-${m.level}">${m.level}</span><span style="margin-left:6px;font-size:10px;color:rgba(247,242,236,0.45)">${m.category}</span></div>
       </div>
     </div>
     <div class="overlay-body">
       <p style="font-size:13px;line-height:1.6;color:var(--mauve);margin-bottom:16px">${m.description}</p>
-      <div class="sec" style="margin-top:0">Technique</div>
-      <ul class="steps-list">${stepsHtml}</ul>
+      <div class="sec" style="margin-top:0">Technique</div><ul class="steps-list">${stepsHtml}</ul>
       <div class="sec">Next Moves →</div>${nextHtml}
       <div class="sec">Exits ↙</div>${exitHtml}
       <div class="sec">Conditioning</div>
-      <div class="card"><div class="card-body" style="padding:8px 14px">
-        ${m.conditioning.map(c=>`<div style="padding:5px 0;font-size:12.5px;border-bottom:1px solid var(--border);color:var(--mauve)">${c}</div>`).join('')}
-      </div></div>
-      ${moveVideos.length?`<div class="sec">Video History (${moveVideos.length})</div>${galleryHtml}`:''}
-      <div class="sec">My Notes & Videos</div>
-      ${makeVideoBlock('mv-instructor-'+id, 'Instructor video')}
-      ${makeVideoBlock('mv-personal-'+id, 'My practice video')}
-      <label class="field-label">Notes</label>
-      <textarea id="note-text-${id}" placeholder="Cues, corrections, what to work on...">${notes.text||''}</textarea>
-      <button class="btn-primary btn-full" onclick="saveNotes('${id}')">Save Notes</button>
+      <div class="card"><div class="card-body" style="padding:8px 14px">${m.conditioning.map(c=>`<div style="padding:5px 0;font-size:12.5px;border-bottom:1px solid var(--border);color:var(--mauve)">${c}</div>`).join('')}</div></div>
+      ${allVideos.length?`<div class="sec">Video History (${allVideos.length})</div>
+        <div class="sort-row"><span class="sort-label">Sort</span>
+          <button class="sort-btn ${_vsort==='date'?'active':''}" onclick="_vsort='date';openMoveDetail('${id}')">By date</button>
+          <button class="sort-btn ${_vsort==='title'?'active':''}" onclick="_vsort='title';openMoveDetail('${id}')">By title</button>
+        </div><div class="video-gallery">${videoGalleryHtml(allVideos,_vsort)}</div>`:''}
       <div class="spacer-80"></div>
     </div>`;
-  openOverlay('move-detail-overlay');
+  openOv('move-detail-ov');
 }
 
-function setVideoSort(sort, moveId) {
-  state.videoSort = sort; saveState();
-  openMoveDetail(moveId);
-}
-
-function saveNotes(id) {
-  const text = document.getElementById(`note-text-${id}`)?.value||'';
-  const instrUrl = document.getElementById(`mv-instructor-${id}-url-input`)?.value||'';
-  const persUrl = document.getElementById(`mv-personal-${id}-url-input`)?.value||'';
-  state.userNotes[id] = { text, instrUrl, persUrl };
-  saveState(); toast('Saved ✓');
-}
-
-/* ═══════════════════════════════════════════
-   ADVENTURE
-═══════════════════════════════════════════ */
-let advState = { move: MOVES[0], history: [] };
-
-function renderAdventure() {
-  const m = advState.move;
-  const opts = m.nextMoves.slice(0,3).map(n=>{ const f=MOVES.find(x=>x.id===n); return {id:n,name:fmtId(n),found:f}; });
-  const crumbs = advState.history.length ? `<div class="adv-crumbs">${advState.history.map(h=>`<span class="adv-crumb">${h}</span>`).join('<span style="color:rgba(200,169,126,0.3);font-size:10px;padding:0 2px">→</span>')}</div>` : '';
-  document.getElementById('adventure-container').innerHTML = `
+/* ═══════ ADVENTURE ═══════ */
+function renderAdventure(){
+  const m=_adv.move;
+  const opts=m.nextMoves.slice(0,3).map(n=>{const f=MOVES.find(x=>x.id===n);return{id:n,name:fmtId(n),found:f};});
+  const crumbs=_adv.history.length?`<div class="adv-crumbs">${_adv.history.map(h=>`<span class="adv-crumb">${h}</span>`).join('<span style="color:rgba(200,169,126,0.3);padding:0 2px">→</span>')}</div>`:'';
+  document.getElementById('adventure-container').innerHTML=`
     <div class="adv-card">
-      <div class="adv-label">Currently in</div>
-      <div class="adv-title">${m.icon} ${m.name}</div>
-      ${crumbs}
+      <div class="adv-label">Currently in</div><div class="adv-title">${m.icon} ${m.name}</div>${crumbs}
       <p style="font-size:9.5px;color:rgba(200,169,126,0.55);letter-spacing:0.5px;margin-bottom:12px;text-transform:uppercase">Where do you flow next?</p>
       ${opts.map(o=>`<button class="adv-choice" onclick="advChoose('${o.id}')"><div class="adv-choice-name">${o.name}</div><div class="adv-choice-hint">${o.found?o.found.category+' · '+o.found.level:'Explore'}</div></button>`).join('')}
       <button class="adv-choice" style="background:rgba(200,169,126,0.07);border-color:rgba(200,169,126,0.13);margin-top:3px" onclick="toast('Exits: ${m.exitMoves.map(fmtId).join(', ')}')">
-        <div class="adv-choice-name" style="color:var(--gold)">↙ Exit options</div>
-        <div class="adv-choice-hint">${m.exitMoves.map(fmtId).join(' · ')}</div>
+        <div class="adv-choice-name" style="color:var(--gold)">↙ Exit options</div><div class="adv-choice-hint">${m.exitMoves.map(fmtId).join(' · ')}</div>
       </button>
     </div>
-    <div class="card"><div class="card-body">
-      <div class="sec" style="margin-top:0">About this move</div>
+    <div class="card"><div class="card-body"><div class="sec" style="margin-top:0">About this move</div>
       <p style="font-size:13px;line-height:1.6;color:var(--mauve)">${m.description}</p>
       <button style="margin-top:10px;background:none;border:1px solid var(--border-med);border-radius:20px;padding:6px 14px;font-size:11px;color:var(--deep-rose);cursor:pointer;font-family:var(--sans)" onclick="openMoveDetail('${m.id}')">Full technique →</button>
     </div></div>
     <button style="background:none;border:none;color:var(--mauve);font-size:11px;cursor:pointer;padding:8px 0;font-family:var(--sans)" onclick="advReset()">↺ New adventure</button>`;
 }
+function advChoose(id){_adv.history.push(_adv.move.name);if(_adv.history.length>4)_adv.history.shift();const f=MOVES.find(m=>m.id===id);if(f){_adv.move=f;renderAdventure();}else toast('Path coming soon!');}
+function advReset(){_adv={move:MOVES[Math.floor(Math.random()*4)],history:[]};renderAdventure();}
 
-function advChoose(id) {
-  advState.history.push(advState.move.name);
-  if(advState.history.length>4) advState.history.shift();
-  const f = MOVES.find(m=>m.id===id);
-  if(f){ advState.move=f; renderAdventure(); } else { toast('Path coming soon!'); }
-}
-function advReset() { advState={move:MOVES[Math.floor(Math.random()*4)],history:[]}; renderAdventure(); }
-
-/* ═══════════════════════════════════════════
-   SEQUENCES
-═══════════════════════════════════════════ */
-let seqLevel = 'beginner';
-function setSeqLvl(l, btn) {
-  seqLevel=l;
-  document.querySelectorAll('#add-seq-overlay .filter-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-function renderSeqs() {
-  const all = [...DEFAULT_SEQS, ...state.userSeqs];
-  let html = '<div class="sec" style="margin-top:0">Curated</div>'+DEFAULT_SEQS.map(s=>seqCard(s,false)).join('');
-  if(state.userSeqs.length) html += '<div class="sec">Mine</div>'+state.userSeqs.map((s,i)=>seqCard(s,true,i)).join('');
-  html += '<div class="spacer-80"></div>';
+/* ═══════ SEQUENCES ═══════ */
+function setSeqLvl(l,btn){_seqLvl=l;document.querySelectorAll('#add-seq-ov .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function renderSeqs(){
+  let html='<div class="sec" style="margin-top:0">Curated</div>'+DEFAULT_SEQS.map(s=>seqCardHtml(s,false)).join('');
+  if(_sequences.length)html+='<div class="sec">Mine</div>'+_sequences.map((s,i)=>seqCardHtml(s,true,i)).join('');
+  html+='<div class="spacer-80"></div>';
   document.getElementById('sequences-list').innerHTML=html;
 }
-
-function seqCard(s, isUser, idx) {
-  const flow = s.moves.map((m,i)=>`<span class="flow-pill">${m}</span>${i<s.moves.length-1?'<span class="flow-arrow">→</span>':''}`).join('');
-  return `<div class="seq-card">
-    <div class="seq-head"><div><div class="seq-name">${s.name}</div><span class="badge badge-${s.level}">${s.level}</span></div>
-      ${isUser?`<button onclick="delSeq(${idx})" style="background:none;border:none;color:var(--rose);cursor:pointer;font-size:18px">×</button>`:''}
-    </div>
-    <div class="seq-flow">${flow}<span style="margin-left:5px;font-size:9.5px;color:var(--gold)">↙ ${s.exitMove}</span></div>
-    ${s.notes?`<div class="seq-note-text">"${s.notes}"</div>`:''}
-  </div>`;
+function seqCardHtml(s,isUser,idx){
+  const flow=(s.moves||[]).map((m,i)=>`<span class="flow-pill">${m}</span>${i<s.moves.length-1?'<span class="flow-arrow">→</span>':''}`).join('');
+  return `<div class="seq-card"><div class="seq-head"><div><div class="seq-name">${s.name}</div><span class="badge badge-${s.level}">${s.level}</span></div>${isUser?`<button onclick="delSeq('${s.id}')" style="background:none;border:none;color:var(--rose);cursor:pointer;font-size:18px">×</button>`:''}</div><div class="seq-flow">${flow}<span style="margin-left:5px;font-size:9.5px;color:var(--gold)">↙ ${s.exit_move||'Descent'}</span></div>${s.notes?`<div class="seq-note-text">"${s.notes}"</div>`:''}</div>`;
 }
-
-function saveSeq() {
+async function saveSeq(){
   const name=document.getElementById('sq-name').value.trim();
   const movesRaw=document.getElementById('sq-moves').value.trim();
   if(!name||!movesRaw){toast('Add name and moves');return;}
-  state.userSeqs.push({ id:uid(), name, level:seqLevel, moves:movesRaw.split(',').map(m=>m.trim()).filter(Boolean), exitMove:document.getElementById('sq-exit').value.trim()||'Descent', notes:document.getElementById('sq-notes').value.trim(), video:document.getElementById('sq-video').value.trim() });
-  saveState(); closeOverlay('add-seq-overlay'); renderSeqs(); toast('Sequence saved ✦');
-  ['sq-name','sq-moves','sq-exit','sq-video','sq-notes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  const seq={created_by:currentUser.id,name,level:_seqLvl,moves:movesRaw.split(',').map(m=>m.trim()).filter(Boolean),exit_move:document.getElementById('sq-exit').value.trim()||'Descent',notes:document.getElementById('sq-notes').value.trim()};
+  const{data,error}=await db.from('sequences').insert(seq).select().single();
+  if(error){toast('Error saving');return;}
+  _sequences.unshift(data);closeOv('add-seq-ov');renderSeqs();toast('Sequence saved ✦');
+  ['sq-name','sq-moves','sq-exit','sq-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
 }
-function delSeq(i){ state.userSeqs.splice(i,1); saveState(); renderSeqs(); toast('Removed'); }
+async function delSeq(id){
+  await db.from('sequences').delete().eq('id',id);
+  _sequences=_sequences.filter(s=>s.id!==id);renderSeqs();toast('Removed');
+}
 
-/* ═══════════════════════════════════════════
-   INSPIRATION
-═══════════════════════════════════════════ */
-function renderInspirations() {
+/* ═══════ INSPIRATION ═══════ */
+function renderInspirations(){
   const el=document.getElementById('inspiration-list');
-  if(!state.inspirations.length){ el.innerHTML='<p style="font-size:13px;color:var(--mauve);font-style:italic">No reels saved yet.</p>'; return; }
-  el.innerHTML=state.inspirations.map((r,i)=>`
+  if(!_inspirations.length){el.innerHTML='<p class="empty-state">No reels saved yet.</p>';return;}
+  el.innerHTML=_inspirations.map((r,i)=>`
     <div class="insp-card" onclick="openInspDetail(${i})">
-      <div class="insp-thumb"><div class="insp-thumb-glyph">✦</div>
-        ${r.parsed?`<span class="badge badge-gold" style="position:absolute;top:8px;right:8px">AI Parsed</span>`:''}
-      </div>
-      <div class="insp-info">
-        <div class="insp-title">${r.title||'Untitled'}</div>
-        <div class="insp-url">${r.url}</div>
-        ${r.parsed&&r.parsed.length?`<div class="insp-parsed-line">${r.parsed.length} moves · ${r.parsed.slice(0,3).map(p=>p.name).join(', ')}${r.parsed.length>3?'…':''}</div>`:''}
-      </div>
+      <div class="insp-thumb"><div class="insp-thumb-glyph">✦</div>${r.parsed_moves?'<span class="badge badge-gold" style="position:absolute;top:8px;right:8px">AI Parsed</span>':''}</div>
+      <div class="insp-info"><div class="insp-title">${r.title||'Untitled'}</div><div class="insp-url">${r.url}</div>${r.parsed_moves&&r.parsed_moves.length?`<div class="insp-parsed-line">${r.parsed_moves.length} moves · ${r.parsed_moves.slice(0,3).map(p=>p.name).join(', ')}${r.parsed_moves.length>3?'…':''}</div>`:''}</div>
       <div class="insp-actions" onclick="event.stopPropagation()">
         <button class="insp-action" onclick="window.open('${r.url}','_blank')">Open ↗</button>
-        ${r.parsed&&r.parsed.length?`<button class="insp-action" onclick="saveInspAsSeq(${i})">→ Sequence</button>`:''}
-        <button class="insp-action" style="color:var(--mauve)" onclick="deleteInsp(${i})">Remove</button>
+        ${r.parsed_moves&&r.parsed_moves.length?`<button class="insp-action" onclick="saveInspAsSeq(${i})">→ Sequence</button>`:''}
+        <button class="insp-action" style="color:var(--mauve)" onclick="deleteInsp('${r.id}',${i})">Remove</button>
       </div>
     </div>`).join('');
 }
-
-function saveReelOnly() {
-  const url=document.getElementById('reel-url').value.trim();
-  if(!url){toast('Add a URL');return;}
-  state.inspirations.unshift({ url, title:document.getElementById('reel-title').value.trim()||'Untitled', caption:document.getElementById('reel-caption').value.trim(), notes:document.getElementById('reel-notes').value.trim(), parsed:null, savedAt:new Date().toLocaleDateString() });
-  saveState(); clearReelForm(); renderInspirations(); toast('Reel saved!');
+async function saveReelOnly(){
+  const url=document.getElementById('reel-url').value.trim();if(!url){toast('Add a URL');return;}
+  const rec={created_by:currentUser.id,url,title:document.getElementById('reel-title').value.trim()||'Untitled',caption:document.getElementById('reel-caption').value.trim(),notes:document.getElementById('reel-notes').value.trim()};
+  const{data,error}=await db.from('inspirations').insert(rec).select().single();
+  if(error){toast('Error saving');return;}
+  _inspirations.unshift(data);clearReelForm();renderInspirations();toast('Reel saved!');
 }
-
-async function parseAndSave() {
-  const caption=document.getElementById('reel-caption').value.trim();
-  if(!caption){toast('Paste a caption first');return;}
-  const insp={ url:document.getElementById('reel-url').value.trim()||'No URL', title:document.getElementById('reel-title').value.trim()||'Untitled', caption, notes:document.getElementById('reel-notes').value.trim(), parsed:null, savedAt:new Date().toLocaleDateString() };
-  state.inspirations.unshift(insp); saveState(); clearReelForm(); renderInspirations();
+async function parseAndSave(){
+  const caption=document.getElementById('reel-caption').value.trim();if(!caption){toast('Paste a caption first');return;}
+  const rec={created_by:currentUser.id,url:document.getElementById('reel-url').value.trim()||'No URL',title:document.getElementById('reel-title').value.trim()||'Untitled',caption,notes:document.getElementById('reel-notes').value.trim()};
+  const{data,error}=await db.from('inspirations').insert(rec).select().single();
+  if(error){toast('Error saving');return;}
+  _inspirations.unshift(data);clearReelForm();renderInspirations();
   await parseCaption(0);
 }
-
-async function parseCaption(idx) {
-  const insp=state.inspirations[idx];
-  const prompt=`You are an aerial silks instructor assistant. Analyze this text and extract moves/skills.\n\nText: ${insp.caption}\n\nRespond ONLY with valid JSON, no other text:\n{"title":"short title","level":"beginner OR intermediate OR advanced","moves":[{"name":"Move name","pathway":"optional pathway","description":"1 sentence","tips":"any tip mentioned","order":1}],"exitStrategy":"exit if mentioned","sequenceSummary":"1-2 sentence summary"}`;
-  try {
+async function parseCaption(idx){
+  const r=_inspirations[idx];
+  const prompt=`You are an aerial silks instructor. Extract moves from this text.\nText: ${r.caption}\nJSON only:\n{"title":"short title","level":"beginner OR intermediate OR advanced","moves":[{"name":"Move name","pathway":"optional","description":"1 sentence","tips":"any tip","order":1}],"exitStrategy":"exit if mentioned","sequenceSummary":"1-2 sentence summary"}`;
+  try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:prompt}]})});
     const data=await res.json();
-    const raw=data.content?.find(b=>b.type==='text')?.text||'';
-    const parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());
-    state.inspirations[idx].parsed=parsed.moves||[];
-    state.inspirations[idx].parsedMeta={title:parsed.title,level:parsed.level,exit:parsed.exitStrategy,summary:parsed.sequenceSummary};
-    if(state.inspirations[idx].title==='Untitled'&&parsed.title) state.inspirations[idx].title=parsed.title;
-    saveState(); renderInspirations(); toast('Moves identified ✦');
-  } catch(e){ toast('Parse error — check caption'); }
+    const parsed=JSON.parse(data.content?.find(b=>b.type==='text')?.text?.replace(/```json|```/g,'').trim()||'{}');
+    const update={parsed_moves:parsed.moves||[],parsed_meta:{title:parsed.title,level:parsed.level,exit:parsed.exitStrategy,summary:parsed.sequenceSummary}};
+    if((_inspirations[idx].title||'Untitled')==='Untitled'&&parsed.title)update.title=parsed.title;
+    await db.from('inspirations').update(update).eq('id',r.id);
+    Object.assign(_inspirations[idx],update);
+    renderInspirations();toast('Moves identified ✦');
+  }catch(e){toast('Parse error — check caption');}
 }
-
-function openInspDetail(i) {
-  const r=state.inspirations[i];
-  const meta=r.parsedMeta||{};
-  const movesHtml=r.parsed&&r.parsed.length?`
-    <div class="ai-parse-wrap">
-      <div class="ai-parse-title">Moves identified</div>
-      <div class="ai-parse-sub">${r.parsed.length} skill${r.parsed.length!==1?'s':''} · AI analysis</div>
-      ${r.parsed.map(m=>`<div class="ai-move-card"><div class="ai-move-name">${m.name}${m.pathway?` <span style="font-size:9px;color:rgba(200,169,126,0.6)">· ${m.pathway}</span>`:''}</div>${m.description?`<div class="ai-move-detail">${m.description}</div>`:''}${m.tips?`<div class="ai-tip">💡 ${m.tips}</div>`:''}</div>`).join('')}
-      ${meta.exit?`<div class="ai-move-card" style="border-color:rgba(200,169,126,0.3)"><div class="ai-move-name" style="color:var(--gold)">↙ Exit</div><div class="ai-move-detail">${meta.exit}</div></div>`:''}
-    </div>`:r.caption?`<div class="sec">Caption</div><div class="card"><div class="card-body"><p style="font-size:12.5px;line-height:1.6;color:var(--mauve);white-space:pre-wrap">${r.caption}</p></div></div>`:'';
+function openInspDetail(i){
+  const r=_inspirations[i];const meta=r.parsed_meta||{};
+  const movesHtml=r.parsed_moves&&r.parsed_moves.length?`<div class="ai-parse-wrap"><div class="ai-parse-title">Moves identified</div><div class="ai-parse-sub">${r.parsed_moves.length} skill${r.parsed_moves.length!==1?'s':''} · AI analysis</div>${r.parsed_moves.map(m=>`<div class="ai-move-card"><div class="ai-move-name">${m.name}${m.pathway?` <span style="font-size:9px;color:rgba(200,169,126,0.6)">· ${m.pathway}</span>`:''}</div>${m.description?`<div class="ai-move-detail">${m.description}</div>`:''}${m.tips?`<div class="ai-tip">💡 ${m.tips}</div>`:''}</div>`).join('')}${meta.exit?`<div class="ai-move-card" style="border-color:rgba(200,169,126,0.3)"><div class="ai-move-name" style="color:var(--gold)">↙ Exit</div><div class="ai-move-detail">${meta.exit}</div></div>`:''}</div>`:r.caption?`<div class="sec">Caption</div><div class="card"><div class="card-body"><p style="font-size:12.5px;line-height:1.6;color:var(--mauve);white-space:pre-wrap">${r.caption}</p></div></div>`:'';
   document.getElementById('insp-detail-content').innerHTML=`
-    <div class="overlay-header">
-      <button class="back-btn" onclick="closeOverlay('insp-detail-overlay')">← Back</button>
-      <div class="overlay-title">${r.title||'Untitled'}</div>
-      <div style="margin-top:6px;display:flex;gap:6px;align-items:center">${meta.level?`<span class="badge badge-${meta.level}">${meta.level}</span>`:''}<span style="font-size:10px;color:rgba(247,242,236,0.38)">${r.savedAt||''}</span></div>
-    </div>
+    <div class="overlay-header"><button class="back-btn" onclick="closeOv('insp-detail-ov')">← Back</button><div class="overlay-title">${r.title||'Untitled'}</div><div style="margin-top:6px;display:flex;gap:6px;align-items:center">${meta.level?`<span class="badge badge-${meta.level}">${meta.level}</span>`:''}<span style="font-size:10px;color:rgba(247,242,236,0.38)">${r.created_at?new Date(r.created_at).toLocaleDateString():''}</span></div></div>
     <div class="overlay-body">
       <button class="btn-secondary btn-full" onclick="window.open('${r.url}','_blank')" style="margin-bottom:12px">Open reel ↗</button>
       ${meta.summary?`<div class="card"><div class="card-body"><p style="font-size:13px;line-height:1.6;color:var(--mauve);font-style:italic">${meta.summary}</p></div></div>`:''}
       ${movesHtml}
-      ${r.parsed&&r.parsed.length?`<button class="btn-primary btn-full" style="margin-top:12px" onclick="saveInspAsSeq(${i})">Save as sequence →</button>`:''}
-      ${r.notes?`<div class="sec">My Notes</div><div class="card"><div class="card-body"><p style="font-size:12.5px;color:var(--mauve)">${r.notes}</p></div></div>`:''}
+      ${r.parsed_moves&&r.parsed_moves.length?`<button class="btn-primary btn-full" style="margin-top:12px" onclick="saveInspAsSeq(${i})">Save as sequence →</button>`:''}
       <div class="spacer-80"></div>
     </div>`;
-  openOverlay('insp-detail-overlay');
+  openOv('insp-detail-ov');
+}
+async function saveInspAsSeq(i){
+  const r=_inspirations[i];if(!r.parsed_moves||!r.parsed_moves.length){toast('No moves parsed yet');return;}
+  const seq={created_by:currentUser.id,name:r.title||'Untitled',level:r.parsed_meta?.level||'intermediate',moves:r.parsed_moves.map(m=>m.name),exit_move:r.parsed_meta?.exit||'Descent',notes:r.parsed_meta?.summary||''};
+  const{data}=await db.from('sequences').insert(seq).select().single();
+  if(data){_sequences.unshift(data);toast('Saved to sequences ✦');}
+}
+async function deleteInsp(id,i){
+  await db.from('inspirations').delete().eq('id',id);
+  _inspirations.splice(i,1);renderInspirations();closeOv('insp-detail-ov');toast('Removed');
+}
+function clearReelForm(){['reel-url','reel-title','reel-caption','reel-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});}
+
+/* ═══════ MY LESSONS (student view) ═══════ */
+function renderMyLessons(){
+  const el=document.getElementById('my-lessons-list');
+  if(!_myLessons.length){el.innerHTML='<p class="empty-state">No lessons logged yet — your teacher will log lessons for you.</p>';return;}
+  el.innerHTML=_myLessons.map(l=>lessonEntryHtml(l,true)).join('');
 }
 
-function saveInspAsSeq(i) {
-  const r=state.inspirations[i];
-  if(!r.parsed||!r.parsed.length){toast('No moves parsed yet');return;}
-  state.userSeqs.push({ id:uid(), name:r.title||'Untitled', level:r.parsedMeta?.level||'intermediate', moves:r.parsed.map(m=>m.name), exitMove:r.parsedMeta?.exit||'Descent', notes:r.parsedMeta?.summary||'' });
-  saveState(); toast('Saved to sequences ✦');
-}
-function deleteInsp(i){ state.inspirations.splice(i,1); saveState(); renderInspirations(); closeOverlay('insp-detail-overlay'); toast('Removed'); }
-function clearReelForm(){ ['reel-url','reel-title','reel-caption','reel-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';}); }
-
-/* ═══════════════════════════════════════════
-   PROGRESS
-═══════════════════════════════════════════ */
-function renderProgress() {
-  const total=MOVES.length,done=state.mastered.length,pct=total?Math.round(done/total*100):0;
-  const byLevel={beginner:{t:0,d:0},intermediate:{t:0,d:0},advanced:{t:0,d:0}};
-  MOVES.forEach(m=>byLevel[m.level].t++);
-  state.mastered.forEach(id=>{const m=MOVES.find(x=>x.id===id);if(m)byLevel[m.level].d++;});
-  const lessonCount=(state.lessons||[]).length;
+/* ═══════ PROGRESS ═══════ */
+function renderProgress(){
+  const total=MOVES.length,done=_mastered.length,pct=total?Math.round(done/total*100):0;
+  const by={beginner:{t:0,d:0},intermediate:{t:0,d:0},advanced:{t:0,d:0}};
+  MOVES.forEach(m=>by[m.level].t++);_mastered.forEach(id=>{const m=MOVES.find(x=>x.id===id);if(m)by[m.level].d++;});
+  const src=currentProfile?.role==='teacher'?_lessons:_myLessons;
   document.getElementById('progress-content').innerHTML=`
-    <div class="prog-hero">
-      <div class="prog-pct">${pct}%</div>
-      <div class="prog-sub">${done} of ${total} moves mastered</div>
-    </div>
-    <div class="stat-row">
-      <div class="stat-box"><div class="stat-num">${byLevel.beginner.d}/${byLevel.beginner.t}</div><div class="stat-label">Beginner</div></div>
-      <div class="stat-box"><div class="stat-num">${byLevel.intermediate.d}/${byLevel.intermediate.t}</div><div class="stat-label">Intermediate</div></div>
-    </div>
-    <div class="stat-row">
-      <div class="stat-box"><div class="stat-num">${byLevel.advanced.d}/${byLevel.advanced.t}</div><div class="stat-label">Advanced</div></div>
-      <div class="stat-box"><div class="stat-num">${lessonCount}</div><div class="stat-label">Lessons logged</div></div>
-    </div>
+    <div class="prog-hero"><div class="prog-pct">${pct}%</div><div class="prog-sub">${done} of ${total} moves mastered</div></div>
+    <div class="stat-row"><div class="stat-box"><div class="stat-num">${by.beginner.d}/${by.beginner.t}</div><div class="stat-label">Beginner</div></div><div class="stat-box"><div class="stat-num">${by.intermediate.d}/${by.intermediate.t}</div><div class="stat-label">Intermediate</div></div></div>
+    <div class="stat-row"><div class="stat-box"><div class="stat-num">${by.advanced.d}/${by.advanced.t}</div><div class="stat-label">Advanced</div></div><div class="stat-box"><div class="stat-num">${src.length}</div><div class="stat-label">Lessons</div></div></div>
     <div class="sec">Mastered</div>
-    ${state.mastered.length===0?'<p style="font-size:13px;color:var(--mauve);font-style:italic">Check off moves as you learn them</p>':
-      state.mastered.map(id=>{const m=MOVES.find(x=>x.id===id);return m?`<div style="display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:6px;box-shadow:var(--shadow)"><span style="font-size:17px">${m.icon}</span><span style="font-size:13px;font-weight:500">${m.name}</span><span class="badge badge-${m.level}" style="margin-left:auto">${m.level}</span></div>`:''}).join('')}
+    ${_mastered.length===0?'<p class="empty-state">Check off moves as you learn them</p>':_mastered.map(id=>{const m=MOVES.find(x=>x.id===id);return m?`<div style="display:flex;align-items:center;gap:10px;padding:9px 13px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:6px;box-shadow:var(--shadow)"><span style="font-size:17px">${m.icon}</span><span style="font-size:13px;font-weight:500">${m.name}</span><span class="badge badge-${m.level}" style="margin-left:auto">${m.level}</span></div>`:''}).join('')}
     <div class="spacer-80"></div>`;
 }
 
-/* ═══════════════════════════════════════════
-   TEACHER — CLASSES
-═══════════════════════════════════════════ */
-function renderClasses() {
-  const el=document.getElementById('classes-list');
-  if(!el) return;
-  if(!state.classes.length){ el.innerHTML='<p style="font-size:13px;color:var(--mauve);font-style:italic">No classes yet. Log your first one.</p>'; return; }
-  el.innerHTML=[...state.classes].sort((a,b)=>b.date?.localeCompare(a.date||'')).map((c,i)=>{
-    const relevant = (state.lessons||[]).filter(l=>c.students?.includes(l.studentId)||false);
-    return `<div class="class-card">
-      <div class="class-card-head">
-        <div class="class-card-title">${c.name}</div>
-        <div class="class-card-date">${fmtDate(c.date)}</div>
-      </div>
-      <div class="class-card-body">
-        ${c.students&&c.students.length?`<div style="font-size:11px;color:var(--mauve);margin-bottom:6px">Students: ${c.students.join(', ')}</div>`:''}
-        ${c.notes?`<div style="font-size:12.5px;color:var(--ink);line-height:1.5;margin-bottom:8px">${c.notes}</div>`:''}
-        <button class="btn-secondary" style="font-size:11px;padding:6px 12px" onclick="openClassLessons(${i})">View lesson logs →</button>
+/* ═══════ TEACHER — STUDENTS ═══════ */
+function renderStudents(){
+  const el=document.getElementById('students-list');if(!el)return;
+  if(!_students.length){el.innerHTML='<p class="empty-state">No students yet. Add a student by their email address.</p>';return;}
+  el.innerHTML=_students.map(s=>{
+    const sLessons=_lessons.filter(l=>l.student_id===s.id);
+    return `<div class="move-card" onclick="openStudentDetail('${s.id}')">
+      <div class="move-card-inner">
+        <div class="student-avatar">${(s.name||'?')[0]}</div>
+        <div class="move-info"><div class="move-name">${s.name}</div><div class="move-meta"><span class="badge badge-${s.level}">${s.level}</span> · ${sLessons.length} lesson${sLessons.length!==1?'s':''}</div></div>
+        <span style="color:var(--rose);font-size:16px">›</span>
       </div>
     </div>`;
   }).join('');
 }
 
-function openClassLessons(classIdx) {
-  const c = state.classes[classIdx];
-  const classLessons = (state.lessons||[]).filter(l=>l.classId===c.id);
-  const content = `
-    <div class="overlay-header">
-      <button class="back-btn" onclick="closeOverlay('lesson-history-overlay')">← Back</button>
-      <div class="overlay-title">${c.name}</div>
-      <div style="margin-top:5px;font-size:10px;color:rgba(247,242,236,0.45)">${fmtDate(c.date)} · ${c.students?.length||0} students</div>
-    </div>
-    <div class="overlay-body">
-      ${c.notes?`<div class="card"><div class="card-body"><p style="font-size:12.5px;color:var(--mauve)">${c.notes}</p></div></div>`:''}
-      <div class="sec">Lesson Logs</div>
-      ${classLessons.length?classLessons.map(l=>lessonEntryHtml(l)).join(''):
-        '<p style="font-size:13px;color:var(--mauve);font-style:italic">No lessons logged for this class yet.</p>'}
-      <div class="spacer-80"></div>
-    </div>`;
-  document.getElementById('lesson-history-content').innerHTML=content;
-  openOverlay('lesson-history-overlay');
+async function addStudent(){
+  const email=document.getElementById('st-email').value.trim().toLowerCase();
+  const level=document.getElementById('st-level').value;
+  const notes=document.getElementById('st-notes').value.trim();
+  const errEl=document.getElementById('add-student-error');errEl.textContent='';
+  if(!email){errEl.textContent='Enter the student\'s email.';return;}
+  // look up profile by email via auth
+  const{data:profiles,error}=await db.from('profiles').select('*').eq('id',(await db.from('profiles').select('id')).data?.find(p=>p.id));
+  // Use RPC to find user by email
+  const{data:found,error:e2}=await db.rpc('get_profile_by_email',{email_input:email});
+  if(e2||!found||!found.length){
+    // fallback: try direct lookup - student must exist
+    errEl.textContent='Student not found. Make sure they have created an account with that email first.';
+    return;
+  }
+  const studentProfile=found[0];
+  const{data,error:e3}=await db.from('teacher_students').insert({teacher_id:currentUser.id,student_id:studentProfile.id,level,notes}).select().single();
+  if(e3){errEl.textContent='Could not add student. They may already be added.';return;}
+  _students.push({id:studentProfile.id,name:studentProfile.full_name,level,notes,tsId:data.id});
+  closeOv('add-student-ov');renderStudents();toast('Student added ✦');
+  ['st-email','st-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
 }
 
-function saveClass() {
-  const name=document.getElementById('cls-name').value.trim();
-  const date=document.getElementById('cls-date').value;
-  if(!name){toast('Add a class name');return;}
-  const studentsRaw=document.getElementById('cls-students').value.trim();
-  state.classes.push({ id:uid(), name, date, students:studentsRaw?studentsRaw.split(',').map(s=>s.trim()).filter(Boolean):[], notes:document.getElementById('cls-notes').value.trim() });
-  saveState(); closeOverlay('add-class-overlay'); renderClasses(); toast('Class saved ✦');
-  ['cls-name','cls-date','cls-students','cls-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-}
-
-/* ═══════════════════════════════════════════
-   TEACHER — STUDENTS
-═══════════════════════════════════════════ */
-function renderStudents() {
-  const el=document.getElementById('students-list');
-  if(!el) return;
-  if(!state.students.length){ el.innerHTML='<p style="font-size:13px;color:var(--mauve);font-style:italic">No students yet.</p>'; return; }
-  el.innerHTML=state.students.map((s,i)=>{
-    const sLessons=(state.lessons||[]).filter(l=>l.studentId===s.id);
-    return `<div class="student-card" onclick="openStudentDetail(${i})">
-      <div class="student-card-inner">
-        <div class="student-avatar">${s.name[0]||'?'}</div>
-        <div class="student-info">
-          <div class="student-name">${s.name}</div>
-          <div class="student-meta"><span class="badge badge-${s.level}">${s.level}</span> · ${sLessons.length} lesson${sLessons.length!==1?'s':''} logged</div>
-        </div>
-        <span class="student-arrow">›</span>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-function openStudentDetail(idx) {
-  const s=state.students[idx];
-  const lessons=(state.lessons||[]).filter(l=>l.studentId===s.id).sort((a,b)=>b.date?.localeCompare(a.date||''));
-  const content=`
-    <div class="overlay-header">
-      <button class="back-btn" onclick="closeOverlay('student-detail-overlay')">← Back</button>
+function openStudentDetail(studentId){
+  const s=_students.find(x=>x.id===studentId);if(!s)return;
+  const sLessons=_lessons.filter(l=>l.student_id===studentId).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const allVideos=[];
+  sLessons.forEach(l=>{
+    (l.lesson_videos||[]).filter(v=>v.type==='teacher'&&v.url).forEach(v=>allVideos.push({...v,date:l.date,tag:'Teacher',tagClass:'tag-teacher',lessonTitle:l.title}));
+    (l.lesson_videos||[]).filter(v=>v.type==='student'&&v.url).forEach(v=>allVideos.push({...v,date:l.date,tag:'Student',tagClass:'tag-student',lessonTitle:l.title}));
+    if(l.best_video_url)allVideos.push({title:'Best of day',url:l.best_video_url,date:l.date,tag:'Best ✦',tagClass:'tag-best',lessonTitle:l.title});
+  });
+  document.getElementById('student-detail-content').innerHTML=`
+    <div class="overlay-header"><button class="back-btn" onclick="closeOv('student-detail-ov')">← Back</button>
       <div style="display:flex;align-items:center;gap:12px;margin-top:4px">
-        <div class="student-avatar" style="width:48px;height:48px;font-size:22px">${s.name[0]}</div>
-        <div>
-          <div class="overlay-title">${s.name}</div>
-          <span class="badge badge-${s.level}">${s.level}</span>
-        </div>
+        <div class="student-avatar" style="width:46px;height:46px;font-size:20px">${(s.name||'?')[0]}</div>
+        <div><div class="overlay-title">${s.name}</div><span class="badge badge-${s.level}">${s.level}</span></div>
       </div>
     </div>
     <div class="overlay-body">
-      ${s.notes?`<div class="card"><div class="card-body"><p style="font-size:12.5px;color:var(--mauve)">${s.notes}</p></div></div>`:''}
-      <div class="sort-row">
-        <span class="sort-label">Lessons (${lessons.length})</span>
-        <button class="btn-secondary" style="font-size:11px;padding:5px 12px" onclick="openLogLessonFor('${s.id}','${s.name}')">+ Log lesson</button>
-      </div>
-      ${lessons.length?lessons.map(l=>lessonEntryHtml(l)).join(''):
-        '<p style="font-size:13px;color:var(--mauve);font-style:italic">No lessons yet — log the first one above.</p>'}
+      ${s.notes?`<div class="card"><div class="card-body"><p style="font-size:12.5px;color:var(--mauve);line-height:1.5">${s.notes}</p></div></div>`:''}
+      <button class="btn-gold btn-full" onclick="openLogLesson('${studentId}','${s.name.replace(/'/g,'\\\'')}')" style="margin-bottom:14px">+ Log a new lesson</button>
+      ${allVideos.length?`<div class="sec">All Videos (${allVideos.length})</div>
+        <div class="sort-row"><span class="sort-label">Sort</span>
+          <button class="sort-btn ${_vsort==='date'?'active':''}" onclick="_vsort='date';openStudentDetail('${studentId}')">By date</button>
+          <button class="sort-btn ${_vsort==='title'?'active':''}" onclick="_vsort='title';openStudentDetail('${studentId}')">By title</button>
+        </div><div class="video-gallery">${videoGalleryHtml(allVideos,_vsort)}</div>`:''}
+      <div class="sec">Lesson History (${sLessons.length})</div>
+      ${sLessons.length?sLessons.map(l=>lessonEntryHtml(l,false)).join(''):'<p class="empty-state">No lessons yet.</p>'}
       <div class="spacer-80"></div>
     </div>`;
-  document.getElementById('student-detail-content').innerHTML=content;
-  openOverlay('student-detail-overlay');
+  openOv('student-detail-ov');
 }
 
-function lessonEntryHtml(l) {
-  const tVideos=(l.teacherVideos||[]).filter(v=>v.url);
-  const sVideos=(l.studentVideos||[]).filter(v=>v.url);
-  return `<div class="lesson-entry">
-    <div class="lesson-date">${fmtDate(l.date)}</div>
-    <div class="lesson-title">${l.title||'Lesson'}</div>
+function lessonEntryHtml(l,isStudent){
+  const tVids=(l.lesson_videos||[]).filter(v=>v.type==='teacher');
+  const sVids=(l.lesson_videos||[]).filter(v=>v.type==='student');
+  const tChips=videoChipsHtml(tVids,'Teacher','tag-teacher');
+  const sChips=videoChipsHtml(sVids,'Student','tag-student');
+  const bestChip=l.best_video_url?`<a class="lesson-video-chip" href="${l.best_video_url}" target="_blank">⭐ <span>Best of day</span> <span class="badge tag-best">Best ✦</span></a>`:'';
+  const byLine=isStudent&&l.teacher?`<div style="font-size:10px;color:var(--mauve);margin-bottom:4px">By ${l.teacher.full_name}</div>`:'';
+  return `<div class="lesson-entry" onclick="openLessonDetail('${l.id}')" style="cursor:pointer">
+    <div class="lesson-date-label">${fmtDate(l.date)}</div>
+    ${byLine}
+    <div class="lesson-title-text">${l.title||'Lesson'}</div>
     <div class="lesson-pills">
       ${(l.moves||[]).map(m=>`<span class="lesson-pill pill-moves">${m}</span>`).join('')}
       ${(l.achievements||[]).map(a=>`<span class="lesson-pill pill-achieve">✓ ${a}</span>`).join('')}
-      ${(l.helpNeeded||[]).map(h=>`<span class="lesson-pill pill-help">⚑ ${h}</span>`).join('')}
+      ${(l.help_needed||[]).map(h=>`<span class="lesson-pill pill-help">⚑ ${h}</span>`).join('')}
     </div>
-    ${l.notes?`<div class="lesson-meta">${l.notes}</div>`:''}
-    ${tVideos.length||sVideos.length||l.bestVideo?`
-      <div class="lesson-video-list">
-        ${tVideos.map(v=>`<div class="lesson-video-item"><span class="lesson-video-icon">🎬</span><div class="lesson-video-info"><div class="lesson-video-name">${v.name||'Teacher video'}</div><div class="lesson-video-sub">Instructor</div></div><span class="lesson-video-tag">Teacher</span></div>`).join('')}
-        ${sVideos.map(v=>`<div class="lesson-video-item"><span class="lesson-video-icon">📹</span><div class="lesson-video-info"><div class="lesson-video-name">${v.name||'Student video'}</div></div><span class="lesson-video-tag">Student</span></div>`).join('')}
-        ${l.bestVideo?`<div class="lesson-video-item"><span class="lesson-video-icon">⭐</span><div class="lesson-video-info"><div class="lesson-video-name">Best of day</div></div><span class="lesson-video-tag">Best ✦</span></div>`:''}
-      </div>`:''}
+    ${l.notes?`<div class="lesson-notes-text">${l.notes}</div>`:''}
+    ${tChips||sChips||bestChip?`<div class="lesson-video-chips">${tChips}${sChips}${bestChip}</div>`:''}
   </div>`;
 }
 
-function saveStudent() {
-  const name=document.getElementById('st-name').value.trim();
-  if(!name){toast('Add a name');return;}
-  state.students.push({ id:uid(), name, level:document.getElementById('st-level').value, notes:document.getElementById('st-notes').value.trim() });
-  saveState(); closeOverlay('add-student-overlay'); renderStudents(); toast('Student added ✦');
-  ['st-name','st-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-}
-
-/* ═══════════════════════════════════════════
-   TEACHER — LESSON LOG
-═══════════════════════════════════════════ */
-let currentLessonStudentId = null;
-let currentLessonStudentName = '';
-
-function openLogLessonFor(studentId, studentName) {
-  currentLessonStudentId=studentId;
-  currentLessonStudentName=studentName;
-  document.getElementById('log-lesson-title').textContent=`Log lesson — ${studentName}`;
-  document.getElementById('ll-date').value=new Date().toISOString().split('T')[0];
-  document.getElementById('ll-teacher-videos').innerHTML='';
-  document.getElementById('ll-student-videos').innerHTML='';
-  teacherVideoCount=0; studentVideoCount=0;
-  openOverlay('log-lesson-overlay');
-}
-
-function renderLessonForm() {
-  document.getElementById('lesson-log-form').innerHTML=`
-    <div class="teacher-header">
-      <div class="teacher-title">Log a Lesson</div>
-      <div class="teacher-sub">Select a student to begin</div>
+function openLessonDetail(lessonId){
+  const src=[..._lessons,..._myLessons];
+  const l=src.find(x=>x.id===lessonId);if(!l)return;
+  const allVids=(l.lesson_videos||[]);
+  const tVids=allVids.filter(v=>v.type==='teacher');
+  const sVids=allVids.filter(v=>v.type==='student');
+  document.getElementById('lesson-detail-content').innerHTML=`
+    <div class="overlay-header"><button class="back-btn" onclick="closeOv('lesson-detail-ov')">← Back</button>
+      <div class="overlay-title">${l.title||'Lesson'}</div>
+      <div style="margin-top:5px;font-size:10px;color:rgba(247,242,236,0.4)">${fmtDate(l.date)}</div>
     </div>
-    ${state.students.length?
-      state.students.map(s=>`<div class="student-card" onclick="openLogLessonFor('${s.id}','${s.name}')">
-        <div class="student-card-inner">
-          <div class="student-avatar">${s.name[0]}</div>
-          <div class="student-info"><div class="student-name">${s.name}</div><div class="student-meta">Tap to log a lesson</div></div>
-          <span class="student-arrow">›</span>
-        </div></div>`).join(''):
-      '<p style="font-size:13px;color:var(--mauve);font-style:italic">Add students first in the Students tab.</p>'}`;
+    <div class="overlay-body">
+      <div class="lesson-pills" style="margin-bottom:14px">
+        ${(l.moves||[]).map(m=>`<span class="lesson-pill pill-moves">${m}</span>`).join('')}
+        ${(l.achievements||[]).map(a=>`<span class="lesson-pill pill-achieve">✓ ${a}</span>`).join('')}
+        ${(l.help_needed||[]).map(h=>`<span class="lesson-pill pill-help">⚑ ${h}</span>`).join('')}
+      </div>
+      ${l.notes?`<div class="card"><div class="card-body"><p style="font-size:13px;line-height:1.6;color:var(--mauve)">${l.notes}</p></div></div>`:''}
+      ${tVids.length?`<div class="sec">Teacher Videos</div><div class="video-gallery">${tVids.map(v=>`<div class="video-entry"><div class="video-entry-body"><div class="video-entry-title">${v.title||'Teacher video'}</div>${videoPreviewHtml(v.url,v.title)}</div></div>`).join('')}</div>`:''}
+      ${sVids.length?`<div class="sec">Student Videos</div><div class="video-gallery">${sVids.map(v=>`<div class="video-entry"><div class="video-entry-body"><div class="video-entry-title">${v.title||'Student video'}</div>${videoPreviewHtml(v.url,v.title)}</div></div>`).join('')}</div>`:''}
+      ${l.best_video_url?`<div class="sec">Best of Day ✦</div><div class="video-entry"><div class="video-entry-body">${videoPreviewHtml(l.best_video_url,'Best of day')}</div></div>`:''}
+      <div class="spacer-80"></div>
+    </div>`;
+  openOv('lesson-detail-ov');
 }
 
-async function parseLessonCaption() {
-  const caption=document.getElementById('ll-caption').value.trim();
-  if(!caption){toast('Add a caption to parse');return;}
+/* ═══════ TEACHER — CLASSES ═══════ */
+function renderClasses(){
+  const el=document.getElementById('classes-list');if(!el)return;
+  if(!_classes.length){el.innerHTML='<p class="empty-state">No classes yet.</p>';return;}
+  el.innerHTML=_classes.map(c=>{
+    const classStudentIds=(c.class_students||[]).map(cs=>cs.student_id);
+    const classStudents=_students.filter(s=>classStudentIds.includes(s.id));
+    return `<div class="class-card">
+      <div class="class-card-head" onclick="toggleClass('${c.id}')">
+        <div><div class="class-card-title">${c.name}</div><div class="class-card-meta">${fmtDate(c.date)} · ${classStudents.length} student${classStudents.length!==1?'s':''}</div></div>
+        <span class="class-expand-icon" id="cls-icon-${c.id}">▼</span>
+      </div>
+      <div class="class-card-body" id="cls-body-${c.id}">
+        ${c.notes?`<p style="font-size:12.5px;color:var(--mauve);margin-bottom:10px;line-height:1.5">${c.notes}</p>`:''}
+        <div class="sec" style="margin-top:0">Students</div>
+        ${classStudents.length?classStudents.map(s=>`<div class="student-row" onclick="openStudentDetail('${s.id}')"><div class="student-avatar">${(s.name||'?')[0]}</div><div style="flex:1"><div class="student-row-name">${s.name}</div><div class="student-row-meta"><span class="badge badge-${s.level}">${s.level}</span></div></div><span style="color:var(--rose)">›</span></div>`).join(''):'<p class="empty-state">No students in this class.</p>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleClass(id){
+  const body=document.getElementById('cls-body-'+id);
+  const icon=document.getElementById('cls-icon-'+id);
+  if(!body)return;
+  const open=body.classList.toggle('open');
+  icon.classList.toggle('open',open);
+}
+
+function openAddClassOv(){
+  const el=document.getElementById('cls-student-checklist');
+  el.innerHTML=_students.length?_students.map(s=>`<label style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer"><input type="checkbox" value="${s.id}" style="width:16px;height:16px;accent-color:var(--deep-rose)"><span style="font-size:13px;flex:1">${s.name}</span><span class="badge badge-${s.level}">${s.level}</span></label>`).join(''):'<p class="empty-state">Add students first in the Students tab.</p>';
+  openOv('add-class-ov');
+}
+
+async function saveClass(){
+  const name=document.getElementById('cls-name').value.trim();if(!name){toast('Add a class name');return;}
+  const studentIds=[];
+  document.getElementById('cls-student-checklist').querySelectorAll('input:checked').forEach(cb=>studentIds.push(cb.value));
+  const{data,error}=await db.from('classes').insert({teacher_id:currentUser.id,name,date:document.getElementById('cls-date').value,notes:document.getElementById('cls-notes').value.trim()}).select().single();
+  if(error){toast('Error saving');return;}
+  if(studentIds.length){
+    await db.from('class_students').insert(studentIds.map(sid=>({class_id:data.id,student_id:sid})));
+    data.class_students=studentIds.map(sid=>({student_id:sid}));
+  }
+  _classes.unshift(data);closeOv('add-class-ov');renderClasses();toast('Class saved ✦');
+  ['cls-name','cls-date','cls-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+}
+
+/* ═══════ LOG LESSON ═══════ */
+function openLogLesson(studentId,studentName){
+  _llStudentId=studentId;_bestAdded=false;_vc=0;
+  document.getElementById('ll-title-heading').textContent=`Log lesson — ${studentName}`;
+  document.getElementById('ll-date').value=new Date().toISOString().split('T')[0];
+  ['ll-teacher-videos','ll-student-videos','ll-best-video'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='';});
+  document.getElementById('ll-best-add-btn').style.display='block';
+  document.getElementById('ll-parse-result').innerHTML='';
+  document.getElementById('ll-caption').value='';
+  ['ll-title','ll-moves','ll-achieve','ll-help','ll-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  closeOv('student-detail-ov');
+  openOv('log-lesson-ov');
+}
+
+async function parseLessonCaption(){
+  const caption=document.getElementById('ll-caption').value.trim();if(!caption){toast('Add a caption');return;}
   const resultEl=document.getElementById('ll-parse-result');
-  resultEl.innerHTML=`<div class="ai-parse-wrap"><div class="ai-loading"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span class="ai-loading-text">Identifying moves…</span></div></div>`;
-  const prompt=`Aerial silks instructor assistant. Extract moves from this lesson caption.\n\nText: ${caption}\n\nJSON only:\n{"moves":[{"name":"Move name","description":"1 sentence","tips":"any tip"}],"summary":"1-2 sentence summary","exitStrategy":"exit if mentioned"}`;
-  try {
+  resultEl.innerHTML=`<div class="ai-parse-wrap"><div style="display:flex;align-items:center;gap:8px;padding:8px 0"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="font-size:12px;color:rgba(200,169,126,0.6)">Identifying moves…</span></div></div>`;
+  const prompt=`Aerial silks. Extract moves.\nText: ${caption}\nJSON only:\n{"moves":[{"name":"Move name","description":"1 sentence","tips":"tip"}],"summary":"1-2 sentences","exitStrategy":"exit if mentioned"}`;
+  try{
     const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:prompt}]})});
     const data=await res.json();
     const parsed=JSON.parse(data.content?.find(b=>b.type==='text')?.text?.replace(/```json|```/g,'').trim()||'{}');
     const moves=parsed.moves||[];
-    // Auto-fill moves field
-    if(moves.length&&!document.getElementById('ll-moves').value) document.getElementById('ll-title').value=document.getElementById('ll-title').value||parsed.summary?.slice(0,50)||'';
-    resultEl.innerHTML=`<div class="ai-parse-wrap">
-      <div class="ai-parse-title">Moves identified</div>
-      <div class="ai-parse-sub">${moves.length} skill${moves.length!==1?'s':''}</div>
-      ${moves.map(m=>`<div class="ai-move-card"><div class="ai-move-name">${m.name}</div>${m.description?`<div class="ai-move-detail">${m.description}</div>`:''}${m.tips?`<div class="ai-tip">💡 ${m.tips}</div>`:''}</div>`).join('')}
-      <button class="btn-gold btn-full" style="margin-top:10px" onclick="fillMovesFromParse(${JSON.stringify(moves.map(m=>m.name)).replace(/"/g,'&quot;')})">Fill into lesson →</button>
-    </div>`;
-  } catch(e){ resultEl.innerHTML='<p style="font-size:12px;color:var(--rose)">Parse error — check caption</p>'; }
+    resultEl.innerHTML=`<div class="ai-parse-wrap"><div class="ai-parse-title">Moves identified</div><div class="ai-parse-sub">${moves.length} skill${moves.length!==1?'s':''}</div>${moves.map(m=>`<div class="ai-move-card"><div class="ai-move-name">${m.name}</div>${m.description?`<div class="ai-move-detail">${m.description}</div>`:''}${m.tips?`<div class="ai-tip">💡 ${m.tips}</div>`:''}</div>`).join('')}<button class="btn-gold btn-full" style="margin-top:10px" onclick="document.getElementById('ll-moves').value=${JSON.stringify(moves.map(m=>m.name).join(', '))};toast('Moves filled ✓')">Fill into lesson →</button></div>`;
+  }catch(e){resultEl.innerHTML='<p style="font-size:12px;color:var(--rose)">Parse error — check caption</p>';}
 }
 
-function fillMovesFromParse(names) {
-  document.getElementById('ll-moves').value=names.join(', ');
-  toast('Moves filled in ✓');
-}
-
-function saveLesson() {
-  if(!currentLessonStudentId){toast('No student selected');return;}
-  const date=document.getElementById('ll-date').value;
-  const title=document.getElementById('ll-title').value.trim();
-  if(!date){toast('Add a date');return;}
-
-  // Collect teacher videos
-  const tVideos=[];
-  for(let i=1;i<=teacherVideoCount;i++){
-    const titleEl=document.getElementById(`tv-${i}-title`);
-    const urlEl=document.getElementById(`tv-${i}-url-input`);
-    if(titleEl||urlEl) tVideos.push({name:titleEl?.value||`Teacher video ${i}`,url:urlEl?.value||''});
-  }
-  // Collect student videos
-  const sVideos=[];
-  for(let i=1;i<=studentVideoCount;i++){
-    const titleEl=document.getElementById(`sv-${i}-title`);
-    const urlEl=document.getElementById(`sv-${i}-url-input`);
-    if(titleEl||urlEl) sVideos.push({name:titleEl?.value||`Student video ${i}`,url:urlEl?.value||''});
-  }
-
-  const bestUrl=document.getElementById('ll-best-url-input')?.value||'';
+async function saveLesson(){
+  if(!_llStudentId){toast('No student selected');return;}
+  const date=document.getElementById('ll-date').value;if(!date){toast('Add a date');return;}
+  const btn=document.getElementById('ll-save-btn');btn.disabled=true;btn.textContent='Saving...';
+  const tVideos=collectVideos('ll-teacher-videos');
+  const sVideos=collectVideos('ll-student-videos');
+  const bestUrl=document.getElementById('ll-best-url')?.value?.trim()||'';
   const movesRaw=document.getElementById('ll-moves').value.trim();
   const achieveRaw=document.getElementById('ll-achieve').value.trim();
   const helpRaw=document.getElementById('ll-help').value.trim();
-
-  state.lessons.push({
-    id:uid(),
-    studentId:currentLessonStudentId,
-    date,
-    title:title||`Lesson ${fmtDate(date)}`,
-    moves:movesRaw?movesRaw.split(',').map(m=>m.trim()).filter(Boolean):[],
-    achievements:achieveRaw?achieveRaw.split(',').map(a=>a.trim()).filter(Boolean):[],
-    helpNeeded:helpRaw?helpRaw.split(',').map(h=>h.trim()).filter(Boolean):[],
-    notes:document.getElementById('ll-notes').value.trim(),
-    teacherVideos:tVideos,
-    studentVideos:sVideos,
-    bestVideo:bestUrl,
-  });
-  saveState();
-  closeOverlay('log-lesson-overlay');
-  // Refresh student detail if open
-  const idx=state.students.findIndex(s=>s.id===currentLessonStudentId);
-  if(idx>=0) openStudentDetail(idx);
+  // find class
+  const{data:classData}=await db.from('class_students').select('class_id,classes(teacher_id)').eq('student_id',_llStudentId).limit(1);
+  const classId=classData&&classData.length?classData[0].class_id:null;
+  const lessonData={teacher_id:currentUser.id,student_id:_llStudentId,class_id:classId,date,title:document.getElementById('ll-title').value.trim()||`Lesson ${fmtDate(date)}`,moves:movesRaw?movesRaw.split(',').map(m=>m.trim()).filter(Boolean):[],achievements:achieveRaw?achieveRaw.split(',').map(a=>a.trim()).filter(Boolean):[],help_needed:helpRaw?helpRaw.split(',').map(h=>h.trim()).filter(Boolean):[],notes:document.getElementById('ll-notes').value.trim(),best_video_url:bestUrl};
+  const{data:lesson,error}=await db.from('lessons').insert(lessonData).select().single();
+  if(error){btn.disabled=false;btn.textContent='Save Lesson';toast('Error saving lesson');return;}
+  // save videos
+  const videoRows=[
+    ...tVideos.map(v=>({lesson_id:lesson.id,type:'teacher',title:v.title,url:v.url})),
+    ...sVideos.map(v=>({lesson_id:lesson.id,type:'student',title:v.title,url:v.url})),
+  ];
+  if(videoRows.length)await db.from('lesson_videos').insert(videoRows);
+  lesson.lesson_videos=videoRows;
+  _lessons.unshift(lesson);
+  btn.disabled=false;btn.textContent='Save Lesson';
+  closeOv('log-lesson-ov');
+  openStudentDetail(_llStudentId);
   toast('Lesson saved ✦');
 }
 
-/* ═══════════════════════════════════════════
-   INIT
-═══════════════════════════════════════════ */
-renderMoves();
-renderAdventure();
-
-// Pre-load example inspiration
-if(!state.inspirations.length) {
-  state.inspirations.push({
-    url:'https://www.instagram.com/reel/DX9hJubhBKT/',
-    title:'Cross Back Straddle — 3 Entry Pathways',
-    caption:'Three alternative entries using egg beater wraps. Pathway 1: Knee Tangle. Pathway 2: Hip Key. Pathway 3: Flamenco Grip. Exit by grabbing silk closest to back.',
-    notes:'Great for students with tight hamstrings',
-    parsed:[
-      {name:'Cross Back Straddle',pathway:'Knee Tangle Entry',description:'Egg beater wraps + knee tangle instead of foot locks.',tips:'Practice low to avoid mixing up hand placement.',order:1},
-      {name:'Cross Back Straddle',pathway:'Hip Key Entry',description:'Hip key → toss silk → X above bum → egg beat and invert.',tips:'Side leg kicks to warm up hip mobility.',order:2},
-      {name:'Cross Back Straddle',pathway:'Flamenco Grip Entry',description:'Flamenco grip to form X before inverting.',tips:'Practice on ground first.',order:3}
-    ],
-    parsedMeta:{level:'intermediate',exit:'Grab silk closest to back',summary:'Three alternative Cross Back Straddle entries using egg beater wraps — ideal for students with limited hip mobility.'},
-    savedAt:new Date().toLocaleDateString()
-  });
-  saveState();
-}
+/* ═══════ AUTH LISTENER ═══════ */
+db.auth.onAuthStateChange(async(event,session)=>{
+  if(session?.user){
+    await initApp(session.user);
+  } else {
+    hideLoading();
+    document.getElementById('app-shell').style.display='none';
+    document.getElementById('auth-screen').classList.remove('hidden');
+  }
+});
 </script>
 </body>
 </html>
