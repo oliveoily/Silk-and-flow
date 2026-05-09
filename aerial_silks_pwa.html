@@ -644,25 +644,33 @@ async function loadProfile(user){
 }
 
 async function initApp(user){
-  showLoading();
-  currentUser=user;
-  currentProfile=await loadProfile(user);
-  if(!currentProfile){hideLoading();return;}
-  // Show app
-  document.getElementById('auth-screen').classList.add('hidden');
-  document.getElementById('app-shell').style.display='flex';
-  document.getElementById('user-chip').textContent=currentProfile.full_name||'';
-  // Always show mode toggle — everyone can switch between student and teacher views
-  document.getElementById('mode-toggle').style.display='flex';
-  await loadAllData();
-  hideLoading();
-  setMode(currentProfile.role==='teacher'?'teacher':'student');
+  try {
+    showLoading();
+    currentUser=user;
+    currentProfile=await loadProfile(user);
+    if(!currentProfile){hideLoading();showRolePicker(user);return;}
+    document.getElementById('auth-screen').classList.add('hidden');
+    document.getElementById('app-shell').style.display='flex';
+    document.getElementById('user-chip').textContent=currentProfile.full_name||'';
+    document.getElementById('mode-toggle').style.display='flex';
+    await loadAllData();
+    hideLoading();
+    setMode('student');
+  } catch(e){
+    console.error('initApp error:',e);
+    hideLoading();
+    document.getElementById('auth-screen').classList.remove('hidden');
+  }
 }
 
 /* ═══════ DATA LOADING ═══════ */
 async function loadAllData(){
-  // Load everything — toggle handles which view to show
-  await Promise.all([loadStudents(),loadClasses(),loadTeacherLessons(),loadMyLessons(),loadMastered(),loadSequences(),loadInspirations()]);
+  try {
+    await Promise.all([loadStudents(),loadClasses(),loadTeacherLessons(),loadMyLessons(),loadMastered(),loadSequences(),loadInspirations()]);
+  } catch(e){
+    console.error('loadAllData error:',e);
+    // Non-fatal — show app anyway with whatever loaded
+  }
 }
 
 async function loadMastered(){
@@ -1251,21 +1259,32 @@ async function saveExtraVideos(lessonId){
 
 // Handle OAuth redirect — grab session from URL hash if present
 async function handleAuthRedirect(){
-  const hash = window.location.hash;
-  if(hash && hash.includes('access_token')){
-    // Supabase will pick this up automatically, just wait
-    await new Promise(r=>setTimeout(r,500));
-  }
-  const{data:{session}}=await db.auth.getSession();
-  if(session?.user){
-    const profile=await loadProfile(session.user);
-    if(!profile||!profile.role){
-      hideLoading();
-      showRolePicker(session.user);
-    } else {
-      await initApp(session.user);
+  // Never spin forever — show login after 8 seconds no matter what
+  const safetyTimer = setTimeout(()=>{
+    hideLoading();
+    document.getElementById('auth-screen').classList.remove('hidden');
+  }, 8000);
+  try {
+    if(window.location.hash.includes('access_token')){
+      await new Promise(r=>setTimeout(r,800));
     }
-  } else {
+    const{data:{session}}=await db.auth.getSession();
+    clearTimeout(safetyTimer);
+    if(session?.user){
+      const profile=await loadProfile(session.user);
+      if(!profile||!profile.role){
+        hideLoading();
+        showRolePicker(session.user);
+      } else {
+        await initApp(session.user);
+      }
+    } else {
+      hideLoading();
+      document.getElementById('auth-screen').classList.remove('hidden');
+    }
+  } catch(e){
+    clearTimeout(safetyTimer);
+    console.error('Auth redirect error:',e);
     hideLoading();
     document.getElementById('auth-screen').classList.remove('hidden');
   }
@@ -1274,15 +1293,20 @@ async function handleAuthRedirect(){
 db.auth.onAuthStateChange(async(event,session)=>{
   if(event==='INITIAL_SESSION') return; // handled by handleAuthRedirect
   if(event==='SIGNED_IN'&&session?.user){
-    // Only trigger for non-redirect sign-ins (redirect handled above)
     if(!window._authHandled){
       window._authHandled=true;
-      const profile=await loadProfile(session.user);
-      if(!profile||!profile.role){
+      try {
+        const profile=await loadProfile(session.user);
+        if(!profile||!profile.role){
+          hideLoading();
+          showRolePicker(session.user);
+        } else {
+          await initApp(session.user);
+        }
+      } catch(e){
+        console.error('initApp error:',e);
         hideLoading();
-        showRolePicker(session.user);
-      } else {
-        await initApp(session.user);
+        document.getElementById('auth-screen').classList.remove('hidden');
       }
     }
   } else if(event==='SIGNED_OUT'){
