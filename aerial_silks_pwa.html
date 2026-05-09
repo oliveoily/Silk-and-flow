@@ -1,40 +1,4 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta name="theme-color" content="#120d10">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Silk & Flow</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root {
-  --ink:#120d10;--ink2:#2a1e25;--parchment:#f8f3ee;--warm:#f0e8df;
-  --blush:#e4ccc0;--rose:#c9948a;--deep-rose:#9e5e54;--gold:#c8a97e;
-  --gold-pale:#e8d9c0;--sage:#8a9e8c;--mauve:#7a6070;
-  --surface:#fdf9f6;--surface2:#f2ebe0;
-  --border:rgba(138,96,88,0.13);--border-med:rgba(138,96,88,0.28);
-  --r:14px;--r-sm:8px;--r-xs:6px;
-  --shadow:0 2px 16px rgba(18,13,16,0.07);--shadow-lg:0 8px 32px rgba(18,13,16,0.13);
-  --serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
-}
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-html,body{height:100%}
-body{font-family:var(--sans);background:var(--parchment);color:var(--ink);max-width:430px;margin:0 auto;overflow-x:hidden;min-height:100vh}
-.app-shell{display:flex;flex-direction:column;height:100dvh}
-
-/* AUTH SCREEN */
-.auth-screen{display:flex;flex-direction:column;min-height:100dvh;background:var(--ink);position:fixed;inset:0;z-index:1000;max-width:430px;margin:0 auto}
-.auth-screen.hidden{display:none}
-.auth-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 24px;position:relative;overflow:hidden}
-.auth-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(200,169,126,0.12) 0%,transparent 70%)}
-.auth-hero::after{content:'';position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,148,138,0.1) 0%,transparent 70%)}
-.auth-eyebrow{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
-.auth-title{font-family:var(--serif);font-size:48px;font-weight:300;color:var(--parchment);font-style:italic;text-align:center;line-height:1;margin-bottom:6px}
-.auth-tagline{font-size:12px;color:rgba(247,242,236,0.4);letter-spacing:1px;text-align:center;margin-bottom:40px}
-.auth-form{background:rgba(255,255,255,0.04);border:1px solid rgba(200,169,126,0.15);border-radius:var(--r);padding:24px;width:100%;backdrop-filter:blur(10px)}
+file:///Users/olivia/Downloads/aerial_silks_pwa_8.html.auth-form{background:rgba(255,255,255,0.04);border:1px solid rgba(200,169,126,0.15);border-radius:var(--r);padding:24px;width:100%;backdrop-filter:blur(10px)}
 .auth-tabs{display:flex;margin-bottom:20px;border-bottom:1px solid rgba(200,169,126,0.15)}
 .auth-tab{flex:1;padding:8px;background:none;border:none;border-bottom:2px solid transparent;font-size:12px;font-family:var(--sans);color:rgba(247,242,236,0.4);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s}
 .auth-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
