@@ -35,9 +35,7 @@ body{font-family:var(--sans);background:var(--parchment);color:var(--ink);max-wi
 .auth-title{font-family:var(--serif);font-size:48px;font-weight:300;color:var(--parchment);font-style:italic;text-align:center;line-height:1;margin-bottom:6px}
 .auth-tagline{font-size:12px;color:rgba(247,242,236,0.4);letter-spacing:1px;text-align:center;margin-bottom:40px}
 .auth-form{background:rgba(255,255,255,0.04);border:1px solid rgba(200,169,126,0.15);border-radius:var(--r);padding:24px;width:100%;backdrop-filter:blur(10px)}
-.auth-tabs{display:flex;margin-bottom:20px;border-bottom:1px solid rgba(200,169,126,0.15)}
-.auth-tab{flex:1;padding:8px;background:none;border:none;border-bottom:2px solid transparent;font-size:12px;font-family:var(--sans);color:rgba(247,242,236,0.4);cursor:pointer;letter-spacing:0.5px;transition:all 0.2s}
-.auth-tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+
 .auth-field{margin-bottom:14px}
 .auth-field label{display:block;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(200,169,126,0.7);margin-bottom:5px;font-weight:500}
 .auth-field input,.auth-field select{width:100%;background:rgba(255,255,255,0.06);border:1px solid rgba(200,169,126,0.2);border-radius:var(--r-sm);padding:10px 12px;font-family:var(--sans);font-size:13px;color:var(--parchment);outline:none;transition:border-color 0.2s;-webkit-appearance:none;appearance:none}
@@ -295,30 +293,6 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
         Continue with Google
       </button>
       <div id="auth-error" class="auth-error"></div>
-      <div class="auth-divider">— or —</div>
-      <div class="auth-tabs">
-        <button class="auth-tab active" onclick="switchAuthTab('signin')">Sign In</button>
-        <button class="auth-tab" onclick="switchAuthTab('signup')">Create Account</button>
-      </div>
-      <div id="signin-form">
-        <div class="auth-field"><label>Email</label><input type="email" id="signin-email" placeholder="you@email.com"></div>
-        <div class="auth-field"><label>Password</label><input type="password" id="signin-password" placeholder="••••••••"></div>
-        <button class="auth-btn" onclick="signIn()">Sign In</button>
-        <div id="signin-error" class="auth-error"></div>
-      </div>
-      <div id="signup-form" style="display:none">
-        <div class="auth-field"><label>Full Name</label><input type="text" id="signup-name" placeholder="Your name"></div>
-        <div class="auth-field"><label>Email</label><input type="email" id="signup-email" placeholder="you@email.com"></div>
-        <div class="auth-field"><label>Password</label><input type="password" id="signup-password" placeholder="Min. 6 characters"></div>
-        <div class="auth-field"><label>I am a</label>
-          <select id="signup-role">
-            <option value="student">Student</option>
-            <option value="teacher">Teacher</option>
-          </select>
-        </div>
-        <button class="auth-btn" onclick="signUp()">Create Account</button>
-        <div id="signup-error" class="auth-error"></div>
-      </div>
     </div>
   </div>
   <div class="auth-footer">Your data is private & secure · Synced across all your devices</div>
@@ -349,7 +323,6 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
     <button class="tab-btn" onclick="showTab('sequences',this,'student-tabs')">Sequences</button>
     <button class="tab-btn" onclick="showTab('inspiration',this,'student-tabs')">Inspiration ✦</button>
     <button class="tab-btn" onclick="showTab('my-lessons',this,'student-tabs')">My Lessons</button>
-    <button class="tab-btn" onclick="showTab('progress',this,'student-tabs')">Progress</button>
   </div>
   <div id="teacher-tabs" class="tab-bar" style="display:none">
     <button class="tab-btn active" onclick="showTab('t-classes',this,'teacher-tabs')">Classes</button>
@@ -383,10 +356,10 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
       <div class="sec">Saved Reels</div><div id="inspiration-list"></div>
     </div>
     <div id="screen-my-lessons" class="screen">
-      <div class="teacher-hero"><div class="teacher-hero-title">My Lessons</div><div class="teacher-hero-sub">Lessons logged by your teacher · tap to view</div></div>
+      <div class="teacher-hero"><div class="teacher-hero-title">My Lessons</div><div class="teacher-hero-sub">Teacher & self-logged sessions · tap any to view or add to</div></div>
+      <button class="btn-gold btn-full" onclick="openStudentLog()" style="margin-bottom:16px">+ Log my own session</button>
       <div id="my-lessons-list"></div>
     </div>
-    <div id="screen-progress" class="screen"><div id="progress-content"></div></div>
     <div id="screen-t-classes" class="screen" style="display:none">
       <div class="teacher-hero"><div class="teacher-hero-title">Classes</div><div class="teacher-hero-sub">Tap to expand · tap a student to view their full record</div></div>
       <div id="classes-list"></div>
@@ -484,6 +457,43 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 </div>
 
 <div id="toast" class="toast"></div>
+
+<!-- STUDENT SELF-LOG OVERLAY -->
+<div id="student-log-ov" class="overlay">
+  <div class="overlay-header">
+    <button class="back-btn" onclick="closeOv('student-log-ov')">← Back</button>
+    <div class="overlay-title">Log my session</div>
+  </div>
+  <div class="overlay-body">
+    <p style="font-size:12.5px;color:var(--mauve);line-height:1.6;margin-bottom:14px">Log your own videos and notes from class. If your teacher also logs this date, everything will appear together in your timeline.</p>
+    <label class="field-label">Date</label><input type="date" id="sl-date">
+    <label class="field-label">What did you work on?</label><input type="text" id="sl-title" placeholder="e.g. Hip Key & Mermaid practice">
+    <label class="field-label">Moves you practised (comma-separated)</label><input type="text" id="sl-moves" placeholder="Hip Key, Mermaid, S-Wrap">
+    <label class="field-label">Notes</label><textarea id="sl-notes" placeholder="What clicked, what to work on, how it felt..."></textarea>
+
+    <div class="sec">Teacher / Instructional Videos</div>
+    <div class="video-tip">📁 Film the teacher in class → upload to Google Drive → Share → Copy link → paste below. Or paste any YouTube / Instagram URL.</div>
+    <div id="sl-teacher-videos"></div>
+    <button class="add-video-btn" onclick="addVideoField('sl-teacher-videos')">+ Add teacher video</button>
+
+    <div class="sec">My Practice Videos</div>
+    <div class="video-tip">Film yourself attempting moves → upload to Google Drive → paste link below. Add as many as you like.</div>
+    <div id="sl-my-videos"></div>
+    <button class="add-video-btn" onclick="addVideoField('sl-my-videos')">+ Add my video</button>
+
+    <div class="sec">Best of Day ✦</div>
+    <p style="font-size:11.5px;color:var(--mauve);margin-bottom:10px;line-height:1.5">Your best attempt from today — one highlight video.</p>
+    <div id="sl-best-video"></div>
+    <button class="add-video-btn" id="sl-best-add-btn" onclick="addStudentBestVideo()">+ Add best of day</button>
+
+    <div class="mt-12"></div>
+    <button class="btn-primary btn-full" onclick="saveStudentLog()" style="padding:12px">Save Session</button>
+    <div class="spacer-80"></div>
+  </div>
+</div>
+
+<!-- STUDENT LESSON DETAIL -->
+<div id="student-lesson-detail-ov" class="overlay"><div id="student-lesson-detail-content"></div></div>
 
 <script>
 /* ═══════ SUPABASE ═══════ */
@@ -599,39 +609,11 @@ function videoGalleryHtml(allVideos,sort){
 }
 
 /* ═══════ AUTH ═══════ */
-function switchAuthTab(tab){
-  document.querySelectorAll('.auth-tab').forEach((b,i)=>b.classList.toggle('active',(tab==='signin'&&i===0)||(tab==='signup'&&i===1)));
-  document.getElementById('signin-form').style.display=tab==='signin'?'block':'none';
-  document.getElementById('signup-form').style.display=tab==='signup'?'block':'none';
-}
 
-async function signIn(){
-  const email=document.getElementById('signin-email').value.trim();
-  const pass=document.getElementById('signin-password').value;
-  const errEl=document.getElementById('signin-error');errEl.textContent='';
-  if(!email||!pass){errEl.textContent='Please fill in all fields.';return;}
-  showLoading();
-  const{error}=await db.auth.signInWithPassword({email,password:pass});
-  if(error){hideLoading();errEl.textContent=error.message;}
-}
 
-async function signUp(){
-  const name=document.getElementById("signup-name").value.trim();
-  const email=document.getElementById("signup-email").value.trim();
-  const pass=document.getElementById("signup-password").value;
-  const role=document.getElementById("signup-role").value;
-  const errEl=document.getElementById("signup-error");errEl.textContent="";
-  if(!name||!email||!pass){errEl.textContent="Please fill in all fields.";return;}
-  if(pass.length<6){errEl.textContent="Password must be at least 6 characters.";return;}
-  const btn=document.querySelector("#signup-form .auth-btn");btn.disabled=true;btn.textContent="Creating...";
-  const{data,error}=await db.auth.signUp({email,password:pass,options:{data:{full_name:name,role}}});
-  if(error){btn.disabled=false;btn.textContent="Create Account";errEl.textContent=error.message;return;}
-  errEl.style.color="var(--sage)";errEl.textContent="Account created! Loading...";
-  showLoading();
-  await new Promise(r=>setTimeout(r,1800));
-  if(data.user)await initApp(data.user);
-  btn.disabled=false;btn.textContent="Create Account";
-}
+
+
+
 
 async function signInWithGoogle(){
   const errEl=document.getElementById('auth-error');errEl.textContent='';
@@ -646,10 +628,9 @@ async function signInWithGoogle(){
 }
 
 async function signOut(){
-  await db.auth.signOut();
   currentUser=null;currentProfile=null;
-  document.getElementById('app-shell').style.display='none';
-  document.getElementById('auth-screen').classList.remove('hidden');
+  await db.auth.signOut();
+  location.reload();
 }
 
 async function loadProfile(user){
@@ -670,11 +651,9 @@ async function initApp(user){
   // Show app
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('app-shell').style.display='flex';
-  document.getElementById('user-chip').textContent=`${currentProfile.full_name} · ${currentProfile.role}`;
-  // If teacher, show mode toggle
-  if(currentProfile.role==='teacher'){
-    document.getElementById('mode-toggle').style.display='flex';
-  }
+  document.getElementById('user-chip').textContent=currentProfile.full_name||'';
+  // Always show mode toggle — everyone can switch between student and teacher views
+  document.getElementById('mode-toggle').style.display='flex';
   await loadAllData();
   hideLoading();
   setMode(currentProfile.role==='teacher'?'teacher':'student');
@@ -682,11 +661,8 @@ async function initApp(user){
 
 /* ═══════ DATA LOADING ═══════ */
 async function loadAllData(){
-  if(currentProfile.role==='teacher'){
-    await Promise.all([loadStudents(),loadClasses(),loadTeacherLessons(),loadMastered(),loadSequences(),loadInspirations()]);
-  } else {
-    await Promise.all([loadMyLessons(),loadMastered(),loadSequences(),loadInspirations()]);
-  }
+  // Load everything — toggle handles which view to show
+  await Promise.all([loadStudents(),loadClasses(),loadTeacherLessons(),loadMyLessons(),loadMastered(),loadSequences(),loadInspirations()]);
 }
 
 async function loadMastered(){
@@ -889,17 +865,19 @@ function renderInspirations(){
     </div>`).join('');
 }
 async function saveReelOnly(){
+  if(!currentUser){toast('Please sign in first');return;}
   const url=document.getElementById('reel-url').value.trim();if(!url){toast('Add a URL');return;}
   const rec={created_by:currentUser.id,url,title:document.getElementById('reel-title').value.trim()||'Untitled',caption:document.getElementById('reel-caption').value.trim(),notes:document.getElementById('reel-notes').value.trim()};
   const{data,error}=await db.from('inspirations').insert(rec).select().single();
-  if(error){toast('Error saving');return;}
+  if(error){console.error(error);toast('Error saving: '+error.message);return;}
   _inspirations.unshift(data);clearReelForm();renderInspirations();toast('Reel saved!');
 }
 async function parseAndSave(){
+  if(!currentUser){toast('Please sign in first');return;}
   const caption=document.getElementById('reel-caption').value.trim();if(!caption){toast('Paste a caption first');return;}
   const rec={created_by:currentUser.id,url:document.getElementById('reel-url').value.trim()||'No URL',title:document.getElementById('reel-title').value.trim()||'Untitled',caption,notes:document.getElementById('reel-notes').value.trim()};
   const{data,error}=await db.from('inspirations').insert(rec).select().single();
-  if(error){toast('Error saving');return;}
+  if(error){console.error(error);toast('Error saving: '+error.message);return;}
   _inspirations.unshift(data);clearReelForm();renderInspirations();
   await parseCaption(0);
 }
@@ -946,8 +924,27 @@ function clearReelForm(){['reel-url','reel-title','reel-caption','reel-notes'].f
 /* ═══════ MY LESSONS (student view) ═══════ */
 function renderMyLessons(){
   const el=document.getElementById('my-lessons-list');
-  if(!_myLessons.length){el.innerHTML='<p class="empty-state">No lessons logged yet — your teacher will log lessons for you.</p>';return;}
-  el.innerHTML=_myLessons.map(l=>lessonEntryHtml(l,true)).join('');
+  if(!_myLessons.length){el.innerHTML='<p class="empty-state">No sessions yet — tap the button above to log your first one, or ask your teacher to log a lesson for you.</p>';return;}
+  // Sort by date descending, merge same-date entries
+  const sorted=[..._myLessons].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  el.innerHTML=sorted.map(l=>{
+    const isSelf=l.teacher_id===l.student_id;
+    const tVids=(l.lesson_videos||[]).filter(v=>v.type==='teacher');
+    const sVids=(l.lesson_videos||[]).filter(v=>v.type==='student');
+    const totalVids=tVids.length+sVids.length+(l.best_video_url?1:0);
+    return `<div class="lesson-entry" onclick="openStudentLessonDetail('${l.id}')" style="cursor:pointer">
+      <div class="lesson-date-label">${fmtDate(l.date)}</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
+        <div class="lesson-title-text" style="margin-bottom:0">${l.title||'Session'}</div>
+        <span class="badge ${isSelf?'badge-sage':'badge-teacher'}" style="flex-shrink:0">${isSelf?'Self':'Teacher'}</span>
+      </div>
+      <div class="lesson-pills">
+        ${(l.moves||[]).map(m=>`<span class="lesson-pill pill-moves">${m}</span>`).join('')}
+        ${(l.achievements||[]).map(a=>`<span class="lesson-pill pill-achieve">✓ ${a}</span>`).join('')}
+      </div>
+      ${totalVids?`<div style="font-size:10.5px;color:var(--mauve);margin-top:5px">🎬 ${totalVids} video${totalVids!==1?'s':''} · tap to view</div>`:'<div style="font-size:10.5px;color:var(--rose);margin-top:5px">tap to add videos →</div>'}
+    </div>`;
+  }).join('');
 }
 
 /* ═══════ PROGRESS ═══════ */
@@ -1190,48 +1187,132 @@ async function saveLesson(){
 }
 
 /* ═══════ AUTH LISTENER ═══════ */
-db.auth.onAuthStateChange(async(event,session)=>{
+/* ═══════ STUDENT LESSON DETAIL ═══════ */
+function openStudentLessonDetail(lessonId){
+  const l=_myLessons.find(x=>x.id===lessonId);if(!l)return;
+  const tVids=(l.lesson_videos||[]).filter(v=>v.type==='teacher');
+  const sVids=(l.lesson_videos||[]).filter(v=>v.type==='student');
+  const isSelfLogged=l.teacher_id===l.student_id;
+  document.getElementById('student-lesson-detail-content').innerHTML=`
+    <div class="overlay-header">
+      <button class="back-btn" onclick="closeOv('student-lesson-detail-ov')">← Back</button>
+      <div class="overlay-title">${l.title||'Session'}</div>
+      <div style="margin-top:5px;display:flex;align-items:center;gap:8px">
+        <span style="font-size:10px;color:rgba(247,242,236,0.4)">${fmtDate(l.date)}</span>
+        ${isSelfLogged?'<span class="badge badge-sage">Self-logged</span>':'<span class="badge badge-teacher">Teacher logged</span>'}
+      </div>
+    </div>
+    <div class="overlay-body">
+      ${(l.moves||[]).length?`<div class="lesson-pills" style="margin-bottom:14px">${l.moves.map(m=>`<span class="lesson-pill pill-moves">${m}</span>`).join('')}</div>`:''}
+      ${(l.achievements||[]).length?`<div class="lesson-pills" style="margin-bottom:8px">${l.achievements.map(a=>`<span class="lesson-pill pill-achieve">✓ ${a}</span>`).join('')}</div>`:''}
+      ${(l.help_needed||[]).length?`<div class="lesson-pills" style="margin-bottom:8px">${l.help_needed.map(h=>`<span class="lesson-pill pill-help">⚑ ${h}</span>`).join('')}</div>`:''}
+      ${l.notes?`<div class="card"><div class="card-body"><p style="font-size:13px;line-height:1.6;color:var(--mauve);white-space:pre-wrap">${l.notes}</p></div></div>`:''}
+      ${tVids.length?`<div class="sec">Teacher / Instructional Videos (${tVids.length})</div><div class="video-gallery">${tVids.map(v=>`<div class="video-entry"><div class="video-entry-body"><div class="video-entry-title">${v.title||'Teacher video'}</div>${videoPreviewHtml(v.url,v.title)}</div></div>`).join('')}</div>`:''}
+      ${sVids.length?`<div class="sec">My Practice Videos (${sVids.length})</div><div class="video-gallery">${sVids.map(v=>`<div class="video-entry"><div class="video-entry-body"><div class="video-entry-title">${v.title||'My video'}</div>${videoPreviewHtml(v.url,v.title)}</div></div>`).join('')}</div>`:''}
+      ${l.best_video_url?`<div class="sec">Best of Day ✦</div><div class="video-entry"><div class="video-entry-body">${videoPreviewHtml(l.best_video_url,'Best of day')}</div></div>`:''}
+      <div class="sec">Add more to this session</div>
+      <div class="video-tip">📁 Upload to Google Drive → Share → Copy link → paste below</div>
+      <div id="extra-teacher-vids-${l.id}"></div>
+      <button class="add-video-btn" onclick="addVideoField('extra-teacher-vids-${l.id}')">+ Add teacher / instructional video</button>
+      <div id="extra-my-vids-${l.id}"></div>
+      <button class="add-video-btn" onclick="addVideoField('extra-my-vids-${l.id}')">+ Add my practice video</button>
+      <label class="field-label" style="margin-top:8px">Additional notes</label>
+      <textarea id="extra-notes-${l.id}" placeholder="Anything else to add..."></textarea>
+      <button class="btn-gold btn-full" style="margin-top:4px" onclick="saveExtraVideos('${l.id}')">Save additions</button>
+      <div class="spacer-80"></div>
+    </div>`;
+  openOv('student-lesson-detail-ov');
+}
+
+async function saveExtraVideos(lessonId){
+  const tVids=collectVideos('extra-teacher-vids-'+lessonId);
+  const sVids=collectVideos('extra-my-vids-'+lessonId);
+  const extraNotes=document.getElementById('extra-notes-'+lessonId)?.value?.trim()||'';
+  const rows=[
+    ...tVids.map(v=>({lesson_id:lessonId,type:'teacher',title:v.title,url:v.url})),
+    ...sVids.map(v=>({lesson_id:lessonId,type:'student',title:v.title,url:v.url})),
+  ];
+  if(!rows.length&&!extraNotes){toast('Nothing to add');return;}
+  if(rows.length){
+    const{data:newVids}=await db.from('lesson_videos').insert(rows).select();
+    const l=_myLessons.find(x=>x.id===lessonId);
+    if(l&&newVids)l.lesson_videos=[...(l.lesson_videos||[]),...newVids];
+  }
+  if(extraNotes){
+    const l=_myLessons.find(x=>x.id===lessonId);
+    const combined=(l?.notes?l.notes+'\n\n':'')+extraNotes;
+    await db.from('lessons').update({notes:combined}).eq('id',lessonId);
+    if(l)l.notes=combined;
+  }
+  await loadMyLessons();
+  openStudentLessonDetail(lessonId);
+  toast('Saved ✦');
+}
+
+// Handle OAuth redirect — grab session from URL hash if present
+async function handleAuthRedirect(){
+  const hash = window.location.hash;
+  if(hash && hash.includes('access_token')){
+    // Supabase will pick this up automatically, just wait
+    await new Promise(r=>setTimeout(r,500));
+  }
+  const{data:{session}}=await db.auth.getSession();
   if(session?.user){
-    // Check if profile exists (Google OAuth users may need role selection)
-    const profile = await loadProfile(session.user);
-    if(!profile){
-      // New Google user — show role picker
+    const profile=await loadProfile(session.user);
+    if(!profile||!profile.role){
+      hideLoading();
       showRolePicker(session.user);
     } else {
       await initApp(session.user);
     }
   } else {
     hideLoading();
+    document.getElementById('auth-screen').classList.remove('hidden');
+  }
+}
+
+db.auth.onAuthStateChange(async(event,session)=>{
+  if(event==='INITIAL_SESSION') return; // handled by handleAuthRedirect
+  if(event==='SIGNED_IN'&&session?.user){
+    // Only trigger for non-redirect sign-ins (redirect handled above)
+    if(!window._authHandled){
+      window._authHandled=true;
+      const profile=await loadProfile(session.user);
+      if(!profile||!profile.role){
+        hideLoading();
+        showRolePicker(session.user);
+      } else {
+        await initApp(session.user);
+      }
+    }
+  } else if(event==='SIGNED_OUT'){
+    window._authHandled=false;
+    hideLoading();
     document.getElementById('app-shell').style.display='none';
     document.getElementById('auth-screen').classList.remove('hidden');
   }
 });
 
-function showRolePicker(user){
-  hideLoading();
-  document.getElementById('auth-screen').classList.remove('hidden');
-  document.getElementById('auth-screen').innerHTML=`
-    <div class="auth-hero">
-      <div class="auth-eyebrow">One more thing</div>
-      <div class="auth-title" style="font-size:36px">Welcome!</div>
-      <div class="auth-tagline">How will you use Silk & Flow?</div>
-      <div class="auth-form">
-        <button class="auth-btn" style="margin-bottom:12px;background:var(--blush);color:var(--ink);font-size:14px;padding:16px" onclick="setGoogleRole('${user.id}','student','${(user.user_metadata?.full_name||user.email||'').replace(/'/g,"\\'")}')">
-          🎋 I am a Student
-        </button>
-        <button class="auth-btn" style="background:var(--gold);color:var(--ink);font-size:14px;padding:16px" onclick="setGoogleRole('${user.id}','teacher','${(user.user_metadata?.full_name||user.email||'').replace(/'/g,"\\'")}')">
-          🌸 I am a Teacher
-        </button>
-        <div id="role-error" class="auth-error"></div>
-      </div>
-    </div>
-    <div class="auth-footer">Signed in as ${user.email}</div>`;
+// Start app
+handleAuthRedirect();
+
+async function showRolePicker(user){
+  // No role picker needed — create profile with teacher role, toggle handles switching
+  const name = user.user_metadata?.full_name || user.user_metadata?.name || user.email || 'User';
+  const{error}=await db.from('profiles').upsert({id:user.id,full_name:name,role:'teacher'},{onConflict:'id'});
+  if(!error) await initApp(user);
+  else {
+    hideLoading();
+    document.getElementById('auth-screen').classList.remove('hidden');
+    document.getElementById('auth-screen').innerHTML=`<div class="auth-hero"><div class="auth-title">Error</div><div class="auth-tagline">${error.message}</div></div>`;
+  }
 }
 
 async function setGoogleRole(userId,role,name){
   const errEl=document.getElementById('role-error');
-  const{error}=await db.from('profiles').insert({id:userId,full_name:name||'User',role});
-  if(error){errEl.textContent='Error setting role. Please try again.';return;}
+  // Upsert in case profile was partially created
+  const{error}=await db.from('profiles').upsert({id:userId,full_name:name||'User',role},{onConflict:'id'});
+  if(error){errEl.textContent='Error: '+error.message;return;}
   const{data:{session}}=await db.auth.getSession();
   if(session)await initApp(session.user);
 }
