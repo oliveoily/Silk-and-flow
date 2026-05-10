@@ -118,12 +118,13 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 .video-url-entry .remove-entry{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--rose);font-size:18px;cursor:pointer}
 .video-url-entry input{margin-bottom:6px}
 .video-url-preview{margin-top:8px;border-radius:var(--r-xs);overflow:hidden}
-.video-url-preview iframe{width:100%;height:175px;border:none;border-radius:var(--r-xs)}
+.video-url-preview iframe{width:100%;height:420px;border:none;border-radius:var(--r-xs)}
 .open-link{display:flex;align-items:center;gap:8px;background:var(--ink2);border-radius:var(--r-xs);padding:10px 12px;text-decoration:none;cursor:pointer}
 .open-link-text{font-size:12px;font-weight:500;color:var(--gold)}
 .open-link-sub{font-size:10px;color:rgba(247,242,236,0.45);margin-top:1px}
 .video-gallery{display:flex;flex-direction:column;gap:8px}
-.video-entry{background:white;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden}
+.video-url-preview.vertical iframe{height:520px}
+.video-entry{background:white;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;max-width:430px;margin-left:auto;margin-right:auto}
 .video-entry-head{padding:8px 12px;background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
 .video-entry-date{font-size:10.5px;font-weight:600;color:var(--ink)}
 .video-entry-tag{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600}
@@ -403,7 +404,7 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
   <div class="overlay-body">
     <p style="font-size:12.5px;color:var(--mauve);line-height:1.6;margin-bottom:14px">Log your own videos and notes from class. If your teacher logs the same date, everything appears together.</p>
     <label class="field-label">Date</label><input type="date" id="sl-date">
-    <label class="field-label">What did you work on?</label><input type="text" id="sl-title" placeholder="e.g. Hip Key & Mermaid practice">
+    <label class="field-label">Session title <span style="font-weight:300;text-transform:none;letter-spacing:0;color:var(--rose);font-size:10px">· visible to your teacher</span></label><input type="text" id="sl-title" placeholder="e.g. Hip Key entries, worked on mermaid balance">
     <label class="field-label">Moves practised (comma-separated)</label><input type="text" id="sl-moves" placeholder="Hip Key, Mermaid, S-Wrap">
     <label class="field-label">Notes</label><textarea id="sl-notes" placeholder="What clicked, what to work on, how it felt..."></textarea>
     <div class="sec">Teacher / Instructional Videos</div>
@@ -479,10 +480,13 @@ function vidEmbed(url){
   if(gd)return{type:'gd',src:`https://drive.google.com/file/d/${gd[1]}/preview`};
   return{type:'link',url};
 }
-function vidPreview(url,title){
+function vidPreview(url,title,isVertical){
   if(!url)return '';
   const e=vidEmbed(url);if(!e)return '';
-  if(e.type==='yt'||e.type==='gd')return`<div class="video-url-preview"><iframe src="${e.src}" allowfullscreen allow="autoplay"></iframe></div>`;
+  // Vertical video: use 9:16 aspect ratio container
+  const h=isVertical===false?'56.25%':'177.78%'; // 16:9 or 9:16
+  const maxH=isVertical===false?'280px':'520px';
+  if(e.type==='yt'||e.type==='gd')return`<div style="position:relative;width:100%;max-width:${isVertical===false?'100%':'300px'};margin:0 auto;padding-bottom:0;"><div style="position:relative;height:0;padding-bottom:${h};max-height:${maxH};overflow:hidden;border-radius:var(--r-xs)"><iframe src="${e.src}" allowfullscreen allow="autoplay" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"></iframe></div></div>`;
   const isInsta=url.includes('instagram.com');
   return`<div class="video-url-preview"><a class="open-link" href="${url}" target="_blank" rel="noopener"><span style="font-size:20px">${isInsta?'📸':'🎬'}</span><div><div class="open-link-text">Open ${isInsta?'Instagram Reel':'Video'} ↗</div><div class="open-link-sub">${(title||url).slice(0,45)}</div></div></a></div>`;
 }
@@ -794,7 +798,13 @@ function openMyLesson(id){
   const isSelf=l.teacher_id===l.student_id;
   document.getElementById('my-lesson-detail-content').innerHTML=`
     <div class="overlay-header">
-      <button class="back-btn" onclick="closeOv('my-lesson-detail-ov')">← Back</button>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <button class="back-btn" style="margin-bottom:0" onclick="closeOv('my-lesson-detail-ov')">← Back</button>
+        <div style="display:flex;gap:8px">
+          <button onclick="editMyLesson('${l.id}')" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);color:var(--parchment);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:var(--sans)">Edit</button>
+          <button onclick="deleteMyLesson('${l.id}')" style="background:rgba(201,148,138,0.2);border:1px solid rgba(201,148,138,0.3);color:#ffb3a7;padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:var(--sans)">Delete</button>
+        </div>
+      </div>
       <div class="overlay-title">${l.title||'Session'}</div>
       <div style="margin-top:5px;display:flex;align-items:center;gap:8px">
         <span style="font-size:10px;color:rgba(247,242,236,0.4)">${fmtDate(l.date)}</span>
@@ -1025,6 +1035,66 @@ async function saveLesson(){
   _lessons.unshift(lesson);
   btn.disabled=false;btn.textContent='Save Lesson';
   closeOv('log-lesson-ov');openStudentDetail(_llStudentId);toast('Lesson saved ✦');
+}
+
+/* ═══ EDIT / DELETE LESSONS ═══ */
+async function deleteMyLesson(id){
+  if(!confirm('Delete this session? This cannot be undone.'))return;
+  await db.from('lesson_videos').delete().eq('lesson_id',id);
+  await db.from('lessons').delete().eq('id',id);
+  _myLessons=_myLessons.filter(x=>x.id!==id);
+  closeOv('my-lesson-detail-ov');
+  renderMyLessons();
+  toast('Session deleted');
+}
+
+function editMyLesson(id){
+  const l=_myLessons.find(x=>x.id===id);if(!l)return;
+  // Pre-fill the student log form with existing data
+  _slBestAdded=false;_vc=0;
+  document.getElementById('sl-date').value=l.date||'';
+  document.getElementById('sl-title').value=l.title||'';
+  document.getElementById('sl-moves').value=(l.moves||[]).join(', ');
+  document.getElementById('sl-notes').value=l.notes||'';
+  ['sl-teacher-videos','sl-student-videos','sl-best-video'].forEach(cid=>{const e=document.getElementById(cid);if(e)e.innerHTML='';});
+  document.getElementById('sl-best-btn').style.display='block';
+  // Show existing videos as read-only chips so they know what's there
+  const tV=(l.lesson_videos||[]).filter(v=>v.type==='teacher');
+  const sV=(l.lesson_videos||[]).filter(v=>v.type==='student');
+  if(tV.length){const el=document.getElementById('sl-teacher-videos');tV.forEach(v=>{const d=document.createElement('div');d.style.cssText='background:var(--surface2);border-radius:var(--r-xs);padding:8px 10px;margin-bottom:6px;font-size:11.5px;color:var(--mauve);display:flex;align-items:center;gap:8px';d.innerHTML=`<span>🎬</span><span style="flex:1">${v.title||'Teacher video'}</span><a href="${v.url}" target="_blank" style="color:var(--rose);font-size:10px">Open ↗</a>`;el.appendChild(d);});}
+  if(sV.length){const el=document.getElementById('sl-student-videos');sV.forEach(v=>{const d=document.createElement('div');d.style.cssText='background:var(--surface2);border-radius:var(--r-xs);padding:8px 10px;margin-bottom:6px;font-size:11.5px;color:var(--mauve);display:flex;align-items:center;gap:8px';d.innerHTML=`<span>📹</span><span style="flex:1">${v.title||'My video'}</span><a href="${v.url}" target="_blank" style="color:var(--rose);font-size:10px">Open ↗</a>`;el.appendChild(d);});}
+  // Change save button to update mode
+  const saveBtn=document.getElementById('sl-save-btn');
+  saveBtn.textContent='Update Session';
+  saveBtn.onclick=()=>updateMyLesson(id);
+  closeOv('my-lesson-detail-ov');
+  openOv('student-log-ov');
+}
+
+async function updateMyLesson(id){
+  const btn=document.getElementById('sl-save-btn');btn.disabled=true;btn.textContent='Saving...';
+  const movesRaw=document.getElementById('sl-moves').value.trim();
+  const updates={
+    title:document.getElementById('sl-title').value.trim()||'My session',
+    date:document.getElementById('sl-date').value,
+    moves:movesRaw?movesRaw.split(',').map(m=>m.trim()).filter(Boolean):[],
+    notes:document.getElementById('sl-notes').value.trim(),
+  };
+  // Add any new videos
+  const tV=collectVids('sl-teacher-videos').filter(v=>v.url&&!v.url.includes('existing'));
+  const sV=collectVids('sl-student-videos').filter(v=>v.url&&!v.url.includes('existing'));
+  const bestUrl=document.getElementById('sl-best-url')?.value?.trim()||'';
+  if(bestUrl)updates.best_video_url=bestUrl;
+  await db.from('lessons').update(updates).eq('id',id);
+  const newRows=[...tV.map(v=>({lesson_id:id,type:'teacher',title:v.title,url:v.url})),...sV.map(v=>({lesson_id:id,type:'student',title:v.title,url:v.url}))];
+  if(newRows.length){const{data:nv}=await db.from('lesson_videos').insert(newRows).select();const l=_myLessons.find(x=>x.id===id);if(l&&nv)l.lesson_videos=[...(l.lesson_videos||[]),...nv];}
+  // Update local cache
+  const l=_myLessons.find(x=>x.id===id);
+  if(l)Object.assign(l,updates);
+  // Reset save button
+  const saveBtn=document.getElementById('sl-save-btn');
+  saveBtn.textContent='Save Session';saveBtn.onclick=saveStudentLog;btn.disabled=false;
+  closeOv('student-log-ov');renderMyLessons();toast('Session updated ✦');
 }
 
 /* ═══ AUTH BOOT ═══ */
