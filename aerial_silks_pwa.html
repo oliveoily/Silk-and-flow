@@ -762,6 +762,12 @@ async function saveSeq(){
 async function delSeq(id){await db.from('sequences').delete().eq('id',id);_seqs=_seqs.filter(s=>s.id!==id);renderSeqs();toast('Removed');}
 
 /* ═══ INSPIRATION ═══ */
+const _reelMovesSel=new Set();
+function toggleReelMove(btn,name){
+  if(_reelMovesSel.has(name)){_reelMovesSel.delete(name);btn.classList.remove('active');}
+  else{_reelMovesSel.add(name);btn.classList.add('active');}
+}
+
 function renderInsps(){
   // Build moves checklist if empty
   const wrap=document.getElementById('reel-moves-wrap');
@@ -790,32 +796,26 @@ function renderInsps(){
   }).join('');
 }
 async function saveReel(){
-  const url=document.getElementById('reel-url').value.trim();if(!url){toast('Add a URL');return;}
-  const{data}=await db.from('inspirations').insert({created_by:CU.id,url,title:document.getElementById('reel-title').value.trim()||'Untitled',caption:document.getElementById('reel-caption').value.trim(),notes:document.getElementById('reel-notes').value.trim()}).select().single();
-  if(data){_insps.unshift(data);clearReelForm();renderInsps();toast('Reel saved!');}
+  const url=document.getElementById('reel-url').value.trim();
+  if(!url){toast('Add a URL');return;}
+  const title=document.getElementById('reel-title').value.trim()||'Untitled';
+  const notes=document.getElementById('reel-notes').value.trim();
+  const moves=[..._reelMovesSel].map(name=>({name}));
+  const{data,error}=await db.from('inspirations').insert({
+    created_by:CU.id,url,title,notes,
+    parsed_moves:moves,
+    parsed_meta:{type:'reel',moves:moves.map(m=>m.name)}
+  }).select().single();
+  if(error){toast('Error: '+error.message);return;}
+  _insps.unshift(data);
+  clearReelForm();
+  renderInsps();
+  toast('Reel saved ✦');
 }
-function clearReelForm(){['reel-url','reel-title','reel-caption','reel-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});}
-
-/* ═══ MY LESSONS ═══ */
-function renderMyLessons(){
-  const el=document.getElementById('my-lessons-list');
-  if(!_myLessons.length){el.innerHTML='<p class="empty-state">No sessions yet — tap the button above to log your first, or ask your teacher to log a lesson for you.</p>';return;}
-  const sorted=[..._myLessons].sort((a,b)=>(b.date||'').localeCompare(a.date||''));
-  el.innerHTML=sorted.map(l=>{
-    const isSelf=l.teacher_id===l.student_id;
-    const tV=(l.lesson_videos||[]).filter(v=>v.type==='teacher');
-    const sV=(l.lesson_videos||[]).filter(v=>v.type==='student');
-    const tot=tV.length+sV.length+(l.best_video_url?1:0);
-    return`<div class="lesson-entry" onclick="openMyLesson('${l.id}')">
-      <div class="lesson-date-label">${fmtDate(l.date)}</div>
-      <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px">
-        <div class="lesson-title-text" style="margin-bottom:0">${l.title||'Session'}</div>
-        <span class="badge ${isSelf?'badge-student':'badge-teacher'}">${isSelf?'Self':'Teacher'}</span>
-      </div>
-      <div class="lesson-pills">${(l.moves||[]).map(m=>`<span class="lesson-pill pill-moves">${m}</span>`).join('')}${(l.achievements||[]).map(a=>`<span class="lesson-pill pill-achieve">✓ ${a}</span>`).join('')}</div>
-      <div style="font-size:10.5px;color:var(--mauve);margin-top:4px">${tot?`🎬 ${tot} video${tot!==1?'s':''} · tap to view`:'Tap to add videos →'}</div>
-    </div>`;
-  }).join('');
+function clearReelForm(){
+  ['reel-url','reel-title','reel-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  _reelMovesSel.clear();
+  document.querySelectorAll('#reel-moves-wrap .filter-btn').forEach(b=>b.classList.remove('active'));
 }
 
 function openMyLesson(id){
