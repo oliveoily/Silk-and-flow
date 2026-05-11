@@ -772,7 +772,13 @@ function renderInsps(){
   // Build moves checklist if empty
   const wrap=document.getElementById('reel-moves-wrap');
   if(wrap&&!wrap.children.length){
-    wrap.innerHTML=MOVES.map(m=>`<button class="filter-btn" onclick="toggleReelMove(this,'${m.name}')">${m.name}</button>`).join('');
+    MOVES.forEach(m=>{
+      const b=document.createElement('button');
+      b.className='filter-btn';
+      b.textContent=m.name;
+      b.addEventListener('click',function(){toggleReelMove(this,m.name);});
+      wrap.appendChild(b);
+    });
   }
   renderAccounts();
   const el=document.getElementById('inspiration-list');
@@ -780,34 +786,50 @@ function renderInsps(){
   // Only show reels (not accounts)
   const reels=_insps.filter(r=>r.parsed_meta?.type!=='account');
   if(!reels.length){el.innerHTML='<p class="empty-state">No reels saved yet.</p>';return;}
-  el.innerHTML=reels.map((r)=>{
-    const ri=_insps.indexOf(r);
-    return`<div class="insp-card">
+  // Use a lookup map for safe onclick references
+  window._inspReels=reels;
+  el.innerHTML=reels.map((r,ri)=>`<div class="insp-card">
       <div style="width:28px;height:28px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${r.parsed_moves&&r.parsed_moves.length?'✦':'🔗'}</div>
-      <div class="insp-info" onclick="window.open(${JSON.stringify(r.url)},'_blank')" style="cursor:pointer;flex:1;min-width:0">
+      <div class="insp-info" onclick="openReelUrl(${ri})" style="cursor:pointer;flex:1;min-width:0">
         <div class="insp-title">${r.title||'Untitled'}</div>
         <div class="insp-parsed-line">${r.parsed_moves&&r.parsed_moves.length?r.parsed_moves.slice(0,4).map(p=>p.name).join(' · '):r.notes||'No moves tagged'}</div>
       </div>
       <div class="insp-actions" style="flex-shrink:0;display:flex;gap:4px;align-items:center">
-        ${(r.parsed_moves&&r.parsed_moves.length||r.notes)?`<button class="insp-action" onclick="openInspDetail(${ri})">Details</button>`:''}
-        <button onclick="doDelInsp(${JSON.stringify(r.id)})" style="background:none;border:none;color:var(--mauve);cursor:pointer;font-size:18px;padding:4px 6px;line-height:1">×</button>
+        ${r.parsed_moves&&r.parsed_moves.length||r.notes?`<button class="insp-action" onclick="openInspDetail(${ri})">Details</button>`:''}
+        <button onclick="deleteReel(${ri})" style="background:none;border:none;color:var(--mauve);cursor:pointer;font-size:18px;padding:4px 6px;line-height:1">×</button>
       </div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
 }
 async function saveReel(){
   const url=document.getElementById('reel-url').value.trim();
   if(!url){toast('Add a URL');return;}
   const title=document.getElementById('reel-title').value.trim()||'Untitled';
-  const notes=document.getElementById('reel-notes').value.trim();
-  const moves=[..._reelMovesSel].map(name=>({name}));
-  const{data,error}=await db.from('inspirations').insert({
-    created_by:CU.id,url,title,notes,
-    parsed_moves:moves,
-    parsed_meta:{type:'reel',moves:moves.map(m=>m.name)}
-  }).select().single();
-  if(error){toast('Error: '+error.message);return;}
-  _insps.unshift(data);
+  const userNotes=document.getElementById('reel-notes').value.trim();
+  const moveNames=[..._reelMovesSel];
+  // Store moves in caption field (always existed) and parsed_moves if available
+  const notesWithMoves=moveNames.length?(userNotes?userNotes+'
+Moves: '+moveNames.join(', '):'Moves: '+moveNames.join(', ')):userNotes;
+  const row={created_by:CU.id,url,title,notes:userNotes,caption:notesWithMoves};
+  // Try to add parsed_moves and parsed_meta
+  try{
+    row.parsed_moves=moveNames.map(n=>({name:n}));
+    row.parsed_meta={type:'reel',moves:moveNames};
+  }catch(e){}
+  const{data,error}=await db.from('inspirations').insert(row).select().single();
+  if(error){
+    // Retry without parsed columns in case they don't exist
+    delete row.parsed_moves;delete row.parsed_meta;
+    const{data:d2,error:e2}=await db.from('inspirations').insert(row).select().single();
+    if(e2){toast('Error: '+e2.message);return;}
+    if(d2){
+      // Attach moves locally so they show
+      d2.parsed_moves=moveNames.map(n=>({name:n}));
+      d2.parsed_meta={type:'reel',moves:moveNames};
+      _insps.unshift(d2);
+    }
+  } else {
+    _insps.unshift(data);
+  }
   clearReelForm();
   renderInsps();
   toast('Reel saved ✦');
@@ -1205,7 +1227,7 @@ function renderAccounts(){
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
           <a href="${r.url}" target="_blank" style="font-size:14px;font-weight:600;color:var(--deep-rose);text-decoration:none">${handle}</a>
-          <button onclick="doDelInsp(${JSON.stringify(r.id)})" style="background:none;border:none;color:var(--mauve);cursor:pointer;font-size:18px;padding:4px 6px;line-height:1">×</button>
+          <button onclick="deleteAcct('${r.id}')" style="background:none;border:none;color:var(--mauve);cursor:pointer;font-size:18px;padding:4px 6px;line-height:1">×</button>
         </div>
         ${tags.length?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">${tags.map(t=>`<span style="background:var(--blush);color:var(--deep-rose);padding:1px 7px;border-radius:20px;font-size:9px;font-weight:600">${t}</span>`).join('')}</div>`:''}
         ${why?`<div style="font-size:12px;color:var(--mauve);line-height:1.5">${why}</div>`:''}
@@ -1230,6 +1252,48 @@ async function _delInspOld(id, idx, type){
   _insps=_insps.filter(r=>r.id!==id);
   renderInsps();
   closeOv('insp-detail-ov');
+  toast('Removed');
+}
+
+
+/* ═══ REEL HELPERS ═══ */
+function openReelUrl(ri){
+  const r=(window._inspReels||[])[ri];
+  if(r&&r.url)window.open(r.url,'_blank');
+}
+
+function openInspDetail(ri){
+  const r=(window._inspReels||[])[ri];
+  if(!r)return;
+  const moves=r.parsed_moves||[];
+  const movesH=moves.length?`<div class="sec" style="margin-top:0">Moves in this reel</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${moves.map(m=>`<span class="lesson-pill pill-moves">${m.name}</span>`).join('')}</div>`:'';
+  const notesH=r.notes?`<div class="card"><div class="card-body"><p style="font-size:13px;line-height:1.6;color:var(--mauve)">${r.notes}</p></div></div>`:'';
+  document.getElementById('insp-detail-content').innerHTML=`
+    <div class="overlay-header"><button class="back-btn" onclick="closeOv('insp-detail-ov')">← Back</button><div class="overlay-title">${r.title||'Untitled'}</div></div>
+    <div class="overlay-body">
+      <button class="btn-secondary btn-full" onclick="window.open('${r.url}','_blank')" style="margin-bottom:12px">Open reel ↗</button>
+      ${movesH}${notesH}
+      <div class="spacer-80"></div>
+    </div>`;
+  openOv('insp-detail-ov');
+}
+
+async function deleteReel(ri){
+  const r=(window._inspReels||[])[ri];
+  if(!r)return;
+  if(!confirm('Remove this reel?'))return;
+  await db.from('inspirations').delete().eq('id',r.id);
+  _insps=_insps.filter(x=>x.id!==r.id);
+  renderInsps();
+  toast('Removed');
+}
+
+async function deleteAcct(id){
+  if(!confirm('Remove this account?'))return;
+  await db.from('inspirations').delete().eq('id',id);
+  _insps=_insps.filter(x=>x.id!==id);
+  renderInsps();
   toast('Removed');
 }
 
