@@ -509,13 +509,15 @@ function vidEmbed(url){
 function vidPreview(url,title){
   if(!url)return '';
   const e=vidEmbed(url);if(!e)return '';
-  if(e.type==='yt'){
-    // YouTube portrait: scale up 300% to fill frame and hide letterbox
-    return`<div style="width:100%;border-radius:10px;overflow:hidden;background:#000;aspect-ratio:9/16;position:relative;"><iframe src="${e.src}?rel=0&modestbranding=1&playsinline=1" allowfullscreen allow="autoplay;encrypted-media" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:300%;height:300%;border:none;"></iframe></div>`;
-  }
-  if(e.type==='gd'){
-    // Google Drive: use native aspect-ratio container, no scaling - let it fill naturally
-    return`<div style="width:100%;border-radius:10px;overflow:hidden;background:#000;aspect-ratio:9/16;position:relative;"><iframe src="${e.src}" allowfullscreen allow="autoplay" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"></iframe></div>`;
+  if(e.type==='yt'||e.type==='gd'){
+    const src=e.type==='yt'?`${e.src}?rel=0&modestbranding=1&playsinline=1&mute=1&autoplay=0`:e.src;
+    const allow=e.type==='yt'?'autoplay;encrypted-media;picture-in-picture':'autoplay';
+    // 9:16 container, iframe scaled to 310% to crop black bars from portrait video in 16:9 player
+    return`<div class="vid-wrap" style="width:100%;border-radius:10px;overflow:hidden;background:#000;aspect-ratio:9/16;position:relative;">
+      <iframe src="${src}" allowfullscreen allow="${allow}" loading="lazy"
+        style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:310%;height:310%;border:none;pointer-events:auto;">
+      </iframe>
+    </div>`;
   }
   const isInsta=url.includes('instagram.com');
   const isTikTok=url.includes('tiktok.com');
@@ -772,20 +774,22 @@ function renderInsps(){
   // Only show reels (not accounts)
   const reels=_insps.filter(r=>r.parsed_meta?.type!=='account');
   if(!reels.length){el.innerHTML='<p class="empty-state">No reels saved yet.</p>';return;}
-  el.innerHTML=reels.map((r,i)=>`
-    <div class="insp-card">
+  el.innerHTML=reels.map((r)=>{
+    const ri=_insps.indexOf(r);
+    return`<div class="insp-card">
       <div style="width:28px;height:28px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${r.parsed_moves&&r.parsed_moves.length?'✦':'🔗'}</div>
-      <div class="insp-info" onclick="window.open('${r.url}','_blank')" style="cursor:pointer">
+      <div class="insp-info" onclick="window.open(${JSON.stringify(r.url)},'_blank')" style="cursor:pointer;flex:1;min-width:0">
         <div class="insp-title">${r.title||'Untitled'}</div>
         <div class="insp-parsed-line">${r.parsed_moves&&r.parsed_moves.length?r.parsed_moves.slice(0,4).map(p=>p.name).join(' · '):r.notes||'No moves tagged'}</div>
       </div>
-      <div class="insp-actions">
-        ${(r.parsed_moves&&r.parsed_moves.length||r.notes)?`<button class="insp-action" onclick="openInspDetail(${_insps.indexOf(r)})">Details</button>`:''}
-        <button class="insp-action" onclick="delInsp('${r.id}',${_insps.indexOf(r)})" style="color:var(--mauve);background:none;border-color:transparent">×</button>
+      <div class="insp-actions" style="flex-shrink:0;display:flex;gap:4px;align-items:center">
+        ${(r.parsed_moves&&r.parsed_moves.length||r.notes)?`<button class="insp-action" onclick="openInspDetail(${ri})">Details</button>`:''}
+        <button onclick="doDelInsp(${JSON.stringify(r.id)})" style="background:none;border:none;color:var(--mauve);cursor:pointer;font-size:18px;padding:4px 6px;line-height:1">×</button>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
-async function saveReelOnly(){
+async function saveReel(){
   const url=document.getElementById('reel-url').value.trim();if(!url){toast('Add a URL');return;}
   const{data}=await db.from('inspirations').insert({created_by:CU.id,url,title:document.getElementById('reel-title').value.trim()||'Untitled',caption:document.getElementById('reel-caption').value.trim(),notes:document.getElementById('reel-notes').value.trim()}).select().single();
   if(data){_insps.unshift(data);clearReelForm();renderInsps();toast('Reel saved!');}
@@ -1201,7 +1205,7 @@ function renderAccounts(){
       <div style="flex:1;min-width:0">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
           <a href="${r.url}" target="_blank" style="font-size:14px;font-weight:600;color:var(--deep-rose);text-decoration:none">${handle}</a>
-          <button onclick="delInsp('${r.id}',null,'account')" style="background:none;border:none;color:var(--mauve);cursor:pointer;font-size:16px;padding:0 0 0 8px">×</button>
+          <button onclick="doDelInsp(${JSON.stringify(r.id)})" style="background:none;border:none;color:var(--mauve);cursor:pointer;font-size:18px;padding:4px 6px;line-height:1">×</button>
         </div>
         ${tags.length?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">${tags.map(t=>`<span style="background:var(--blush);color:var(--deep-rose);padding:1px 7px;border-radius:20px;font-size:9px;font-weight:600">${t}</span>`).join('')}</div>`:''}
         ${why?`<div style="font-size:12px;color:var(--mauve);line-height:1.5">${why}</div>`:''}
@@ -1210,7 +1214,17 @@ function renderAccounts(){
   }).join('');
 }
 
-async function delInsp(id, idx, type){
+async function delInsp(id, idx, type){return doDelInsp(id);}
+
+async function doDelInsp(id){
+  if(!confirm('Remove this?'))return;
+  await db.from('inspirations').delete().eq('id',id);
+  _insps=_insps.filter(r=>r.id!==id);
+  renderInsps();
+  toast('Removed');
+}
+
+async function _delInspOld(id, idx, type){
   if(!confirm('Remove this '+(type==='account'?'account':'reel')+'?'))return;
   await db.from('inspirations').delete().eq('id',id);
   _insps=_insps.filter(r=>r.id!==id);
@@ -1234,6 +1248,62 @@ db.auth.onAuthStateChange(async(event,session)=>{
     await initApp(session.user);
   }
 })();
+</script>
+
+<script>
+// Autoplay videos when scrolled into view, pause when out of view
+function setupVideoObserver(){
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const iframe = entry.target.querySelector('iframe');
+      if(!iframe)return;
+      if(entry.isIntersecting){
+        // Reload with autoplay+mute when entering view
+        if(!iframe.dataset.autoplayed){
+          iframe.dataset.autoplayed='1';
+          const sep=iframe.src.includes('?')?'&':'?';
+          if(!iframe.src.includes('autoplay=1')){
+            iframe.src=iframe.src+sep+'autoplay=1&mute=1';
+          }
+        }
+      } else {
+        // Stop by reloading without autoplay
+        if(iframe.dataset.autoplayed){
+          iframe.src=iframe.src.replace('autoplay=1&mute=1','autoplay=0&mute=1')
+            .replace('&autoplay=1','').replace('?autoplay=1','?')
+            .replace('autoplay=1','');
+          // For Google Drive, just clear and reset
+          const s=iframe.src;iframe.src='';iframe.src=s;
+          delete iframe.dataset.autoplayed;
+        }
+      }
+    });
+  },{threshold:0.6});
+
+  // Observe all video wrappers
+  document.querySelectorAll('.vid-wrap').forEach(v=>obs.observe(v));
+  return obs;
+}
+
+// Re-run observer whenever content changes (overlays open, tabs switch)
+let _vidObs=null;
+function refreshVideoObserver(){
+  if(_vidObs){_vidObs.disconnect();}
+  setTimeout(()=>{_vidObs=setupVideoObserver();},300);
+}
+
+// Hook into existing functions
+const _origOpenMyLesson=window.openMyLesson;
+const _origOpenStudentDetail=window.openStudentDetail;
+const _origOpenLessonDetail=window.openLessonDetail;
+document.addEventListener('DOMContentLoaded',()=>{
+  refreshVideoObserver();
+});
+// Refresh observer on overlay open
+const _origOpenOv=window.openOv;
+if(_origOpenOv){
+  window.openOv=function(id){_origOpenOv(id);refreshVideoObserver();};
+}
 </script>
 </body>
 </html>
