@@ -11,11 +11,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --ink:#120d10;--ink2:#2a1e25;--parchment:#f8f3ee;--warm:#f0e8df;
-  --blush:#e4ccc0;--rose:#c9948a;--deep-rose:#9e5e54;--gold:#c8a97e;
-  --gold-pale:#e8d9c0;--sage:#8a9e8c;--mauve:#7a6070;
-  --surface:#fdf9f6;--surface2:#f2ebe0;
-  --border:rgba(138,96,88,0.13);--border-med:rgba(138,96,88,0.28);
+  --ink:#3a2030;--ink2:#6e4e60;--parchment:#fef6f8;--warm:#f0e8df;
+  --blush:#fce8ee;--rose:#d4a0b4;--deep-rose:#8a3e58;--gold:#f0bcc8;
+  --gold-pale:#fce8ee;--sage:#a07888;--mauve:#8a6070;
+  --surface:#fefafb;--surface2:#fdf0f4;
+  --border:rgba(180,100,130,0.13);--border-med:rgba(180,100,130,0.25);
   --r:14px;--r-sm:8px;--r-xs:6px;
   --shadow:0 2px 16px rgba(18,13,16,0.07);--shadow-lg:0 8px 32px rgba(18,13,16,0.13);
   --serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
@@ -26,18 +26,18 @@ body{font-family:var(--sans);background:var(--parchment);color:var(--ink);max-wi
 .app-shell{display:flex;flex-direction:column;height:100dvh}
 
 /* AUTH SCREEN */
-.auth-screen{display:flex;flex-direction:column;min-height:100dvh;background:var(--ink);position:fixed;inset:0;z-index:1000;max-width:430px;margin:0 auto}
+.auth-screen{display:flex;flex-direction:column;min-height:100dvh;background:#3a2030;position:fixed;inset:0;z-index:1000;max-width:430px;margin:0 auto}
 .auth-screen.hidden{display:none}
 .auth-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 24px;position:relative;overflow:hidden}
 .auth-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(200,169,126,0.12) 0%,transparent 70%)}
 .auth-hero::after{content:'';position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,148,138,0.1) 0%,transparent 70%)}
 .auth-eyebrow{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
 .auth-title{font-family:var(--serif);font-size:48px;font-weight:300;color:var(--parchment);font-style:italic;text-align:center;line-height:1;margin-bottom:6px}
-.auth-tagline{font-size:12px;color:rgba(247,242,236,0.4);letter-spacing:1px;text-align:center;margin-bottom:40px}
-.auth-form{background:rgba(255,255,255,0.04);border:1px solid rgba(200,169,126,0.15);border-radius:var(--r);padding:24px;width:100%;backdrop-filter:blur(10px)}
+.auth-tagline{font-size:12px;color:rgba(254,246,248,0.45);letter-spacing:1px;text-align:center;margin-bottom:40px}
+.auth-form{background:rgba(255,255,255,0.06);border:1px solid rgba(240,188,200,0.2);border-radius:var(--r);padding:24px;width:100%;backdrop-filter:blur(10px)}
 .auth-error{font-size:11.5px;color:#e88;margin-top:10px;text-align:center;line-height:1.4}
 .google-btn{width:100%;padding:13px 16px;background:white;border:none;border-radius:var(--r-sm);font-family:var(--sans);font-size:14px;font-weight:500;color:#3c4043;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:box-shadow 0.2s;letter-spacing:0.2px}
-.google-btn:hover{box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+.google-btn:hover{box-shadow:0 2px 12px rgba(200,120,150,0.2)}
 .google-btn:active{opacity:0.9}
 .auth-footer{padding:20px 24px;text-align:center;font-size:10px;color:rgba(247,242,236,0.2);letter-spacing:0.5px}
 
@@ -78,7 +78,7 @@ body{font-family:var(--sans);background:var(--parchment);color:var(--ink);max-wi
 .badge-beginner{background:#e5f0e5;color:#3d6b42}
 .badge-intermediate{background:#f6ede0;color:#8a5520}
 .badge-advanced{background:#f0e3e3;color:#8a3030}
-.badge-gold{background:var(--gold);color:var(--ink)}
+.badge-gold{background:#f0bcc8;color:#3a2030}
 .badge-teacher{background:var(--blush);color:var(--deep-rose)}
 .badge-student{background:#e2ede3;color:#3d6b42}
 input[type="text"],input[type="url"],input[type="date"],input[type="email"],select{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm);padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--ink);background:white;outline:none;margin-bottom:10px;appearance:none;-webkit-appearance:none}
@@ -118,7 +118,7 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 .video-url-entry .remove-entry{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--rose);font-size:18px;cursor:pointer}
 .video-url-entry input{margin-bottom:6px}
 .video-url-preview{margin-top:8px;border-radius:var(--r-xs);overflow:hidden}
-.video-url-preview iframe{width:100%;height:420px;border:none;border-radius:var(--r-xs)}
+.video-url-preview iframe{border:none;}
 .open-link{display:flex;align-items:center;gap:8px;background:var(--ink2);border-radius:var(--r-xs);padding:10px 12px;text-decoration:none;cursor:pointer}
 .open-link-text{font-size:12px;font-weight:500;color:var(--gold)}
 .open-link-sub{font-size:10px;color:rgba(247,242,236,0.45);margin-top:1px}
@@ -128,9 +128,9 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 .video-entry-head{padding:8px 12px;background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
 .video-entry-date{font-size:10.5px;font-weight:600;color:var(--ink)}
 .video-entry-tag{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600}
-.tag-teacher{background:var(--blush);color:var(--deep-rose)}
+.tag-teacher{background:#fce8ee;color:#7a3050}
 .tag-student{background:#e2ede3;color:#3d6b42}
-.tag-best{background:var(--gold);color:var(--ink)}
+.tag-best{background:#f0bcc8;color:#3a2030}
 .video-entry-body{padding:10px 12px}
 .video-entry-title{font-size:12px;font-weight:600;margin-bottom:3px}
 .video-entry-sub{font-size:10.5px;color:var(--mauve);margin-bottom:6px}
@@ -172,7 +172,7 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 .insp-parsed-line{font-size:11px;color:var(--mauve)}
 .insp-actions{display:flex;gap:6px;padding:0 14px 12px}
 .insp-action{flex:1;padding:7px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-xs);font-size:10px;font-weight:600;color:var(--deep-rose);cursor:pointer;text-align:center}
-.ai-parse-wrap{background:linear-gradient(135deg,#12090f 0%,#1e1020 100%);border-radius:var(--r);padding:16px;margin-top:10px}
+.ai-parse-wrap{background:linear-gradient(135deg,#2a1020 0%,#4a2840 100%);border-radius:var(--r);padding:16px;margin-top:10px}
 .ai-parse-title{font-family:var(--serif);font-size:16px;font-style:italic;color:var(--parchment);margin-bottom:3px}
 .ai-parse-sub{font-size:9.5px;color:var(--gold);letter-spacing:0.5px;margin-bottom:12px}
 .ai-move-card{background:rgba(247,242,236,0.05);border:1px solid rgba(200,169,126,0.13);border-radius:var(--r-xs);padding:11px;margin-bottom:7px}
@@ -183,12 +183,12 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 .ai-dot:nth-child(2){animation-delay:0.2s}
 .ai-dot:nth-child(3){animation-delay:0.4s}
 @keyframes aipulse{0%,80%,100%{opacity:0.25;transform:scale(0.75)}40%{opacity:1;transform:scale(1)}}
-.teacher-hero{background:linear-gradient(135deg,var(--ink) 0%,#2a1428 100%);border-radius:var(--r);padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.teacher-hero{background:linear-gradient(135deg,#3a2030 0%,#5c4050 100%);border-radius:var(--r);padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
 .teacher-hero::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(200,169,126,0.08)}
 .teacher-hero-title{font-family:var(--serif);font-size:20px;font-style:italic;font-weight:300;color:var(--parchment);margin-bottom:4px}
 .teacher-hero-sub{font-size:10px;color:var(--gold);letter-spacing:0.5px}
 .class-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
-.class-card-head{background:var(--ink2);padding:13px 15px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.class-card-head{background:#5c4050;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
 .class-card-title{font-size:14px;font-weight:600;color:var(--parchment)}
 .class-card-meta{font-size:10px;color:rgba(247,242,236,0.45);margin-top:2px}
 .class-expand-icon{color:rgba(247,242,236,0.4);font-size:12px;transition:transform 0.2s}
@@ -197,7 +197,7 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 .class-card-body.open{display:block}
 .student-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer}
 .student-row:last-child{border-bottom:none}
-.student-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--blush),var(--rose));display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:16px;color:white;font-style:italic;flex-shrink:0}
+.student-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f0c8d8,#c47898);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:16px;color:white;font-style:italic;flex-shrink:0}
 .student-row-name{font-size:13px;font-weight:500}
 .student-row-meta{font-size:10.5px;color:var(--mauve);margin-top:1px}
 .lesson-entry{border-left:2px solid var(--blush);padding:10px 14px;margin-bottom:10px;position:relative;cursor:pointer}
@@ -233,15 +233,30 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
     <div class="auth-eyebrow">Aerial Silks</div>
     <div class="auth-title">Silk & Flow</div>
     <div class="auth-tagline">Learn · Teach · Ascend</div>
-    <div class="auth-form">
-      <button class="google-btn" onclick="signInWithGoogle()">
-        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
-        Continue with Google
+    <div class="auth-form" id="auth-email-form">
+      <div style="margin-bottom:16px">
+        <label style="display:block;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(240,188,200,0.7);margin-bottom:8px;font-weight:500">Your email</label>
+        <input type="email" id="magic-email" placeholder="you@gmail.com"
+          style="width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(240,188,200,0.25);border-radius:8px;padding:12px 14px;font-family:var(--sans);font-size:14px;color:#fef6f8;outline:none;"
+          onkeydown="if(event.key==='Enter')sendMagicLink()">
+      </div>
+      <button onclick="sendMagicLink()" id="magic-btn"
+        style="width:100%;padding:13px;background:#f0bcc8;color:#3a2030;border:none;border-radius:8px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;letter-spacing:0.3px;">
+        Send me a sign-in link
       </button>
       <div id="auth-error" class="auth-error"></div>
     </div>
+    <div id="auth-sent-form" style="display:none">
+      <div style="text-align:center;padding:8px 0">
+        <div style="font-size:40px;margin-bottom:16px">✉️</div>
+        <div style="font-family:var(--serif);font-size:22px;font-style:italic;font-weight:300;color:#fef6f8;margin-bottom:10px">Check your email</div>
+        <div style="font-size:13px;color:rgba(254,246,248,0.55);line-height:1.6;margin-bottom:20px">We sent a sign-in link to<br><span id="sent-email-display" style="color:#f0bcc8;font-weight:500"></span></div>
+        <div style="font-size:11px;color:rgba(254,246,248,0.35);line-height:1.6">Tap the link in your email to sign in.<br>You can close this tab.</div>
+        <button onclick="resetAuthForm()" style="margin-top:20px;background:none;border:1px solid rgba(240,188,200,0.25);border-radius:20px;padding:7px 18px;font-size:11px;color:rgba(254,246,248,0.5);cursor:pointer;font-family:var(--sans)">Use a different email</button>
+      </div>
+    </div>
   </div>
-  <div class="auth-footer">Your data is private & secure · Synced across all your devices</div>
+  <div class="auth-footer">Private & secure · Synced across all your devices</div>
 </div>
 
 <!-- MAIN APP -->
@@ -480,15 +495,26 @@ function vidEmbed(url){
   if(gd)return{type:'gd',src:`https://drive.google.com/file/d/${gd[1]}/preview`};
   return{type:'link',url};
 }
-function vidPreview(url,title,isVertical){
+function vidPreview(url,title){
   if(!url)return '';
   const e=vidEmbed(url);if(!e)return '';
-  // Vertical video: use 9:16 aspect ratio container
-  const h=isVertical===false?'56.25%':'177.78%'; // 16:9 or 9:16
-  const maxH=isVertical===false?'280px':'520px';
-  if(e.type==='yt'||e.type==='gd')return`<div style="position:relative;width:100%;max-width:${isVertical===false?'100%':'300px'};margin:0 auto;padding-bottom:0;"><div style="position:relative;height:0;padding-bottom:${h};max-height:${maxH};overflow:hidden;border-radius:var(--r-xs)"><iframe src="${e.src}" allowfullscreen allow="autoplay" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"></iframe></div></div>`;
+  // All videos: 9:16 portrait container, iframe scaled 200% centered to crop black bars
+  if(e.type==='yt'||e.type==='gd'){
+    const src=e.type==='yt'?e.src+'?rel=0&modestbranding=1&playsinline=1':e.src;
+    return`<div style="width:100%;max-width:300px;margin:0 auto;border-radius:10px;overflow:hidden;background:#000;"><div style="position:relative;padding-bottom:177.78%;height:0;overflow:hidden;"><iframe src="${src}" allowfullscreen allow="autoplay;encrypted-media" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:250%;height:250%;border:none;margin:0;padding:0;display:block;"></iframe></div></div>`;
+  }
   const isInsta=url.includes('instagram.com');
-  return`<div class="video-url-preview"><a class="open-link" href="${url}" target="_blank" rel="noopener"><span style="font-size:20px">${isInsta?'📸':'🎬'}</span><div><div class="open-link-text">Open ${isInsta?'Instagram Reel':'Video'} ↗</div><div class="open-link-sub">${(title||url).slice(0,45)}</div></div></a></div>`;
+  const isTikTok=url.includes('tiktok.com');
+  const platform=isInsta?'Instagram':isTikTok?'TikTok':'Video';
+  const icon=isInsta?`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="url(#ig)"/><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm0 5.75A2.25 2.25 0 1 1 12 9.75a2.25 2.25 0 0 1 0 4.5zM16.5 8.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0z" fill="white"/><path d="M12 5c-1.9 0-2.14.01-2.89.04-.74.03-1.25.15-1.7.32a3.4 3.4 0 0 0-1.23.8 3.4 3.4 0 0 0-.8 1.23c-.17.45-.29.96-.32 1.7C5.01 9.86 5 10.1 5 12s.01 2.14.04 2.89c.03.74.15 1.25.32 1.7.18.46.42.85.8 1.23.38.38.77.62 1.23.8.45.17.96.29 1.7.32C9.86 18.99 10.1 19 12 19s2.14-.01 2.89-.04c.74-.03 1.25-.15 1.7-.32a3.4 3.4 0 0 0 1.23-.8 3.4 3.4 0 0 0 .8-1.23c.17-.45.29-.96.32-1.7.03-.75.04-1 .04-2.89s-.01-2.14-.04-2.89c-.03-.74-.15-1.25-.32-1.7a3.4 3.4 0 0 0-.8-1.23 3.4 3.4 0 0 0-1.23-.8c-.45-.17-.96-.29-1.7-.32C14.14 5.01 13.9 5 12 5zm0 1.26c1.87 0 2.09.01 2.83.04.68.03 1.05.14 1.3.24.32.13.56.28.8.52.24.24.4.48.52.8.1.25.21.62.24 1.3.03.74.04.96.04 2.83s-.01 2.09-.04 2.83c-.03.68-.14 1.05-.24 1.3a2.17 2.17 0 0 1-.52.8c-.24.24-.48.4-.8.52-.25.1-.62.21-1.3.24-.74.03-.96.04-2.83.04s-2.09-.01-2.83-.04c-.68-.03-1.05-.14-1.3-.24a2.17 2.17 0 0 1-.8-.52 2.17 2.17 0 0 1-.52-.8c-.1-.25-.21-.62-.24-1.3C6.27 14.09 6.26 13.87 6.26 12s.01-2.09.04-2.83c.03-.68.14-1.05.24-1.3.13-.32.28-.56.52-.8.24-.24.48-.4.8-.52.25-.1.62-.21 1.3-.24.74-.03.96-.04 2.83-.04z" fill="white"/><defs><linearGradient id="ig" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#F58529"/><stop offset="0.5" stop-color="#DD2A7B"/><stop offset="1" stop-color="#8134AF"/></linearGradient></defs></svg>`:'🎬';
+  return`<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:10px;padding:14px 16px;text-decoration:none;margin-top:6px;border:1px solid rgba(255,255,255,0.08);">
+    <div style="flex-shrink:0">${icon}</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:13px;font-weight:600;color:white;margin-bottom:2px">${title||platform+' Reel'}</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.45);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${url.slice(0,40)}…</div>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);flex-shrink:0">Open ↗</div>
+  </a>`;
 }
 function addVideoField(cid){
   _vc++;const n=_vc,id=`v${n}`;
@@ -534,13 +560,33 @@ function videoChips(vids,tag,cls){
 }
 
 /* ═══ AUTH ═══ */
-async function signInWithGoogle(){
+async function sendMagicLink(){
+  const email=document.getElementById('magic-email').value.trim();
   const errEl=document.getElementById('auth-error');errEl.textContent='';
-  const{error}=await db.auth.signInWithOAuth({
-    provider:'google',
-    options:{redirectTo:window.location.href,queryParams:{prompt:'select_account'}}
+  if(!email){errEl.textContent='Please enter your email.';return;}
+  const btn=document.getElementById('magic-btn');
+  btn.disabled=true;btn.textContent='Sending...';
+  const{error}=await db.auth.signInWithOtp({
+    email,
+    options:{emailRedirectTo:window.location.href}
   });
-  if(error)errEl.textContent=error.message;
+  if(error){
+    errEl.textContent=error.message;
+    btn.disabled=false;btn.textContent='Send me a sign-in link';
+  } else {
+    document.getElementById('sent-email-display').textContent=email;
+    document.getElementById('auth-email-form').style.display='none';
+    document.getElementById('auth-sent-form').style.display='block';
+  }
+}
+
+function resetAuthForm(){
+  document.getElementById('auth-email-form').style.display='block';
+  document.getElementById('auth-sent-form').style.display='none';
+  document.getElementById('magic-email').value='';
+  document.getElementById('auth-error').textContent='';
+  document.getElementById('magic-btn').disabled=false;
+  document.getElementById('magic-btn').textContent='Send me a sign-in link';
 }
 
 async function doSignOut(){
@@ -817,15 +863,19 @@ function openMyLesson(id){
       ${tV.length?`<div class="sec">Teacher / Instructional Videos (${tV.length})</div><div class="video-gallery">${tV.map(v=>`<div class="video-entry"><div class="video-entry-body"><div class="video-entry-title">${v.title||'Teacher video'}</div>${vidPreview(v.url,v.title)}</div></div>`).join('')}</div>`:''}
       ${sV.length?`<div class="sec">My Practice Videos (${sV.length})</div><div class="video-gallery">${sV.map(v=>`<div class="video-entry"><div class="video-entry-body"><div class="video-entry-title">${v.title||'My video'}</div>${vidPreview(v.url,v.title)}</div></div>`).join('')}</div>`:''}
       ${l.best_video_url?`<div class="sec">Best of Day ✦</div><div class="video-entry"><div class="video-entry-body">${vidPreview(l.best_video_url,'Best of day')}</div></div>`:''}
-      <div class="sec">Add more to this session</div>
-      <div class="video-tip">📁 Upload to Google Drive → Share → Copy link → paste below</div>
-      <div id="ex-tv-${l.id}"></div>
+      <div class="sec">Manage this session</div>
+      <div class="video-tip">📁 Add new videos below. To delete individual videos, tap the × next to each one above.</div>
+      ${[...tV,...sV].map(v=>`<div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:var(--r-xs);padding:8px 10px;margin-bottom:6px;"><span style="font-size:13px">${v.type==='teacher'?'🎬':'📹'}</span><span style="flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.title||v.type+' video'}</span><button onclick="deleteVideo('${l.id}','${v.id}')" style="background:none;border:none;color:var(--rose);font-size:16px;cursor:pointer;flex-shrink:0">×</button></div>`).join('')}
+      ${l.best_video_url?`<div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:var(--r-xs);padding:8px 10px;margin-bottom:6px;"><span style="font-size:13px">⭐</span><span style="flex:1;font-size:12px">Best of day</span><button onclick="deleteBestVideo('${l.id}')" style="background:none;border:none;color:var(--rose);font-size:16px;cursor:pointer">×</button></div>`:''}
+      <div id="ex-tv-${l.id}" style="margin-top:8px"></div>
       <button class="add-video-btn" onclick="addVideoField('ex-tv-${l.id}')">+ Add teacher / instructional video</button>
       <div id="ex-sv-${l.id}"></div>
       <button class="add-video-btn" onclick="addVideoField('ex-sv-${l.id}')">+ Add my practice video</button>
-      <label class="field-label" style="margin-top:8px">Additional notes</label>
-      <textarea id="ex-notes-${l.id}" placeholder="Anything else to add..."></textarea>
-      <button class="btn-gold btn-full mt-4" onclick="saveExtra('${l.id}')">Save additions</button>
+      <label class="field-label" style="margin-top:8px">Edit notes</label>
+      <textarea id="ex-notes-${l.id}" placeholder="Edit or add notes...">${l.notes||''}</textarea>
+      <label class="field-label">Edit title</label>
+      <input type="text" id="ex-title-${l.id}" value="${l.title||''}" placeholder="Session title">
+      <button class="btn-gold btn-full mt-4" onclick="saveExtra('${l.id}')">Save changes</button>
       <div class="spacer-80"></div>
     </div>`;
   openOv('my-lesson-detail-ov');
@@ -1095,6 +1145,21 @@ async function updateMyLesson(id){
   const saveBtn=document.getElementById('sl-save-btn');
   saveBtn.textContent='Save Session';saveBtn.onclick=saveStudentLog;btn.disabled=false;
   closeOv('student-log-ov');renderMyLessons();toast('Session updated ✦');
+}
+
+async function deleteVideo(lid,vid){
+  if(!confirm('Delete this video?'))return;
+  await db.from('lesson_videos').delete().eq('id',vid);
+  const l=_myLessons.find(x=>x.id===lid);
+  if(l)l.lesson_videos=(l.lesson_videos||[]).filter(v=>String(v.id)!==String(vid));
+  openMyLesson(lid);toast('Video removed');
+}
+
+async function deleteBestVideo(lid){
+  if(!confirm('Remove best of day video?'))return;
+  await db.from('lessons').update({best_video_url:null}).eq('id',lid);
+  const l=_myLessons.find(x=>x.id===lid);if(l)l.best_video_url=null;
+  openMyLesson(lid);toast('Removed');
 }
 
 /* ═══ AUTH BOOT ═══ */
