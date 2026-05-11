@@ -304,9 +304,7 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
         <label class="field-label">Title</label><input type="text" id="reel-title" placeholder="e.g. Cross Back Straddle entries">
         <label class="field-label">Your notes</label><textarea id="reel-notes" rows="2" placeholder="What to try, what you noticed, why you saved it..."></textarea>
         <label class="field-label">Moves in this reel</label>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px" id="reel-moves-wrap">
-          ${MOVES.map(m=>`<button class="filter-btn" onclick="toggleReelMove(this,'${m.name}')">${m.name}</button>`).join('')}
-        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px" id="reel-moves-wrap"></div>
         <button class="btn-primary btn-full" onclick="saveReel()">Save Reel</button>
       </div></div>
 
@@ -495,7 +493,7 @@ function fmtId(s){return s.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase())
 function fmtDate(d){if(!d)return '';try{return new Date(d+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});}catch(e){return d;}}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 function openOv(id){document.getElementById(id).classList.add('open');}
-function closeOv(id){document.getElementById(id).classList.remove('open');}
+function closeOv(id){stopAllVideos();document.getElementById(id).classList.remove('open');}
 function showLoading(){document.getElementById('loading-screen').classList.remove('hidden');}
 function hideLoading(){document.getElementById('loading-screen').classList.add('hidden');}
 
@@ -511,9 +509,13 @@ function vidEmbed(url){
 function vidPreview(url,title){
   if(!url)return '';
   const e=vidEmbed(url);if(!e)return '';
-  if(e.type==='yt'||e.type==='gd'){
-    const src=e.type==='yt'?e.src+'?rel=0&modestbranding=1&playsinline=1':e.src;
-    return`<div style="width:100%;border-radius:10px;overflow:hidden;background:#000;"><div style="position:relative;padding-bottom:177.78%;height:0;overflow:hidden;"><iframe src="${src}" allowfullscreen allow="autoplay;encrypted-media" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:250%;height:250%;border:none;margin:0;padding:0;display:block;"></iframe></div></div>`;
+  if(e.type==='yt'){
+    // YouTube portrait: scale up 300% to fill frame and hide letterbox
+    return`<div style="width:100%;border-radius:10px;overflow:hidden;background:#000;aspect-ratio:9/16;position:relative;"><iframe src="${e.src}?rel=0&modestbranding=1&playsinline=1" allowfullscreen allow="autoplay;encrypted-media" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:300%;height:300%;border:none;"></iframe></div>`;
+  }
+  if(e.type==='gd'){
+    // Google Drive: use native aspect-ratio container, no scaling - let it fill naturally
+    return`<div style="width:100%;border-radius:10px;overflow:hidden;background:#000;aspect-ratio:9/16;position:relative;"><iframe src="${e.src}" allowfullscreen allow="autoplay" style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;"></iframe></div>`;
   }
   const isInsta=url.includes('instagram.com');
   const isTikTok=url.includes('tiktok.com');
@@ -622,7 +624,14 @@ async function loadAll(){
 }
 
 /* ═══ MODE / TAB ═══ */
+function stopAllVideos(){
+  document.querySelectorAll('iframe').forEach(f=>{
+    try{const s=f.src;f.src='';f.src=s;}catch(e){}
+  });
+}
+
 function setMode(m){
+  stopAllVideos();
   document.getElementById('mode-student').classList.toggle('active',m==='student');
   document.getElementById('mode-teacher').classList.toggle('active',m==='teacher');
   document.getElementById('student-tabs').style.display=m==='student'?'flex':'none';
@@ -639,6 +648,7 @@ function setMode(m){
   }
 }
 function showTab(tab,btn,bar){
+  stopAllVideos();
   const isT=tab.startsWith('t-');
   document.querySelectorAll('.screen').forEach(s=>{const t=s.id.replace('screen-','');if(t.startsWith('t-')===isT){s.classList.remove('active');s.style.display='none';}});
   document.querySelectorAll('#'+bar+' .tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
@@ -751,6 +761,11 @@ async function delSeq(id){await db.from('sequences').delete().eq('id',id);_seqs=
 
 /* ═══ INSPIRATION ═══ */
 function renderInsps(){
+  // Build moves checklist if empty
+  const wrap=document.getElementById('reel-moves-wrap');
+  if(wrap&&!wrap.children.length){
+    wrap.innerHTML=MOVES.map(m=>`<button class="filter-btn" onclick="toggleReelMove(this,'${m.name}')">${m.name}</button>`).join('');
+  }
   renderAccounts();
   const el=document.getElementById('inspiration-list');
   if(!_insps.length){el.innerHTML='<p class="empty-state">No reels saved yet.</p>';return;}
@@ -1159,13 +1174,13 @@ async function saveAccount(){
     notes:why,caption:tags.join(', '),
     parsed_meta:{type:'account',tags,why}
   }).select().single();
-  if(error){toast('Error saving');return;}
-  _accts.unshift({...data,handle,why,tags});
+  if(error){toast('Error: '+error.message);console.error(error);return;}
+  _insps.unshift(data);
   document.getElementById('acct-handle').value='';
   document.getElementById('acct-why').value='';
   _acctTagsSel.clear();
   document.querySelectorAll('#acct-tags-wrap .filter-btn').forEach(b=>b.classList.remove('active'));
-  renderAccounts();toast('Account saved ✦');
+  renderInsps();toast('Account saved ✦');
 }
 
 function renderAccounts(){
