@@ -772,7 +772,13 @@ function renderInsps(){
   // Build moves checklist if empty
   const wrap=document.getElementById('reel-moves-wrap');
   if(wrap&&!wrap.children.length){
-    wrap.innerHTML=MOVES.map(m=>`<button class="filter-btn" onclick="toggleReelMove(this,'${m.name}')">${m.name}</button>`).join('');
+    MOVES.forEach(m=>{
+      const b=document.createElement('button');
+      b.className='filter-btn';
+      b.textContent=m.name;
+      b.addEventListener('click',function(){toggleReelMove(this,m.name);});
+      wrap.appendChild(b);
+    });
   }
   renderAccounts();
   const el=document.getElementById('inspiration-list');
