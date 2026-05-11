@@ -22,8 +22,8 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
-body{font-family:var(--sans);background:var(--parchment);color:var(--ink);max-width:430px;margin:0 auto;overflow-x:hidden;min-height:100vh}
-.app-shell{display:flex;flex-direction:column;height:100dvh}
+body{font-family:var(--sans);background:var(--surface2);color:var(--ink);overflow-x:hidden;min-height:100vh}
+.app-shell{display:flex;flex-direction:column;height:100dvh;max-width:480px;margin:0 auto;background:var(--parchment);box-shadow:0 0 60px rgba(58,32,48,0.12)}
 
 /* AUTH SCREEN */
 .auth-screen{display:flex;flex-direction:column;min-height:100dvh;background:#3a2030;position:fixed;inset:0;z-index:1000;max-width:430px;margin:0 auto}
@@ -42,7 +42,7 @@ body{font-family:var(--sans);background:var(--parchment);color:var(--ink);max-wi
 .auth-footer{padding:20px 24px;text-align:center;font-size:10px;color:rgba(247,242,236,0.2);letter-spacing:0.5px}
 
 /* LOADING */
-.loading-screen{display:flex;align-items:center;justify-content:center;height:100dvh;background:var(--parchment);position:fixed;inset:0;z-index:999;max-width:430px;margin:0 auto}
+.loading-screen{display:flex;align-items:center;justify-content:center;height:100dvh;background:var(--parchment);position:fixed;inset:0;z-index:999;max-width:480px;margin:0 auto}
 .loading-screen.hidden{display:none}
 .loading-dots{display:flex;gap:6px}
 .loading-dot{width:8px;height:8px;border-radius:50%;background:var(--rose);animation:ldot 1.2s ease-in-out infinite}
@@ -104,7 +104,7 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 .move-meta{font-size:10.5px;color:var(--mauve);margin-top:2px}
 .move-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--blush);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:transparent;transition:all 0.2s;cursor:pointer}
 .move-check.done{background:var(--sage);border-color:var(--sage);color:white}
-.overlay{display:none;position:fixed;inset:0;background:var(--parchment);z-index:200;overflow-y:auto;max-width:430px;margin:0 auto;animation:slideUp 0.22s ease}
+.overlay{display:none;position:fixed;inset:0;background:var(--parchment);z-index:200;overflow-y:auto;max-width:480px;margin:0 auto;animation:slideUp 0.22s ease}
 .overlay.open{display:block}
 @keyframes slideUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
 .overlay-header{background:var(--ink);padding:18px;position:sticky;top:0;z-index:10}
@@ -655,7 +655,7 @@ function showTab(tab,btn,bar){
   const el=document.getElementById('screen-'+tab);el.style.display='block';el.classList.add('active');
   if(tab==='adventure')renderAdv();
   if(tab==='sequences')renderSeqs();
-  if(tab==='inspiration'){renderInsps();renderAccounts();}
+  if(tab==='inspiration')renderInsps();
   if(tab==='my-lessons')renderMyLessons();
   if(tab==='t-classes')renderClasses();
   if(tab==='t-students')renderStudents();
@@ -1169,12 +1169,16 @@ async function saveAccount(){
   const tags=[..._acctTagsSel];
   const url=`https://www.instagram.com/${handle.replace('@','')}`;
   // Save to inspirations table with type='account'
+  // Check not already saved
+  if(_insps.some(r=>r.title===handle&&r.parsed_meta?.type==='account')){toast('Already saved');return;}
   const{data,error}=await db.from('inspirations').insert({
     created_by:CU.id,url,title:handle,
     notes:why,caption:tags.join(', '),
     parsed_meta:{type:'account',tags,why}
   }).select().single();
   if(error){toast('Error: '+error.message);console.error(error);return;}
+  // Remove any duplicates just added
+  _insps=_insps.filter(r=>r.id!==data.id);
   _insps.unshift(data);
   document.getElementById('acct-handle').value='';
   document.getElementById('acct-why').value='';
@@ -1204,6 +1208,15 @@ function renderAccounts(){
       </div>
     </div>`;
   }).join('');
+}
+
+async function delInsp(id, idx, type){
+  if(!confirm('Remove this '+(type==='account'?'account':'reel')+'?'))return;
+  await db.from('inspirations').delete().eq('id',id);
+  _insps=_insps.filter(r=>r.id!==id);
+  renderInsps();
+  closeOv('insp-detail-ov');
+  toast('Removed');
 }
 
 /* ═══ AUTH BOOT ═══ */
