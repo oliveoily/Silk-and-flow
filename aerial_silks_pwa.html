@@ -124,7 +124,7 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 .open-link-sub{font-size:10px;color:rgba(247,242,236,0.45);margin-top:1px}
 .video-gallery{display:flex;flex-direction:column;gap:8px}
 .video-url-preview.vertical iframe{height:520px}
-.video-entry{background:white;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;max-width:430px;margin-left:auto;margin-right:auto}
+.video-entry{background:white;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;}
 .video-entry-head{padding:8px 12px;background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
 .video-entry-date{font-size:10.5px;font-weight:600;color:var(--ink)}
 .video-entry-tag{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600}
@@ -292,15 +292,42 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
       <button class="fab" onclick="openOv('add-seq-ov')">+</button>
     </div>
     <div id="screen-inspiration" class="screen">
-      <div class="card"><div class="card-body">
-        <div style="font-family:var(--serif);font-size:18px;font-style:italic;margin-bottom:12px">Save a reel</div>
+      <!-- Toggle between reel and account -->
+      <div style="display:flex;gap:0;margin-bottom:14px;border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--border-med)">
+        <button id="insp-tab-reel" onclick="switchInspTab('reel')" style="flex:1;padding:9px;background:var(--deep-rose);color:white;border:none;font-size:11px;font-family:var(--sans);font-weight:600;cursor:pointer;letter-spacing:0.5px">🎬 Save a Reel</button>
+        <button id="insp-tab-account" onclick="switchInspTab('account')" style="flex:1;padding:9px;background:var(--surface);color:var(--mauve);border:none;font-size:11px;font-family:var(--sans);font-weight:500;cursor:pointer;letter-spacing:0.5px">👤 Save an Account</button>
+      </div>
+
+      <!-- Reel form -->
+      <div id="insp-reel-form" class="card"><div class="card-body">
         <label class="field-label">Instagram / Video URL</label><input type="url" id="reel-url" placeholder="https://www.instagram.com/reel/...">
         <label class="field-label">Title</label><input type="text" id="reel-title" placeholder="e.g. Cross Back Straddle entries">
-        <label class="field-label">Paste caption or describe what you saw</label><textarea id="reel-caption" rows="4" placeholder="Paste the caption, or describe the moves..."></textarea>
-        <label class="field-label">Your notes</label><input type="text" id="reel-notes" placeholder="What to try, why you saved it...">
-        <div class="btn-row"><button class="btn-secondary" onclick="saveReelOnly()">Save link only</button><button class="btn-gold" onclick="parseAndSave()">✦ Parse with AI</button></div>
+        <label class="field-label">Your notes</label><textarea id="reel-notes" rows="2" placeholder="What to try, what you noticed, why you saved it..."></textarea>
+        <label class="field-label">Moves in this reel</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px" id="reel-moves-wrap">
+          ${MOVES.map(m=>`<button class="filter-btn" onclick="toggleReelMove(this,'${m.name}')">${m.name}</button>`).join('')}
+        </div>
+        <button class="btn-primary btn-full" onclick="saveReel()">Save Reel</button>
       </div></div>
+
+      <!-- Account form -->
+      <div id="insp-account-form" style="display:none" class="card"><div class="card-body">
+        <label class="field-label">Instagram handle or profile URL</label><input type="text" id="acct-handle" placeholder="@flybydre or https://www.instagram.com/flybydre">
+        <label class="field-label">Why follow them?</label><textarea id="acct-why" rows="3" placeholder="e.g. Best cross back straddle tutorials, always explains the mechanics clearly..."></textarea>
+        <label class="field-label">Content type</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px" id="acct-tags-wrap">
+          <button class="filter-btn" onclick="toggleAcctTag(this,'Tutorials')">Tutorials</button>
+          <button class="filter-btn" onclick="toggleAcctTag(this,'Flows')">Flows</button>
+          <button class="filter-btn" onclick="toggleAcctTag(this,'Conditioning')">Conditioning</button>
+          <button class="filter-btn" onclick="toggleAcctTag(this,'Beginner-friendly')">Beginner-friendly</button>
+          <button class="filter-btn" onclick="toggleAcctTag(this,'Advanced')">Advanced</button>
+          <button class="filter-btn" onclick="toggleAcctTag(this,'Inspiration')">Inspiration</button>
+        </div>
+        <button class="btn-primary btn-full" onclick="saveAccount()">Save Account</button>
+      </div></div>
+
       <div class="sec">Saved Reels</div><div id="inspiration-list"></div>
+      <div class="sec">Accounts to Follow</div><div id="accounts-list"></div>
     </div>
     <div id="screen-my-lessons" class="screen">
       <div class="teacher-hero"><div class="teacher-hero-title">My Lessons</div><div class="teacher-hero-sub">Teacher & self-logged sessions · tap to view or add to</div></div>
@@ -459,7 +486,7 @@ const DEFAULT_SEQS=[
 let CU=null,CP=null;
 let _filter='all',_seqLvl='beginner',_vsort='date';
 let _adv={move:MOVES[0],history:[]};
-let _mastered=[],_seqs=[],_insps=[],_students=[],_classes=[],_lessons=[],_myLessons=[];
+let _mastered=[],_seqs=[],_insps=[],_accts=[],_students=[],_classes=[],_lessons=[],_myLessons=[];
 let _llStudentId=null,_bestAdded=false,_slBestAdded=false;
 let _vc=0;
 
@@ -586,6 +613,7 @@ async function loadAll(){
     db.from('move_progress').select('move_id').eq('student_id',CU.id).eq('mastered',true).then(r=>{_mastered=(r.data||[]).map(x=>x.move_id);}),
     db.from('sequences').select('*').eq('created_by',CU.id).order('created_at',{ascending:false}).then(r=>{_seqs=r.data||[];}),
     db.from('inspirations').select('*').eq('created_by',CU.id).order('created_at',{ascending:false}).then(r=>{_insps=r.data||[];}),
+    db.from('insp_accounts').select('*').eq('created_by',CU.id).order('created_at',{ascending:false}).then(r=>{_accts=r.data||[];}).catch(()=>{_accts=[];}),
     db.from('teacher_students').select('*,student:student_id(id,full_name)').eq('teacher_id',CU.id).then(r=>{_students=(r.data||[]).map(x=>({id:x.student_id,name:x.student?.full_name||'?',level:x.level,notes:x.notes}));}),
     db.from('classes').select('*,class_students(student_id)').eq('teacher_id',CU.id).order('date',{ascending:false}).then(r=>{_classes=r.data||[];}),
     db.from('lessons').select('*,lesson_videos(*)').eq('teacher_id',CU.id).order('date',{ascending:false}).then(r=>{_lessons=r.data||[];}),
@@ -617,7 +645,7 @@ function showTab(tab,btn,bar){
   const el=document.getElementById('screen-'+tab);el.style.display='block';el.classList.add('active');
   if(tab==='adventure')renderAdv();
   if(tab==='sequences')renderSeqs();
-  if(tab==='inspiration')renderInsps();
+  if(tab==='inspiration'){renderInsps();renderAccounts();}
   if(tab==='my-lessons')renderMyLessons();
   if(tab==='t-classes')renderClasses();
   if(tab==='t-students')renderStudents();
@@ -723,18 +751,22 @@ async function delSeq(id){await db.from('sequences').delete().eq('id',id);_seqs=
 
 /* ═══ INSPIRATION ═══ */
 function renderInsps(){
+  renderAccounts();
   const el=document.getElementById('inspiration-list');
   if(!_insps.length){el.innerHTML='<p class="empty-state">No reels saved yet.</p>';return;}
-  el.innerHTML=_insps.map((r,i)=>`
-    <div class="insp-card" onclick="openInspDetail(${i})">
+  // Only show reels (not accounts)
+  const reels=_insps.filter(r=>r.parsed_meta?.type!=='account');
+  if(!reels.length){el.innerHTML='<p class="empty-state">No reels saved yet.</p>';return;}
+  el.innerHTML=reels.map((r,i)=>`
+    <div class="insp-card">
       <div style="width:28px;height:28px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${r.parsed_moves&&r.parsed_moves.length?'✦':'🔗'}</div>
-      <div class="insp-info">
+      <div class="insp-info" onclick="window.open('${r.url}','_blank')" style="cursor:pointer">
         <div class="insp-title">${r.title||'Untitled'}</div>
-        <div class="insp-parsed-line">${r.parsed_moves&&r.parsed_moves.length?`${r.parsed_moves.length} moves · ${r.parsed_moves.slice(0,3).map(p=>p.name).join(', ')}`:'tap to parse moves'}</div>
+        <div class="insp-parsed-line">${r.parsed_moves&&r.parsed_moves.length?r.parsed_moves.slice(0,4).map(p=>p.name).join(' · '):r.notes||'No moves tagged'}</div>
       </div>
-      <div class="insp-actions" onclick="event.stopPropagation()">
-        <button class="insp-action" onclick="window.open('${r.url}','_blank')">Open ↗</button>
-        <button class="insp-action" onclick="delInsp('${r.id}',${i})" style="color:var(--mauve);background:none;border-color:transparent">×</button>
+      <div class="insp-actions">
+        ${(r.parsed_moves&&r.parsed_moves.length||r.notes)?`<button class="insp-action" onclick="openInspDetail(${_insps.indexOf(r)})">Details</button>`:''}
+        <button class="insp-action" onclick="delInsp('${r.id}',${_insps.indexOf(r)})" style="color:var(--mauve);background:none;border-color:transparent">×</button>
       </div>
     </div>`).join('');
 }
@@ -743,43 +775,6 @@ async function saveReelOnly(){
   const{data}=await db.from('inspirations').insert({created_by:CU.id,url,title:document.getElementById('reel-title').value.trim()||'Untitled',caption:document.getElementById('reel-caption').value.trim(),notes:document.getElementById('reel-notes').value.trim()}).select().single();
   if(data){_insps.unshift(data);clearReelForm();renderInsps();toast('Reel saved!');}
 }
-async function parseAndSave(){
-  const caption=document.getElementById('reel-caption').value.trim();if(!caption){toast('Paste a caption first');return;}
-  const{data}=await db.from('inspirations').insert({created_by:CU.id,url:document.getElementById('reel-url').value.trim()||'No URL',title:document.getElementById('reel-title').value.trim()||'Untitled',caption,notes:document.getElementById('reel-notes').value.trim()}).select().single();
-  if(data){_insps.unshift(data);clearReelForm();renderInsps();await parseInsp(0);}
-}
-async function parseInsp(i){
-  const r=_insps[i];
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,messages:[{role:'user',content:`Aerial silks instructor. Extract moves from this text.\nText: ${r.caption}\nJSON only:\n{"title":"short title","level":"beginner OR intermediate OR advanced","moves":[{"name":"Move name","pathway":"optional","description":"1 sentence","tips":"any tip","order":1}],"exitStrategy":"exit if mentioned","sequenceSummary":"1-2 sentence summary"}`}]})});
-    const data=await res.json();
-    const p=JSON.parse(data.content?.find(b=>b.type==='text')?.text?.replace(/```json|```/g,'').trim()||'{}');
-    const update={parsed_moves:p.moves||[],parsed_meta:{level:p.level,exit:p.exitStrategy,summary:p.sequenceSummary}};
-    if((_insps[i].title||'Untitled')==='Untitled'&&p.title)update.title=p.title;
-    await db.from('inspirations').update(update).eq('id',r.id);
-    Object.assign(_insps[i],update);renderInsps();toast('Moves identified ✦');
-  }catch(e){toast('Parse error');}
-}
-function openInspDetail(i){
-  const r=_insps[i];const meta=r.parsed_meta||{};
-  const mH=r.parsed_moves&&r.parsed_moves.length?`<div class="ai-parse-wrap"><div class="ai-parse-title">Moves identified</div><div class="ai-parse-sub">${r.parsed_moves.length} skills · AI analysis</div>${r.parsed_moves.map(m=>`<div class="ai-move-card"><div class="ai-move-name">${m.name}${m.pathway?` <span style="font-size:9px;color:rgba(200,169,126,0.6)">· ${m.pathway}</span>`:''}</div>${m.description?`<div class="ai-move-detail">${m.description}</div>`:''}${m.tips?`<div class="ai-tip">💡 ${m.tips}</div>`:''}</div>`).join('')}${meta.exit?`<div class="ai-move-card" style="border-color:rgba(200,169,126,0.3)"><div class="ai-move-name" style="color:var(--gold)">↙ Exit</div><div class="ai-move-detail">${meta.exit}</div></div>`:''}</div>`:r.caption?`<div class="sec">Caption</div><div class="card"><div class="card-body"><p style="font-size:12.5px;line-height:1.6;color:var(--mauve);white-space:pre-wrap">${r.caption}</p></div></div>`:'';
-  document.getElementById('insp-detail-content').innerHTML=`
-    <div class="overlay-header"><button class="back-btn" onclick="closeOv('insp-detail-ov')">← Back</button><div class="overlay-title">${r.title||'Untitled'}</div>${meta.level?`<div style="margin-top:6px"><span class="badge badge-${meta.level}">${meta.level}</span></div>`:''}</div>
-    <div class="overlay-body">
-      <button class="btn-secondary btn-full" onclick="window.open('${r.url}','_blank')" style="margin-bottom:12px">Open reel ↗</button>
-      ${meta.summary?`<div class="card"><div class="card-body"><p style="font-size:13px;line-height:1.6;color:var(--mauve);font-style:italic">${meta.summary}</p></div></div>`:''}
-      ${mH}
-      ${r.parsed_moves&&r.parsed_moves.length?`<button class="btn-primary btn-full" style="margin-top:12px" onclick="inspToSeq(${i})">Save as sequence →</button>`:''}
-      <div class="spacer-80"></div>
-    </div>`;
-  openOv('insp-detail-ov');
-}
-async function inspToSeq(i){
-  const r=_insps[i];if(!r.parsed_moves?.length){toast('No moves parsed');return;}
-  const{data}=await db.from('sequences').insert({created_by:CU.id,name:r.title||'Untitled',level:r.parsed_meta?.level||'intermediate',moves:r.parsed_moves.map(m=>m.name),exit_move:r.parsed_meta?.exit||'Descent',notes:r.parsed_meta?.summary||''}).select().single();
-  if(data){_seqs.unshift(data);toast('Saved to sequences ✦');}
-}
-async function delInsp(id,i){await db.from('inspirations').delete().eq('id',id);_insps.splice(i,1);renderInsps();closeOv('insp-detail-ov');toast('Removed');}
 function clearReelForm(){['reel-url','reel-title','reel-caption','reel-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});}
 
 /* ═══ MY LESSONS ═══ */
@@ -827,9 +822,9 @@ function openMyLesson(id){
     <div class="overlay-body">
       ${(l.moves||[]).length?`<div class="lesson-pills" style="margin-bottom:12px">${l.moves.map(m=>`<span class="lesson-pill pill-moves">${m}</span>`).join('')}${(l.achievements||[]).map(a=>`<span class="lesson-pill pill-achieve">✓ ${a}</span>`).join('')}${(l.help_needed||[]).map(h=>`<span class="lesson-pill pill-help">⚑ ${h}</span>`).join('')}</div>`:''}
       ${l.notes?`<div class="card"><div class="card-body"><p style="font-size:13px;line-height:1.6;color:var(--mauve);white-space:pre-wrap">${l.notes}</p></div></div>`:''}
-      ${tV.length?`<div class="sec">Teacher / Instructional Videos (${tV.length})</div><div class="video-gallery">${tV.map(v=>`<div class="video-entry"><div class="video-entry-body"><div class="video-entry-title">${v.title||'Teacher video'}</div>${vidPreview(v.url,v.title)}</div></div>`).join('')}</div>`:''}
-      ${sV.length?`<div class="sec">My Practice Videos (${sV.length})</div><div class="video-gallery">${sV.map(v=>`<div class="video-entry"><div class="video-entry-body"><div class="video-entry-title">${v.title||'My video'}</div>${vidPreview(v.url,v.title)}</div></div>`).join('')}</div>`:''}
-      ${l.best_video_url?`<div class="sec">Best of Day ✦</div><div class="video-entry"><div class="video-entry-body">${vidPreview(l.best_video_url,'Best of day')}</div></div>`:''}
+      ${tV.length?`<div class="sec">Teacher / Instructional Videos (${tV.length})</div><div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px">${tV.map(v=>`<div style="border-radius:10px;overflow:hidden"><div style="padding:8px 12px;background:var(--surface2);font-size:12px;font-weight:500">${v.title||'Teacher video'}</div>${vidPreview(v.url,v.title)}</div>`).join('')}</div>`:''}
+      ${sV.length?`<div class="sec">My Practice Videos (${sV.length})</div><div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px">${sV.map(v=>`<div style="border-radius:10px;overflow:hidden"><div style="padding:8px 12px;background:var(--surface2);font-size:12px;font-weight:500">${v.title||'My video'}</div>${vidPreview(v.url,v.title)}</div>`).join('')}</div>`:''}
+      ${l.best_video_url?`<div class="sec">Best of Day ✦</div><div style="border-radius:10px;overflow:hidden">${vidPreview(l.best_video_url,'Best of day')}</div>`:''}
       <div class="sec">Manage this session</div>
       <div class="video-tip">📁 Add new videos below. To delete individual videos, tap the × next to each one above.</div>
       ${[...tV,...sV].map(v=>`<div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:var(--r-xs);padding:8px 10px;margin-bottom:6px;"><span style="font-size:13px">${v.type==='teacher'?'🎬':'📹'}</span><span style="flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.title||v.type+' video'}</span><button onclick="deleteVideo('${l.id}','${v.id}')" style="background:none;border:none;color:var(--rose);font-size:16px;cursor:pointer;flex-shrink:0">×</button></div>`).join('')}
@@ -854,7 +849,9 @@ async function saveExtra(lid){
   const rows=[...tV.map(v=>({lesson_id:lid,type:'teacher',title:v.title,url:v.url})),...sV.map(v=>({lesson_id:lid,type:'student',title:v.title,url:v.url}))];
   if(!rows.length&&!notes){toast('Nothing to add');return;}
   if(rows.length){const{data:nv}=await db.from('lesson_videos').insert(rows).select();const l=_myLessons.find(x=>x.id===lid);if(l&&nv)l.lesson_videos=[...(l.lesson_videos||[]),...nv];}
-  if(notes){const l=_myLessons.find(x=>x.id===lid);const c=(l?.notes?l.notes+'\n\n':'')+notes;await db.from('lessons').update({notes:c}).eq('id',lid);if(l)l.notes=c;}
+  if(notes){await db.from('lessons').update({notes}).eq('id',lid);const l=_myLessons.find(x=>x.id===lid);if(l)l.notes=notes;}
+  const titleVal=document.getElementById('ex-title-'+lid)?.value?.trim()||'';
+  if(titleVal){await db.from('lessons').update({title:titleVal}).eq('id',lid);const l=_myLessons.find(x=>x.id===lid);if(l)l.title=titleVal;}
   const{data}=await db.from('lessons').select('*,lesson_videos(*),teacher:teacher_id(full_name)').eq('student_id',CU.id).order('date',{ascending:false});
   _myLessons=data||[];
   openMyLesson(lid);toast('Saved ✦');
@@ -1127,6 +1124,71 @@ async function deleteBestVideo(lid){
   await db.from('lessons').update({best_video_url:null}).eq('id',lid);
   const l=_myLessons.find(x=>x.id===lid);if(l)l.best_video_url=null;
   openMyLesson(lid);toast('Removed');
+}
+
+/* ═══ INSPIRATION TABS ═══ */
+function switchInspTab(tab){
+  const isReel=tab==='reel';
+  document.getElementById('insp-reel-form').style.display=isReel?'block':'none';
+  document.getElementById('insp-account-form').style.display=isReel?'none':'block';
+  document.getElementById('insp-tab-reel').style.background=isReel?'var(--deep-rose)':'var(--surface)';
+  document.getElementById('insp-tab-reel').style.color=isReel?'white':'var(--mauve)';
+  document.getElementById('insp-tab-account').style.background=isReel?'var(--surface)':'var(--deep-rose)';
+  document.getElementById('insp-tab-account').style.color=isReel?'var(--mauve)':'white';
+}
+
+const _acctTagsSel=new Set();
+function toggleAcctTag(btn,tag){
+  if(_acctTagsSel.has(tag)){_acctTagsSel.delete(tag);btn.classList.remove('active');}
+  else{_acctTagsSel.add(tag);btn.classList.add('active');}
+}
+
+async function saveAccount(){
+  let handle=document.getElementById('acct-handle').value.trim();
+  if(!handle){toast('Add an Instagram handle or URL');return;}
+  // normalise to @handle
+  const m=handle.match(/instagram\.com\/([A-Za-z0-9_.]+)/);
+  if(m)handle='@'+m[1];
+  else if(!handle.startsWith('@'))handle='@'+handle;
+  const why=document.getElementById('acct-why').value.trim();
+  const tags=[..._acctTagsSel];
+  const url=`https://www.instagram.com/${handle.replace('@','')}`;
+  // Save to inspirations table with type='account'
+  const{data,error}=await db.from('inspirations').insert({
+    created_by:CU.id,url,title:handle,
+    notes:why,caption:tags.join(', '),
+    parsed_meta:{type:'account',tags,why}
+  }).select().single();
+  if(error){toast('Error saving');return;}
+  _accts.unshift({...data,handle,why,tags});
+  document.getElementById('acct-handle').value='';
+  document.getElementById('acct-why').value='';
+  _acctTagsSel.clear();
+  document.querySelectorAll('#acct-tags-wrap .filter-btn').forEach(b=>b.classList.remove('active'));
+  renderAccounts();toast('Account saved ✦');
+}
+
+function renderAccounts(){
+  const el=document.getElementById('accounts-list');if(!el)return;
+  // Filter inspirations that are accounts
+  const accts=_insps.filter(r=>r.parsed_meta?.type==='account');
+  if(!accts.length){el.innerHTML='<p class="empty-state">No accounts saved yet.</p>';return;}
+  el.innerHTML=accts.map((r,i)=>{
+    const handle=r.title||r.url;
+    const tags=(r.parsed_meta?.tags||[]);
+    const why=r.parsed_meta?.why||r.notes||'';
+    return`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#833ab4,#fd1d1d,#f56040);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📸</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <a href="${r.url}" target="_blank" style="font-size:14px;font-weight:600;color:var(--deep-rose);text-decoration:none">${handle}</a>
+          <button onclick="delInsp('${r.id}',null,'account')" style="background:none;border:none;color:var(--mauve);cursor:pointer;font-size:16px;padding:0 0 0 8px">×</button>
+        </div>
+        ${tags.length?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">${tags.map(t=>`<span style="background:var(--blush);color:var(--deep-rose);padding:1px 7px;border-radius:20px;font-size:9px;font-weight:600">${t}</span>`).join('')}</div>`:''}
+        ${why?`<div style="font-size:12px;color:var(--mauve);line-height:1.5">${why}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
 }
 
 /* ═══ AUTH BOOT ═══ */
