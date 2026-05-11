@@ -163,15 +163,16 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 .flow-pill{background:var(--blush);color:var(--deep-rose);padding:3px 9px;border-radius:20px;font-size:10px;font-weight:500}
 .flow-arrow{color:var(--rose);font-size:11px}
 .seq-note-text{padding:0 14px 12px;font-size:11.5px;color:var(--mauve);font-style:italic}
-.insp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;cursor:pointer;box-shadow:var(--shadow)}
-.insp-thumb{height:80px;background:var(--ink2);display:flex;align-items:center;justify-content:center;position:relative}
-.insp-thumb-glyph{font-family:var(--serif);font-size:42px;color:rgba(200,169,126,0.25);font-style:italic}
-.insp-info{padding:11px 14px 8px}
-.insp-title{font-size:13px;font-weight:600;margin-bottom:3px}
+.insp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px}
+.insp-card:active{opacity:0.85}
+.insp-thumb{display:none}
+.insp-thumb-glyph{display:none}
+.insp-info{flex:1;min-width:0}
+.insp-title{font-size:13px;font-weight:500;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .insp-url{display:none}
-.insp-parsed-line{font-size:11px;color:var(--mauve)}
-.insp-actions{display:flex;gap:6px;padding:0 14px 12px}
-.insp-action{flex:1;padding:7px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-xs);font-size:10px;font-weight:600;color:var(--deep-rose);cursor:pointer;text-align:center}
+.insp-parsed-line{font-size:10.5px;color:var(--mauve)}
+.insp-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.insp-action{padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-xs);font-size:10px;font-weight:600;color:var(--deep-rose);cursor:pointer;text-align:center;white-space:nowrap}
 .ai-parse-wrap{background:linear-gradient(135deg,#2a1020 0%,#4a2840 100%);border-radius:var(--r);padding:16px;margin-top:10px}
 .ai-parse-title{font-family:var(--serif);font-size:16px;font-style:italic;color:var(--parchment);margin-bottom:3px}
 .ai-parse-sub{font-size:9.5px;color:var(--gold);letter-spacing:0.5px;margin-bottom:12px}
@@ -380,7 +381,7 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
     <label class="field-label">Needs help with</label><input type="text" id="ll-help" placeholder="Foot lock timing, straddle flexibility...">
     <label class="field-label">Notes</label><textarea id="ll-notes" placeholder="Observations, what clicked, what to revisit..."></textarea>
     <div class="sec">Teacher Videos</div>
-    <div class="video-tip">📁 <strong>Google Drive:</strong> film → Drive app → Upload → ⋯ → Share → Copy link → set "Anyone with the link" → paste below.</div>
+    <div class="video-tip">📁 <strong>Google Drive:</strong> film → Upload → Share → Copy link → paste below. <strong>Instagram:</strong> tap ··· on any reel → Share → Copy embed code → paste below.</div>
     <div id="ll-teacher-videos"></div>
     <button class="add-video-btn" onclick="addVideoField('ll-teacher-videos')">+ Add teacher video</button>
     <div class="sec">Student Videos</div>
@@ -474,6 +475,14 @@ function hideLoading(){document.getElementById('loading-screen').classList.add('
 /* ═══ VIDEO ═══ */
 function vidEmbed(url){
   if(!url)return null;
+  // Instagram embed code pasted directly
+  if(url.includes('blockquote')&&url.includes('instagram')){
+    const sc=url.match(/data-instgrm-permalink="[^"]*\/(?:reel|p)\/([A-Za-z0-9_-]+)/);
+    if(sc)return{type:'ig',shortcode:sc[1]};
+  }
+  // Instagram reel/post URL — extract shortcode
+  const ig=url.match(/instagram\.com\/(?:reel|p)\/([A-Za-z0-9_-]+)/);
+  if(ig)return{type:'ig',shortcode:ig[1]};
   const yt=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
   if(yt)return{type:'yt',src:`https://www.youtube.com/embed/${yt[1]}`};
   const gd=url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
@@ -483,10 +492,19 @@ function vidEmbed(url){
 function vidPreview(url,title){
   if(!url)return '';
   const e=vidEmbed(url);if(!e)return '';
-  // All videos: 9:16 portrait container, iframe scaled 200% centered to crop black bars
+  if(e.type==='ig'){
+    // Instagram official embed
+    const embedId='ig-'+e.shortcode;
+    setTimeout(()=>{if(window.instgrm)window.instgrm.Embeds.process();},300);
+    return`<div style="width:100%;border-radius:10px;overflow:hidden;">
+      <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="https://www.instagram.com/reel/${e.shortcode}/" data-instgrm-version="14" style="background:#FFF;border:0;border-radius:10px;margin:0;max-width:100%;min-width:260px;padding:0;width:100%;">
+        <div style="padding:16px;text-align:center"><a href="https://www.instagram.com/reel/${e.shortcode}/" target="_blank" style="color:#8a3e58;font-size:13px;font-weight:500">View on Instagram ↗</a></div>
+      </blockquote>
+    </div>`;
+  }
   if(e.type==='yt'||e.type==='gd'){
     const src=e.type==='yt'?e.src+'?rel=0&modestbranding=1&playsinline=1':e.src;
-    return`<div style="width:100%;max-width:300px;margin:0 auto;border-radius:10px;overflow:hidden;background:#000;"><div style="position:relative;padding-bottom:177.78%;height:0;overflow:hidden;"><iframe src="${src}" allowfullscreen allow="autoplay;encrypted-media" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:250%;height:250%;border:none;margin:0;padding:0;display:block;"></iframe></div></div>`;
+    return`<div style="width:100%;border-radius:10px;overflow:hidden;background:#000;"><div style="position:relative;padding-bottom:177.78%;height:0;overflow:hidden;"><iframe src="${src}" allowfullscreen allow="autoplay;encrypted-media" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:250%;height:250%;border:none;margin:0;padding:0;display:block;"></iframe></div></div>`;
   }
   const isInsta=url.includes('instagram.com');
   const isTikTok=url.includes('tiktok.com');
@@ -727,15 +745,14 @@ function renderInsps(){
   if(!_insps.length){el.innerHTML='<p class="empty-state">No reels saved yet.</p>';return;}
   el.innerHTML=_insps.map((r,i)=>`
     <div class="insp-card" onclick="openInspDetail(${i})">
-      <div class="insp-thumb"><div class="insp-thumb-glyph">✦</div>${r.parsed_moves&&r.parsed_moves.length?'<span class="badge badge-gold" style="position:absolute;top:8px;right:8px">AI Parsed</span>':''}</div>
+      <div style="width:28px;height:28px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${r.parsed_moves&&r.parsed_moves.length?'✦':'🔗'}</div>
       <div class="insp-info">
         <div class="insp-title">${r.title||'Untitled'}</div>
-        ${r.parsed_moves&&r.parsed_moves.length?`<div class="insp-parsed-line">${r.parsed_moves.length} moves · ${r.parsed_moves.slice(0,3).map(p=>p.name).join(', ')}</div>`:'<div class="insp-parsed-line" style="color:var(--rose);opacity:0.7">Tap to view or parse moves</div>'}
+        <div class="insp-parsed-line">${r.parsed_moves&&r.parsed_moves.length?`${r.parsed_moves.length} moves · ${r.parsed_moves.slice(0,3).map(p=>p.name).join(', ')}`:'tap to parse moves'}</div>
       </div>
-      <div class="insp-actions" onclick="event.stopPropagation()" style="gap:8px;padding:0 14px 12px">
-        <button class="insp-action" onclick="window.open('${r.url}','_blank')" style="flex:0;padding:7px 14px">Open ↗</button>
-        ${r.parsed_moves&&r.parsed_moves.length?`<button class="insp-action" onclick="inspToSeq(${i})" style="flex:0;padding:7px 14px">Save as sequence</button>`:''}
-        <button class="insp-action" onclick="delInsp('${r.id}',${i})" style="flex:0;padding:7px 10px;color:var(--mauve);margin-left:auto">×</button>
+      <div class="insp-actions" onclick="event.stopPropagation()">
+        <button class="insp-action" onclick="window.open('${r.url}','_blank')">Open ↗</button>
+        <button class="insp-action" onclick="delInsp('${r.id}',${i})" style="color:var(--mauve);background:none;border-color:transparent">×</button>
       </div>
     </div>`).join('');
 }
@@ -840,7 +857,7 @@ function openMyLesson(id){
       <div id="ex-sv-${l.id}"></div>
       <button class="add-video-btn" onclick="addVideoField('ex-sv-${l.id}')">+ Add my practice video</button>
       <label class="field-label" style="margin-top:8px">Edit notes</label>
-      <textarea id="ex-notes-${l.id}" placeholder="Edit or add notes...">${l.notes||''}</textarea>
+      <textarea id="ex-notes-${l.id}" placeholder="Replace notes with new text, or leave blank to keep existing..."></textarea>
       <label class="field-label">Edit title</label>
       <input type="text" id="ex-title-${l.id}" value="${l.title||''}" placeholder="Session title">
       <button class="btn-gold btn-full mt-4" onclick="saveExtra('${l.id}')">Save changes</button>
@@ -1146,5 +1163,6 @@ db.auth.onAuthStateChange(async(event,session)=>{
   }
 })();
 </script>
+<script async defer src="https://www.instagram.com/embed.js"></script>
 </body>
 </html>
