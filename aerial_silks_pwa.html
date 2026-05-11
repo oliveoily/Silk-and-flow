@@ -381,7 +381,7 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
     <label class="field-label">Needs help with</label><input type="text" id="ll-help" placeholder="Foot lock timing, straddle flexibility...">
     <label class="field-label">Notes</label><textarea id="ll-notes" placeholder="Observations, what clicked, what to revisit..."></textarea>
     <div class="sec">Teacher Videos</div>
-    <div class="video-tip">📁 <strong>Google Drive:</strong> film → Upload → Share → Copy link → paste below. <strong>Instagram:</strong> tap ··· on any reel → Share → Copy embed code → paste below.</div>
+    <div class="video-tip">📁 <strong>Google Drive:</strong> film → Drive app → Upload → ⋯ → Share → Copy link → set "Anyone with the link" → paste below.</div>
     <div id="ll-teacher-videos"></div>
     <button class="add-video-btn" onclick="addVideoField('ll-teacher-videos')">+ Add teacher video</button>
     <div class="sec">Student Videos</div>
@@ -475,14 +475,6 @@ function hideLoading(){document.getElementById('loading-screen').classList.add('
 /* ═══ VIDEO ═══ */
 function vidEmbed(url){
   if(!url)return null;
-  // Instagram embed code pasted directly
-  if(url.includes('blockquote')&&url.includes('instagram')){
-    const sc=url.match(/data-instgrm-permalink="[^"]*\/(?:reel|p)\/([A-Za-z0-9_-]+)/);
-    if(sc)return{type:'ig',shortcode:sc[1]};
-  }
-  // Instagram reel/post URL — extract shortcode
-  const ig=url.match(/instagram\.com\/(?:reel|p)\/([A-Za-z0-9_-]+)/);
-  if(ig)return{type:'ig',shortcode:ig[1]};
   const yt=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
   if(yt)return{type:'yt',src:`https://www.youtube.com/embed/${yt[1]}`};
   const gd=url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
@@ -492,16 +484,6 @@ function vidEmbed(url){
 function vidPreview(url,title){
   if(!url)return '';
   const e=vidEmbed(url);if(!e)return '';
-  if(e.type==='ig'){
-    // Instagram official embed
-    const embedId='ig-'+e.shortcode;
-    setTimeout(()=>{if(window.instgrm)window.instgrm.Embeds.process();},300);
-    return`<div style="width:100%;border-radius:10px;overflow:hidden;">
-      <blockquote class="instagram-media" data-instgrm-captioned data-instgrm-permalink="https://www.instagram.com/reel/${e.shortcode}/" data-instgrm-version="14" style="background:#FFF;border:0;border-radius:10px;margin:0;max-width:100%;min-width:260px;padding:0;width:100%;">
-        <div style="padding:16px;text-align:center"><a href="https://www.instagram.com/reel/${e.shortcode}/" target="_blank" style="color:#8a3e58;font-size:13px;font-weight:500">View on Instagram ↗</a></div>
-      </blockquote>
-    </div>`;
-  }
   if(e.type==='yt'||e.type==='gd'){
     const src=e.type==='yt'?e.src+'?rel=0&modestbranding=1&playsinline=1':e.src;
     return`<div style="width:100%;border-radius:10px;overflow:hidden;background:#000;"><div style="position:relative;padding-bottom:177.78%;height:0;overflow:hidden;"><iframe src="${src}" allowfullscreen allow="autoplay;encrypted-media" style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:250%;height:250%;border:none;margin:0;padding:0;display:block;"></iframe></div></div>`;
@@ -1163,6 +1145,5 @@ db.auth.onAuthStateChange(async(event,session)=>{
   }
 })();
 </script>
-<script async defer src="https://www.instagram.com/embed.js"></script>
 </body>
 </html>
