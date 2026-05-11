@@ -168,7 +168,7 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 .insp-thumb-glyph{font-family:var(--serif);font-size:42px;color:rgba(200,169,126,0.25);font-style:italic}
 .insp-info{padding:11px 14px 8px}
 .insp-title{font-size:13px;font-weight:600;margin-bottom:3px}
-.insp-url{font-size:10px;color:var(--rose);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:4px}
+.insp-url{display:none}
 .insp-parsed-line{font-size:11px;color:var(--mauve)}
 .insp-actions{display:flex;gap:6px;padding:0 14px 12px}
 .insp-action{flex:1;padding:7px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-xs);font-size:10px;font-weight:600;color:var(--deep-rose);cursor:pointer;text-align:center}
@@ -233,27 +233,12 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
     <div class="auth-eyebrow">Aerial Silks</div>
     <div class="auth-title">Silk & Flow</div>
     <div class="auth-tagline">Learn · Teach · Ascend</div>
-    <div class="auth-form" id="auth-email-form">
-      <div style="margin-bottom:16px">
-        <label style="display:block;font-size:9px;text-transform:uppercase;letter-spacing:1.5px;color:rgba(240,188,200,0.7);margin-bottom:8px;font-weight:500">Your email</label>
-        <input type="email" id="magic-email" placeholder="you@gmail.com"
-          style="width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(240,188,200,0.25);border-radius:8px;padding:12px 14px;font-family:var(--sans);font-size:14px;color:#fef6f8;outline:none;"
-          onkeydown="if(event.key==='Enter')sendMagicLink()">
-      </div>
-      <button onclick="sendMagicLink()" id="magic-btn"
-        style="width:100%;padding:13px;background:#f0bcc8;color:#3a2030;border:none;border-radius:8px;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;letter-spacing:0.3px;">
-        Send me a sign-in link
+    <div class="auth-form">
+      <button class="google-btn" onclick="signInWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
+        Continue with Google
       </button>
       <div id="auth-error" class="auth-error"></div>
-    </div>
-    <div id="auth-sent-form" style="display:none">
-      <div style="text-align:center;padding:8px 0">
-        <div style="font-size:40px;margin-bottom:16px">✉️</div>
-        <div style="font-family:var(--serif);font-size:22px;font-style:italic;font-weight:300;color:#fef6f8;margin-bottom:10px">Check your email</div>
-        <div style="font-size:13px;color:rgba(254,246,248,0.55);line-height:1.6;margin-bottom:20px">We sent a sign-in link to<br><span id="sent-email-display" style="color:#f0bcc8;font-weight:500"></span></div>
-        <div style="font-size:11px;color:rgba(254,246,248,0.35);line-height:1.6">Tap the link in your email to sign in.<br>You can close this tab.</div>
-        <button onclick="resetAuthForm()" style="margin-top:20px;background:none;border:1px solid rgba(240,188,200,0.25);border-radius:20px;padding:7px 18px;font-size:11px;color:rgba(254,246,248,0.5);cursor:pointer;font-family:var(--sans)">Use a different email</button>
-      </div>
     </div>
   </div>
   <div class="auth-footer">Private & secure · Synced across all your devices</div>
@@ -560,33 +545,13 @@ function videoChips(vids,tag,cls){
 }
 
 /* ═══ AUTH ═══ */
-async function sendMagicLink(){
-  const email=document.getElementById('magic-email').value.trim();
+async function signInWithGoogle(){
   const errEl=document.getElementById('auth-error');errEl.textContent='';
-  if(!email){errEl.textContent='Please enter your email.';return;}
-  const btn=document.getElementById('magic-btn');
-  btn.disabled=true;btn.textContent='Sending...';
-  const{error}=await db.auth.signInWithOtp({
-    email,
-    options:{emailRedirectTo:window.location.href}
+  const{error}=await db.auth.signInWithOAuth({
+    provider:'google',
+    options:{redirectTo:window.location.href,queryParams:{prompt:'select_account'}}
   });
-  if(error){
-    errEl.textContent=error.message;
-    btn.disabled=false;btn.textContent='Send me a sign-in link';
-  } else {
-    document.getElementById('sent-email-display').textContent=email;
-    document.getElementById('auth-email-form').style.display='none';
-    document.getElementById('auth-sent-form').style.display='block';
-  }
-}
-
-function resetAuthForm(){
-  document.getElementById('auth-email-form').style.display='block';
-  document.getElementById('auth-sent-form').style.display='none';
-  document.getElementById('magic-email').value='';
-  document.getElementById('auth-error').textContent='';
-  document.getElementById('magic-btn').disabled=false;
-  document.getElementById('magic-btn').textContent='Send me a sign-in link';
+  if(error)errEl.textContent=error.message;
 }
 
 async function doSignOut(){
@@ -762,12 +727,15 @@ function renderInsps(){
   if(!_insps.length){el.innerHTML='<p class="empty-state">No reels saved yet.</p>';return;}
   el.innerHTML=_insps.map((r,i)=>`
     <div class="insp-card" onclick="openInspDetail(${i})">
-      <div class="insp-thumb"><div class="insp-thumb-glyph">✦</div>${r.parsed_moves?'<span class="badge badge-gold" style="position:absolute;top:8px;right:8px">AI Parsed</span>':''}</div>
-      <div class="insp-info"><div class="insp-title">${r.title||'Untitled'}</div><div class="insp-url">${r.url}</div>${r.parsed_moves&&r.parsed_moves.length?`<div class="insp-parsed-line">${r.parsed_moves.length} moves · ${r.parsed_moves.slice(0,3).map(p=>p.name).join(', ')}</div>`:''}</div>
-      <div class="insp-actions" onclick="event.stopPropagation()">
-        <button class="insp-action" onclick="window.open('${r.url}','_blank')">Open ↗</button>
-        ${r.parsed_moves&&r.parsed_moves.length?`<button class="insp-action" onclick="inspToSeq(${i})">→ Sequence</button>`:''}
-        <button class="insp-action" style="color:var(--mauve)" onclick="delInsp('${r.id}',${i})">Remove</button>
+      <div class="insp-thumb"><div class="insp-thumb-glyph">✦</div>${r.parsed_moves&&r.parsed_moves.length?'<span class="badge badge-gold" style="position:absolute;top:8px;right:8px">AI Parsed</span>':''}</div>
+      <div class="insp-info">
+        <div class="insp-title">${r.title||'Untitled'}</div>
+        ${r.parsed_moves&&r.parsed_moves.length?`<div class="insp-parsed-line">${r.parsed_moves.length} moves · ${r.parsed_moves.slice(0,3).map(p=>p.name).join(', ')}</div>`:'<div class="insp-parsed-line" style="color:var(--rose);opacity:0.7">Tap to view or parse moves</div>'}
+      </div>
+      <div class="insp-actions" onclick="event.stopPropagation()" style="gap:8px;padding:0 14px 12px">
+        <button class="insp-action" onclick="window.open('${r.url}','_blank')" style="flex:0;padding:7px 14px">Open ↗</button>
+        ${r.parsed_moves&&r.parsed_moves.length?`<button class="insp-action" onclick="inspToSeq(${i})" style="flex:0;padding:7px 14px">Save as sequence</button>`:''}
+        <button class="insp-action" onclick="delInsp('${r.id}',${i})" style="flex:0;padding:7px 10px;color:var(--mauve);margin-left:auto">×</button>
       </div>
     </div>`).join('');
 }
