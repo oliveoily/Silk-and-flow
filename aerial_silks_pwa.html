@@ -696,16 +696,12 @@ function openMoveDetail(id){
   const stepsH=m.steps.map((s,i)=>`<li class="step-item"><div class="step-num">${i+1}</div><div class="step-text">${s}</div></li>`).join('');
   const nextH=m.nextMoves.map(n=>`<button class="next-move-btn" onclick="openMoveDetail('${n}')"><div><div class="next-move-name">${fmtId(n)}</div><div class="next-move-hint">Explore this path</div></div><span style="color:var(--rose)">→</span></button>`).join('');
   const exitH=m.exitMoves.map(e=>`<button class="next-move-btn" style="border-color:rgba(200,169,126,0.3)"><div><div class="next-move-name" style="color:var(--gold)">${fmtId(e)}</div><div class="next-move-hint">Exit strategy</div></div><span style="color:var(--gold)">↙</span></button>`).join('');
-  const sortedV=[...allV].sort((a,b)=>_vsort==='title'?(a.title||'').localeCompare(b.title||''):(b.date||'').localeCompare(a.date||''));
-  let galH='';
-  if(allV.length){
-    const rows=sortedV.map(v=>{
-      const head='<div class="video-entry-head"><span class="video-entry-date">'+fmtDate(v.date)+'</span><span class="video-entry-tag '+v.tagClass+'">'+v.tag+'</span></div>';
-      const body='<div class="video-entry-body">'+(v.title?'<div class="video-entry-title">'+v.title+'</div>':'')+(v.lessonTitle?'<div class="video-entry-sub">'+v.lessonTitle+'</div>':'')+vidPreview(v.url,v.title)+'</div>';
-      return '<div class="video-entry">'+head+body+'</div>';
-    }).join('');
-    galH='<div class="sec">Video History ('+allV.length+')</div><div class="video-gallery">'+rows+'</div>';
-  }
+  const galH=allV.length?`<div class="sec">Video History (${allV.length})</div>
+    <div class="sort-row"><span class="sort-label">Sort</span>
+      <button class="sort-btn ${_vsort==='date'?'active':''}" onclick="_vsort='date';openMoveDetail('${id}')">Date</button>
+      <button class="sort-btn ${_vsort==='title'?'active':''}" onclick="_vsort='title';openMoveDetail('${id}')">Title</button>
+    </div>
+    <div class="video-gallery">${[...allV].sort((a,b)=>_vsort==='title'?(a.title||'').localeCompare(b.title||''):(b.date||'').localeCompare(a.date||'')).map(v=>`<div class="video-entry"><div class="video-entry-head"><span class="video-entry-date">${fmtDate(v.date)}</span><span class="video-entry-tag ${v.tagClass}">${v.tag}</span></div><div class="video-entry-body">${v.title?`<div class="video-entry-title">${v.title}</div>`:''}${v.lessonTitle?`<div class="video-entry-sub">${v.lessonTitle}</div>`:''}${vidPreview(v.url,v.title)}</div></div>`).join('')}</div>`:'';
   document.getElementById('move-detail-content').innerHTML=`
     <div class="overlay-header"><button class="back-btn" onclick="closeOv('move-detail-ov')">← Back</button>
       <div style="display:flex;align-items:center;gap:12px"><span style="font-size:28px">${m.icon}</span><div><div class="overlay-title">${m.name}</div><span class="badge badge-${m.level}">${m.level}</span><span style="margin-left:6px;font-size:10px;color:rgba(247,242,236,0.45)">${m.category}</span></div></div>
@@ -716,7 +712,7 @@ function openMoveDetail(id){
       <div class="sec">Next Moves →</div>${nextH}
       <div class="sec">Exits ↙</div>${exitH}
       <div class="sec">Conditioning</div>
-      <div class="card"><div class="card-body" style="padding:8px 14px">${m.conditioning.map(c=>'<div style="padding:5px 0;font-size:12.5px;border-bottom:1px solid var(--border);color:var(--mauve)">'+c+'</div>').join('')}</div></div>
+      <div class="card"><div class="card-body" style="padding:8px 14px">${m.conditioning.map(c=>`<div style="padding:5px 0;font-size:12.5px;border-bottom:1px solid var(--border);color:var(--mauve)">${c}</div>`).join('')}</div></div>
       ${galH}<div class="spacer-80"></div>
     </div>`;
   openOv('move-detail-ov');
@@ -811,7 +807,8 @@ async function saveReel(){
   const userNotes=document.getElementById('reel-notes').value.trim();
   const moveNames=[..._reelMovesSel];
   // Store moves in caption field (always existed) and parsed_moves if available
-  const notesWithMoves=moveNames.length?(userNotes?userNotes+'\nMoves: '+moveNames.join(', '):'Moves: '+moveNames.join(', ')):userNotes;
+  const notesWithMoves=moveNames.length?(userNotes?userNotes+'
+Moves: '+moveNames.join(', '):'Moves: '+moveNames.join(', ')):userNotes;
   const row={created_by:CU.id,url,title,notes:userNotes,caption:notesWithMoves};
   // Try to add parsed_moves and parsed_meta
   try{
@@ -1269,16 +1266,16 @@ function openInspDetail(ri){
   const r=(window._inspReels||[])[ri];
   if(!r)return;
   const moves=r.parsed_moves||[];
-  const movesH=moves.length?('<div class="sec" style="margin-top:0">Moves in this reel</div><div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">'+moves.map(m=>'<span class="lesson-pill pill-moves">'+m.name+'</span>').join('')+'</div>'):'';
-  const notesH=r.notes?('<div class="card"><div class="card-body"><p style="font-size:13px;line-height:1.6;color:var(--mauve)">'+r.notes+'</p></div></div>'):'';
-  const el=document.getElementById('insp-detail-content');
-  el.innerHTML='';
-  const hdr=document.createElement('div');hdr.className='overlay-header';
-  hdr.innerHTML='<button class="back-btn" onclick="closeOv(\'insp-detail-ov\')">← Back</button><div class="overlay-title">'+(r.title||'Untitled')+'</div>';
-  const body=document.createElement('div');body.className='overlay-body';
-  body.innerHTML='<button class="btn-secondary btn-full" style="margin-bottom:12px" onclick="window.open(this.dataset.url,\'_blank\')">Open reel ↗</button>'+movesH+notesH+'<div class="spacer-80"></div>';
-  body.querySelector('button').dataset.url=r.url||'';
-  el.appendChild(hdr);el.appendChild(body);
+  const movesH=moves.length?`<div class="sec" style="margin-top:0">Moves in this reel</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${moves.map(m=>`<span class="lesson-pill pill-moves">${m.name}</span>`).join('')}</div>`:'';
+  const notesH=r.notes?`<div class="card"><div class="card-body"><p style="font-size:13px;line-height:1.6;color:var(--mauve)">${r.notes}</p></div></div>`:'';
+  document.getElementById('insp-detail-content').innerHTML=`
+    <div class="overlay-header"><button class="back-btn" onclick="closeOv('insp-detail-ov')">← Back</button><div class="overlay-title">${r.title||'Untitled'}</div></div>
+    <div class="overlay-body">
+      <button class="btn-secondary btn-full" onclick="window.open('${r.url}','_blank')" style="margin-bottom:12px">Open reel ↗</button>
+      ${movesH}${notesH}
+      <div class="spacer-80"></div>
+    </div>`;
   openOv('insp-detail-ov');
 }
 
