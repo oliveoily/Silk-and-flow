@@ -807,8 +807,7 @@ async function saveReel(){
   const userNotes=document.getElementById('reel-notes').value.trim();
   const moveNames=[..._reelMovesSel];
   // Store moves in caption field (always existed) and parsed_moves if available
-  const notesWithMoves=moveNames.length?(userNotes?userNotes+'
-Moves: '+moveNames.join(', '):'Moves: '+moveNames.join(', ')):userNotes;
+  const notesWithMoves=moveNames.length?(userNotes?userNotes+'\nMoves: '+moveNames.join(', '):'Moves: '+moveNames.join(', ')):userNotes;
   const row={created_by:CU.id,url,title,notes:userNotes,caption:notesWithMoves};
   // Try to add parsed_moves and parsed_meta
   try{
