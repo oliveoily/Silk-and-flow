@@ -510,12 +510,10 @@ function vidPreview(url,title){
   if(!url)return '';
   const e=vidEmbed(url);if(!e)return '';
   if(e.type==='yt'||e.type==='gd'){
-    const src=e.type==='yt'?`${e.src}?rel=0&modestbranding=1&playsinline=1&mute=1&autoplay=0`:e.src;
-    const allow=e.type==='yt'?'autoplay;encrypted-media;picture-in-picture':'autoplay';
-    // 9:16 container, iframe scaled to 310% to crop black bars from portrait video in 16:9 player
+    // 9:16 portrait container — Google Drive serves iPhone video at native ratio
     return`<div class="vid-wrap" style="width:100%;border-radius:10px;overflow:hidden;background:#000;aspect-ratio:9/16;position:relative;">
-      <iframe src="${src}" allowfullscreen allow="${allow}" loading="lazy"
-        style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:310%;height:310%;border:none;pointer-events:auto;">
+      <iframe src="${e.src}" allowfullscreen allow="autoplay" loading="lazy"
+        style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;pointer-events:auto;">
       </iframe>
     </div>`;
   }
