@@ -578,7 +578,7 @@ async function signInWithGoogle(){
   const errEl=document.getElementById('auth-error');errEl.textContent='';
   const{error}=await db.auth.signInWithOAuth({
     provider:'google',
-    options:{redirectTo:window.location.href,queryParams:{prompt:'select_account'}}
+    options:{redirectTo:'https://polite-snickerdoodle-61edb1.netlify.app',queryParams:{prompt:'select_account'}}
   });
   if(error)errEl.textContent=error.message;
 }
