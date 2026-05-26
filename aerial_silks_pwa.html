@@ -219,6 +219,23 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 .spacer-80{height:80px}
 .mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}
 .empty-state{font-size:13px;color:var(--mauve);font-style:italic;padding:8px 0}
+.slot-header{display:flex;align-items:center;gap:12px;padding:14px 0 8px;margin-top:6px}
+.slot-icon-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.slot-insp .slot-icon-circle{background:#f6e8f8;color:#7a3490}
+.slot-teacher .slot-icon-circle{background:var(--blush);color:var(--deep-rose)}
+.slot-attempt .slot-icon-circle{background:#e8f4e8;color:#3d6b42}
+.slot-title{font-size:13px;font-weight:600;color:var(--ink)}
+.slot-sub{font-size:10.5px;color:var(--mauve);margin-top:1px}
+.flow-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform 0.13s}
+.flow-card:active{transform:scale(0.985)}
+.flow-card-head{padding:14px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.flow-card-name{font-family:var(--serif);font-size:18px;font-weight:400;font-style:italic;color:var(--ink);margin-bottom:3px;line-height:1.2}
+.flow-card-date{font-size:10.5px;color:var(--mauve)}
+.flow-card-slots{display:flex;gap:6px;padding:0 16px 12px;flex-wrap:wrap}
+.slot-chip{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:500}
+.slot-chip-insp{background:#f6e8f8;color:#7a3490}
+.slot-chip-teacher{background:var(--blush);color:var(--deep-rose)}
+.slot-chip-attempt{background:#e8f4e8;color:#3d6b42}
 </style>
 </head>
 <body>
@@ -269,7 +286,7 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
     <button class="tab-btn" onclick="showTab('adventure',this,'student-tabs')">Adventure</button>
     <button class="tab-btn" onclick="showTab('sequences',this,'student-tabs')">Sequences</button>
     <button class="tab-btn" onclick="showTab('inspiration',this,'student-tabs')">Inspiration ✦</button>
-    <button class="tab-btn" onclick="showTab('my-lessons',this,'student-tabs')">My Lessons</button>
+    <button class="tab-btn" onclick="showTab('flows',this,'student-tabs')">Flow Journal</button>
   </div>
   <div id="teacher-tabs" class="tab-bar" style="display:none">
     <button class="tab-btn active" onclick="showTab('t-classes',this,'teacher-tabs')">Classes</button>
@@ -327,10 +344,10 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
       <div class="sec">Saved Reels</div><div id="inspiration-list"></div>
       <div class="sec">Accounts to Follow</div><div id="accounts-list"></div>
     </div>
-    <div id="screen-my-lessons" class="screen">
-      <div class="teacher-hero"><div class="teacher-hero-title">My Lessons</div><div class="teacher-hero-sub">Teacher & self-logged sessions · tap to view or add to</div></div>
-      <button class="btn-gold btn-full" onclick="openStudentLog()" style="margin-bottom:16px">+ Log my own session</button>
-      <div id="my-lessons-list"></div>
+    <div id="screen-flows" class="screen">
+      <div class="teacher-hero" style="margin-bottom:12px"><div class="teacher-hero-title">Flow Journal</div><div class="teacher-hero-sub">Your flows from class · tap to view videos</div></div>
+      <button class="btn-gold btn-full" onclick="openNewFlow()" style="margin-bottom:14px">+ Add flow</button>
+      <div id="flows-list"></div>
     </div>
     <div id="screen-t-classes" class="screen" style="display:none">
       <div class="teacher-hero"><div class="teacher-hero-title">Classes</div><div class="teacher-hero-sub">Tap to expand · tap a student to view their record</div></div>
@@ -350,7 +367,7 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 <div id="insp-detail-ov" class="overlay"><div id="insp-detail-content"></div></div>
 <div id="student-detail-ov" class="overlay"><div id="student-detail-content"></div></div>
 <div id="lesson-detail-ov" class="overlay"><div id="lesson-detail-content"></div></div>
-<div id="my-lesson-detail-ov" class="overlay"><div id="my-lesson-detail-content"></div></div>
+<div id="flow-detail-ov" class="overlay"><div id="flow-detail-content"></div></div>
 
 <div id="add-seq-ov" class="overlay">
   <div class="overlay-header"><button class="back-btn" onclick="closeOv('add-seq-ov')">← Back</button><div class="overlay-title">New Sequence</div></div>
@@ -425,27 +442,25 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
   </div>
 </div>
 
-<div id="student-log-ov" class="overlay">
-  <div class="overlay-header"><button class="back-btn" onclick="closeOv('student-log-ov')">← Back</button><div class="overlay-title">Log my session</div></div>
+<div id="flow-form-ov" class="overlay">
+  <div class="overlay-header"><button class="back-btn" onclick="closeOv('flow-form-ov')">← Back</button><div class="overlay-title" id="fl-heading">New Flow</div></div>
   <div class="overlay-body">
-    <p style="font-size:12.5px;color:var(--mauve);line-height:1.6;margin-bottom:14px">Log your own videos and notes from class. If your teacher logs the same date, everything appears together.</p>
-    <label class="field-label">Date</label><input type="date" id="sl-date">
-    <label class="field-label">Session title <span style="font-weight:300;text-transform:none;letter-spacing:0;color:var(--rose);font-size:10px">· visible to your teacher</span></label><input type="text" id="sl-title" placeholder="e.g. Hip Key entries, worked on mermaid balance">
-    <label class="field-label">Moves practised (comma-separated)</label><input type="text" id="sl-moves" placeholder="Hip Key, Mermaid, S-Wrap">
-    <label class="field-label">Notes</label><textarea id="sl-notes" placeholder="What clicked, what to work on, how it felt..."></textarea>
-    <div class="sec">Teacher / Instructional Videos</div>
-    <div class="video-tip">📁 Film the teacher in class → upload to Google Drive → Share → Copy link → paste below.</div>
-    <div id="sl-teacher-videos"></div>
-    <button class="add-video-btn" onclick="addVideoField('sl-teacher-videos')">+ Add teacher video</button>
-    <div class="sec">My Practice Videos</div>
-    <div class="video-tip">Film yourself → upload to Google Drive → paste link. Add as many as you like.</div>
-    <div id="sl-student-videos"></div>
-    <button class="add-video-btn" onclick="addVideoField('sl-student-videos')">+ Add my video</button>
-    <div class="sec">Best of Day ✦</div>
-    <div id="sl-best-video"></div>
-    <button class="add-video-btn" id="sl-best-btn" onclick="addSlBest()">+ Add best of day</button>
+    <label class="field-label">Flow name</label><input type="text" id="fl-name" placeholder="e.g. Hip Key to Mermaid">
+    <label class="field-label">Date</label><input type="date" id="fl-date">
+    <label class="field-label">Teacher's notes &amp; cues</label><textarea id="fl-notes" rows="4" placeholder="Key cues, corrections, things to remember from class..."></textarea>
+    <label class="field-label">Move list (comma-separated)</label><input type="text" id="fl-moves" placeholder="Hip Key, Mermaid, S-Wrap">
+    <div class="slot-header slot-insp"><div class="slot-icon-circle">✦</div><div><div class="slot-title">Instagram Inspiration</div><div class="slot-sub">Reel or reference the teacher was inspired by</div></div></div>
+    <div class="video-tip">📁 Google Drive: film → Drive app → Upload → Share → Copy link → paste below.</div>
+    <div id="fl-insp-videos"></div>
+    <button class="add-video-btn" onclick="addFlowVideo('fl-insp-videos')">+ Add inspiration video</button>
+    <div class="slot-header slot-teacher"><div class="slot-icon-circle">🎬</div><div><div class="slot-title">Teacher's Demo</div><div class="slot-sub">Her demonstration of the flow</div></div></div>
+    <div id="fl-teacher-videos"></div>
+    <button class="add-video-btn" onclick="addFlowVideo('fl-teacher-videos')">+ Add teacher video</button>
+    <div class="slot-header slot-attempt"><div class="slot-icon-circle">📹</div><div><div class="slot-title">My Attempt</div><div class="slot-sub">Your practice videos — add more over time</div></div></div>
+    <div id="fl-attempt-videos"></div>
+    <button class="add-video-btn" onclick="addFlowVideo('fl-attempt-videos')">+ Add my video</button>
     <div class="mt-12"></div>
-    <button class="btn-primary btn-full" id="sl-save-btn" onclick="saveStudentLog()" style="padding:12px">Save Session</button>
+    <button class="btn-primary btn-full" id="fl-save-btn" onclick="saveFlow()" style="padding:12px">Save Flow</button>
     <div class="spacer-80"></div>
   </div>
 </div>
@@ -484,8 +499,8 @@ const DEFAULT_SEQS=[
 let CU=null,CP=null;
 let _filter='all',_seqLvl='beginner',_vsort='date';
 let _adv={move:MOVES[0],history:[]};
-let _mastered=[],_seqs=[],_insps=[],_accts=[],_students=[],_classes=[],_lessons=[],_myLessons=[];
-let _llStudentId=null,_bestAdded=false,_slBestAdded=false;
+let _mastered=[],_seqs=[],_insps=[],_accts=[],_students=[],_classes=[],_lessons=[],_flows=[];
+let _llStudentId=null,_bestAdded=false,_editingFlowId=null;
 let _vc=0;
 
 /* ═══ HELPERS ═══ */
@@ -550,16 +565,6 @@ function addBestVideo(){
     <div id="ll-best-p"></div>`;
   document.getElementById('ll-best-video').appendChild(div);
 }
-function addSlBest(){
-  if(_slBestAdded)return;_slBestAdded=true;
-  document.getElementById('sl-best-btn').style.display='none';
-  const div=document.createElement('div');div.className='video-url-entry';
-  div.innerHTML=`<button class="remove-entry" onclick="this.parentElement.remove();_slBestAdded=false;document.getElementById('sl-best-btn').style.display='block'">×</button>
-    <label class="field-label">Best of day — Video URL</label>
-    <input type="url" id="sl-best-url" placeholder="Paste Google Drive, YouTube, or shareable URL..." oninput="document.getElementById('sl-best-p').innerHTML=vidPreview(this.value,'Best of day')">
-    <div id="sl-best-p"></div>`;
-  document.getElementById('sl-best-video').appendChild(div);
-}
 function collectVids(cid){
   const vids=[];
   document.getElementById(cid).querySelectorAll('.video-url-entry').forEach(w=>{
@@ -578,7 +583,7 @@ async function signInWithGoogle(){
   const errEl=document.getElementById('auth-error');errEl.textContent='';
   const{error}=await db.auth.signInWithOAuth({
     provider:'google',
-    options:{redirectTo:'https://polite-snickerdoodle-61edb1.netlify.app',queryParams:{prompt:'select_account'}}
+    options:{redirectTo:window.location.origin,queryParams:{prompt:'select_account'}}
   });
   if(error)errEl.textContent=error.message;
 }
@@ -619,7 +624,7 @@ async function loadAll(){
     db.from('teacher_students').select('*,student:student_id(id,full_name)').eq('teacher_id',CU.id).then(r=>{_students=(r.data||[]).map(x=>({id:x.student_id,name:x.student?.full_name||'?',level:x.level,notes:x.notes}));}),
     db.from('classes').select('*,class_students(student_id)').eq('teacher_id',CU.id).order('date',{ascending:false}).then(r=>{_classes=r.data||[];}),
     db.from('lessons').select('*,lesson_videos(*)').eq('teacher_id',CU.id).order('date',{ascending:false}).then(r=>{_lessons=r.data||[];}),
-    db.from('lessons').select('*,lesson_videos(*),teacher:teacher_id(full_name)').eq('student_id',CU.id).order('date',{ascending:false}).then(r=>{_myLessons=r.data||[];}),
+    db.from('lessons').select('*,lesson_videos(*)').eq('teacher_id',CU.id).eq('student_id',CU.id).order('date',{ascending:false}).then(r=>{_flows=r.data||[];}),
   ]);
 }
 
@@ -656,7 +661,7 @@ function showTab(tab,btn,bar){
   if(tab==='adventure')renderAdv();
   if(tab==='sequences')renderSeqs();
   if(tab==='inspiration')renderInsps();
-  if(tab==='my-lessons')renderMyLessons();
+  if(tab==='flows')renderFlows();
   if(tab==='t-classes')renderClasses();
   if(tab==='t-students')renderStudents();
 }
@@ -682,13 +687,14 @@ async function toggleMastered(e,id){
 }
 function openMoveDetail(id){
   const m=MOVES.find(x=>x.id===id);if(!m)return;
-  const src=[..._lessons,..._myLessons];
+  const src=_lessons.concat(_flows);
   const allV=[];
   src.forEach(l=>{
     const mn=(l.moves||[]).map(x=>x.toLowerCase());
     const hit=mn.some(n=>n.includes(m.name.split(' ')[0].toLowerCase()));
-    (l.lesson_videos||[]).filter(v=>v.type==='teacher'&&v.url).forEach(v=>allV.push({title:v.title,url:v.url,date:l.date,tag:'Teacher',tagClass:'tag-teacher',lessonTitle:l.title}));
-    if(hit)(l.lesson_videos||[]).filter(v=>v.type==='student'&&v.url).forEach(v=>allV.push({title:v.title,url:v.url,date:l.date,tag:'Student',tagClass:'tag-student',lessonTitle:l.title}));
+    (l.lesson_videos||[]).filter(v=>(v.type==='teacher'||v.type==='teacher_demo')&&v.url).forEach(v=>allV.push({title:v.title,url:v.url,date:l.date,tag:'Teacher',tagClass:'tag-teacher',lessonTitle:l.title}));
+    if(hit)(l.lesson_videos||[]).filter(v=>(v.type==='student'||v.type==='attempt')&&v.url).forEach(v=>allV.push({title:v.title,url:v.url,date:l.date,tag:'My Video',tagClass:'tag-student',lessonTitle:l.title}));
+    if(hit)(l.lesson_videos||[]).filter(v=>v.type==='inspiration'&&v.url).forEach(v=>allV.push({title:v.title,url:v.url,date:l.date,tag:'Inspiration',tagClass:'tag-teacher',lessonTitle:l.title}));
     if(hit&&l.best_video_url)allV.push({title:'Best of day',url:l.best_video_url,date:l.date,tag:'Best ✦',tagClass:'tag-best',lessonTitle:l.title});
   });
   const stepsH=m.steps.map((s,i)=>`<li class="step-item"><div class="step-num">${i+1}</div><div class="step-text">${s}</div></li>`).join('');
@@ -837,97 +843,193 @@ function clearReelForm(){
   document.querySelectorAll('#reel-moves-wrap .filter-btn').forEach(b=>b.classList.remove('active'));
 }
 
-function openMyLesson(id){
-  const l=_myLessons.find(x=>x.id===id);if(!l)return;
-  const tV=(l.lesson_videos||[]).filter(v=>v.type==='teacher');
-  const sV=(l.lesson_videos||[]).filter(v=>v.type==='student');
-  const isSelf=l.teacher_id===l.student_id;
-  document.getElementById('my-lesson-detail-content').innerHTML=`
-    <div class="overlay-header">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-        <button class="back-btn" style="margin-bottom:0" onclick="closeOv('my-lesson-detail-ov')">← Back</button>
-        <div style="display:flex;gap:8px">
-          <button onclick="editMyLesson('${l.id}')" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);color:var(--parchment);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:var(--sans)">Edit</button>
-          <button onclick="deleteMyLesson('${l.id}')" style="background:rgba(201,148,138,0.2);border:1px solid rgba(201,148,138,0.3);color:#ffb3a7;padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:var(--sans)">Delete</button>
-        </div>
-      </div>
-      <div class="overlay-title">${l.title||'Session'}</div>
-      <div style="margin-top:5px;display:flex;align-items:center;gap:8px">
-        <span style="font-size:10px;color:rgba(247,242,236,0.4)">${fmtDate(l.date)}</span>
-        <span class="badge ${isSelf?'badge-student':'badge-teacher'}">${isSelf?'Self-logged':'Teacher logged'}</span>
-      </div>
-    </div>
-    <div class="overlay-body">
-      ${(l.moves||[]).length?`<div class="lesson-pills" style="margin-bottom:12px">${l.moves.map(m=>`<span class="lesson-pill pill-moves">${m}</span>`).join('')}${(l.achievements||[]).map(a=>`<span class="lesson-pill pill-achieve">✓ ${a}</span>`).join('')}${(l.help_needed||[]).map(h=>`<span class="lesson-pill pill-help">⚑ ${h}</span>`).join('')}</div>`:''}
-      ${l.notes?`<div class="card"><div class="card-body"><p style="font-size:13px;line-height:1.6;color:var(--mauve);white-space:pre-wrap">${l.notes}</p></div></div>`:''}
-      ${tV.length?`<div class="sec">Teacher / Instructional Videos (${tV.length})</div><div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px">${tV.map(v=>`<div style="border-radius:10px;overflow:hidden"><div style="padding:8px 12px;background:var(--surface2);font-size:12px;font-weight:500">${v.title||'Teacher video'}</div>${vidPreview(v.url,v.title)}</div>`).join('')}</div>`:''}
-      ${sV.length?`<div class="sec">My Practice Videos (${sV.length})</div><div style="display:flex;flex-direction:column;gap:10px;margin-bottom:10px">${sV.map(v=>`<div style="border-radius:10px;overflow:hidden"><div style="padding:8px 12px;background:var(--surface2);font-size:12px;font-weight:500">${v.title||'My video'}</div>${vidPreview(v.url,v.title)}</div>`).join('')}</div>`:''}
-      ${l.best_video_url?`<div class="sec">Best of Day ✦</div><div style="border-radius:10px;overflow:hidden">${vidPreview(l.best_video_url,'Best of day')}</div>`:''}
-      <div class="sec">Manage this session</div>
-      <div class="video-tip">📁 Add new videos below. To delete individual videos, tap the × next to each one above.</div>
-      ${[...tV,...sV].map(v=>`<div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:var(--r-xs);padding:8px 10px;margin-bottom:6px;"><span style="font-size:13px">${v.type==='teacher'?'🎬':'📹'}</span><span style="flex:1;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.title||v.type+' video'}</span><button onclick="deleteVideo('${l.id}','${v.id}')" style="background:none;border:none;color:var(--rose);font-size:16px;cursor:pointer;flex-shrink:0">×</button></div>`).join('')}
-      ${l.best_video_url?`<div style="display:flex;align-items:center;gap:8px;background:var(--surface2);border-radius:var(--r-xs);padding:8px 10px;margin-bottom:6px;"><span style="font-size:13px">⭐</span><span style="flex:1;font-size:12px">Best of day</span><button onclick="deleteBestVideo('${l.id}')" style="background:none;border:none;color:var(--rose);font-size:16px;cursor:pointer">×</button></div>`:''}
-      <div id="ex-tv-${l.id}" style="margin-top:8px"></div>
-      <button class="add-video-btn" onclick="addVideoField('ex-tv-${l.id}')">+ Add teacher / instructional video</button>
-      <div id="ex-sv-${l.id}"></div>
-      <button class="add-video-btn" onclick="addVideoField('ex-sv-${l.id}')">+ Add my practice video</button>
-      <label class="field-label" style="margin-top:8px">Edit notes</label>
-      <textarea id="ex-notes-${l.id}" placeholder="Replace notes with new text, or leave blank to keep existing..."></textarea>
-      <label class="field-label">Edit title</label>
-      <input type="text" id="ex-title-${l.id}" value="${l.title||''}" placeholder="Session title">
-      <button class="btn-gold btn-full mt-4" onclick="saveExtra('${l.id}')">Save changes</button>
-      <div class="spacer-80"></div>
-    </div>`;
-  openOv('my-lesson-detail-ov');
+/* ═══ FLOWS ═══ */
+function renderFlows(){
+  const list=document.getElementById('flows-list');if(!list)return;
+  if(!_flows.length){list.innerHTML='<p class="empty-state" style="padding-top:16px">No flows yet. Tap + to log your first.</p>';return;}
+  list.innerHTML=_flows.map(f=>flowCard(f)).join('')+'<div class="spacer-80"></div>';
 }
 
-async function saveExtra(lid){
-  const tV=collectVids('ex-tv-'+lid),sV=collectVids('ex-sv-'+lid);
-  const notes=document.getElementById('ex-notes-'+lid)?.value?.trim()||'';
-  const rows=[...tV.map(v=>({lesson_id:lid,type:'teacher',title:v.title,url:v.url})),...sV.map(v=>({lesson_id:lid,type:'student',title:v.title,url:v.url}))];
-  if(!rows.length&&!notes){toast('Nothing to add');return;}
-  if(rows.length){const{data:nv}=await db.from('lesson_videos').insert(rows).select();const l=_myLessons.find(x=>x.id===lid);if(l&&nv)l.lesson_videos=[...(l.lesson_videos||[]),...nv];}
-  if(notes){await db.from('lessons').update({notes}).eq('id',lid);const l=_myLessons.find(x=>x.id===lid);if(l)l.notes=notes;}
-  const titleVal=document.getElementById('ex-title-'+lid)?.value?.trim()||'';
-  if(titleVal){await db.from('lessons').update({title:titleVal}).eq('id',lid);const l=_myLessons.find(x=>x.id===lid);if(l)l.title=titleVal;}
-  const{data}=await db.from('lessons').select('*,lesson_videos(*),teacher:teacher_id(full_name)').eq('student_id',CU.id).order('date',{ascending:false});
-  _myLessons=data||[];
-  openMyLesson(lid);toast('Saved ✦');
+function flowCard(f){
+  const vids=f.lesson_videos||[];
+  const nI=vids.filter(v=>v.type==='inspiration').length;
+  const nT=vids.filter(v=>v.type==='teacher_demo').length;
+  const nA=vids.filter(v=>v.type==='attempt').length;
+  const chips=(nI?'<span class="slot-chip slot-chip-insp">✦ '+nI+(nI>1?' reels':' reel')+'</span>':'')
+    +(nT?'<span class="slot-chip slot-chip-teacher">🎬 '+nT+(nT>1?' demos':' demo')+'</span>':'')
+    +(nA?'<span class="slot-chip slot-chip-attempt">📹 '+nA+(nA>1?' attempts':' attempt')+'</span>':'');
+  const mvs=(f.moves||[]).map(m=>'<span class="lesson-pill pill-moves">'+m+'</span>').join('');
+  return '<div class="flow-card" onclick="openFlowDetail(\''+f.id+'\')">'
+    +'<div class="flow-card-head">'
+    +'<div><div class="flow-card-name">'+(f.title||'Untitled Flow')+'</div>'
+    +'<div class="flow-card-date">'+fmtDate(f.date)+'</div>'
+    +(mvs?'<div class="lesson-pills" style="margin-top:6px">'+mvs+'</div>':'')
+    +'</div><span style="color:var(--rose);font-size:18px;flex-shrink:0">›</span></div>'
+    +(chips?'<div class="flow-card-slots">'+chips+'</div>':'')
+    +'</div>';
 }
 
-function openStudentLog(){
-  _slBestAdded=false;_vc=0;
-  document.getElementById('sl-date').value=new Date().toISOString().split('T')[0];
-  ['sl-title','sl-moves','sl-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  ['sl-teacher-videos','sl-student-videos','sl-best-video'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='';});
-  document.getElementById('sl-best-btn').style.display='block';
-  openOv('student-log-ov');
+function openNewFlow(){
+  _editingFlowId=null;
+  document.getElementById('fl-heading').textContent='New Flow';
+  document.getElementById('fl-name').value='';
+  document.getElementById('fl-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('fl-notes').value='';
+  document.getElementById('fl-moves').value='';
+  ['fl-insp-videos','fl-teacher-videos','fl-attempt-videos'].forEach(function(cid){
+    const e=document.getElementById(cid);if(e)e.innerHTML='';
+  });
+  const btn=document.getElementById('fl-save-btn');
+  btn.textContent='Save Flow';btn.onclick=saveFlow;
+  _vc=0;openOv('flow-form-ov');
 }
 
-async function saveStudentLog(){
-  const date=document.getElementById('sl-date').value;if(!date){toast('Add a date');return;}
-  const btn=document.getElementById('sl-save-btn');btn.disabled=true;btn.textContent='Saving...';
-  const tV=collectVids('sl-teacher-videos'),sV=collectVids('sl-student-videos');
-  const bestUrl=document.getElementById('sl-best-url')?.value?.trim()||'';
-  const movesRaw=document.getElementById('sl-moves').value.trim();
-  const note=document.getElementById('sl-notes').value.trim();
-  const existing=_myLessons.find(l=>l.date===date&&l.teacher_id!==l.student_id);
-  if(existing){
-    const rows=[...tV.map(v=>({lesson_id:existing.id,type:'teacher',title:v.title,url:v.url})),...sV.map(v=>({lesson_id:existing.id,type:'student',title:v.title,url:v.url}))];
-    if(rows.length){const{data:nv}=await db.from('lesson_videos').insert(rows).select();existing.lesson_videos=[...(existing.lesson_videos||[]),...(nv||[])];}
-    if(note){const c=(existing.notes?existing.notes+'\n\n[My note] ':'')+note;await db.from('lessons').update({notes:c}).eq('id',existing.id);existing.notes=c;}
-    if(bestUrl&&!existing.best_video_url){await db.from('lessons').update({best_video_url:bestUrl}).eq('id',existing.id);existing.best_video_url=bestUrl;}
-    btn.disabled=false;btn.textContent='Save Session';
-    closeOv('student-log-ov');renderMyLessons();toast('Added to teacher lesson ✦');
-  } else {
-    const{data:lesson,error}=await db.from('lessons').insert({teacher_id:CU.id,student_id:CU.id,date,title:document.getElementById('sl-title').value.trim()||'My session',moves:movesRaw?movesRaw.split(',').map(m=>m.trim()).filter(Boolean):[],achievements:[],help_needed:[],notes:note,best_video_url:bestUrl}).select().single();
-    if(error){btn.disabled=false;btn.textContent='Save Session';toast('Error saving');return;}
-    const rows=[...tV.map(v=>({lesson_id:lesson.id,type:'teacher',title:v.title,url:v.url})),...sV.map(v=>({lesson_id:lesson.id,type:'student',title:v.title,url:v.url}))];
-    if(rows.length){const{data:nv}=await db.from('lesson_videos').insert(rows).select();lesson.lesson_videos=nv||[];}else lesson.lesson_videos=[];
-    _myLessons.unshift(lesson);
-    btn.disabled=false;btn.textContent='Save Session';
-    closeOv('student-log-ov');renderMyLessons();toast('Session saved ✦');
+function addFlowVideo(cid){
+  _vc++;const n=_vc,vid='fv'+n;
+  const div=document.createElement('div');
+  div.className='video-url-entry';div.id=vid+'-wrap';
+  div.innerHTML='<button class="remove-entry" onclick="document.getElementById(\''+vid+'-wrap\').remove()">×</button>'
+    +'<label class="field-label">Label (optional)</label>'
+    +'<input type="text" id="'+vid+'-t" placeholder="e.g. Right foot entry" style="margin-bottom:6px">'
+    +'<label class="field-label">Google Drive link</label>'
+    +'<input type="url" id="'+vid+'-u" placeholder="https://drive.google.com/file/d/..." oninput="document.getElementById(\''+vid+'-p\').innerHTML=vidPreview(this.value,document.getElementById(\''+vid+'-t\').value)">'
+    +'<div id="'+vid+'-p"></div>';
+  document.getElementById(cid).appendChild(div);
+}
+
+async function saveFlow(){
+  const name=document.getElementById('fl-name').value.trim();
+  if(!name){toast('Add a flow name');return;}
+  const date=document.getElementById('fl-date').value;
+  if(!date){toast('Add a date');return;}
+  const btn=document.getElementById('fl-save-btn');
+  btn.disabled=true;btn.textContent='Saving...';
+  const notes=document.getElementById('fl-notes').value.trim();
+  const movesRaw=document.getElementById('fl-moves').value.trim();
+  const moves=movesRaw?movesRaw.split(',').map(m=>m.trim()).filter(Boolean):[];
+  const iV=collectVids('fl-insp-videos');
+  const tV=collectVids('fl-teacher-videos');
+  const aV=collectVids('fl-attempt-videos');
+  if(_editingFlowId){
+    const upd={title:name,date,notes,moves};
+    await db.from('lessons').update(upd).eq('id',_editingFlowId);
+    const newRows=iV.map(v=>({lesson_id:_editingFlowId,type:'inspiration',title:v.title,url:v.url}))
+      .concat(tV.map(v=>({lesson_id:_editingFlowId,type:'teacher_demo',title:v.title,url:v.url})))
+      .concat(aV.map(v=>({lesson_id:_editingFlowId,type:'attempt',title:v.title,url:v.url})));
+    if(newRows.length){const{data:nv}=await db.from('lesson_videos').insert(newRows).select();const fl=_flows.find(x=>x.id===_editingFlowId);if(fl&&nv)fl.lesson_videos=(fl.lesson_videos||[]).concat(nv);}
+    const fl=_flows.find(x=>x.id===_editingFlowId);if(fl)Object.assign(fl,upd);
+    btn.disabled=false;btn.textContent='Save Flow';
+    closeOv('flow-form-ov');renderFlows();toast('Flow updated ❆');
+    return;
   }
+  const{data:lesson,error}=await db.from('lessons').insert({
+    teacher_id:CU.id,student_id:CU.id,date,title:name,notes,moves,achievements:[],help_needed:[]
+  }).select().single();
+  if(error){btn.disabled=false;btn.textContent='Save Flow';toast('Error: '+error.message);return;}
+  const newRows=iV.map(v=>({lesson_id:lesson.id,type:'inspiration',title:v.title,url:v.url}))
+    .concat(tV.map(v=>({lesson_id:lesson.id,type:'teacher_demo',title:v.title,url:v.url})))
+    .concat(aV.map(v=>({lesson_id:lesson.id,type:'attempt',title:v.title,url:v.url})));
+  if(newRows.length){const{data:nv}=await db.from('lesson_videos').insert(newRows).select();lesson.lesson_videos=nv||[];}
+  else{lesson.lesson_videos=[];}
+  _flows.unshift(lesson);
+  btn.disabled=false;btn.textContent='Save Flow';
+  closeOv('flow-form-ov');renderFlows();toast('Flow saved ❆');
+}
+
+function openFlowDetail(id){
+  const f=_flows.find(x=>x.id===id);if(!f)return;
+  const vids=f.lesson_videos||[];
+  const iV=vids.filter(v=>v.type==='inspiration');
+  const tV=vids.filter(v=>v.type==='teacher_demo');
+  const aV=vids.filter(v=>v.type==='attempt');
+  function renderSlot(label,icon,cls,list){
+    const items=list.map(v=>'<div style="margin-bottom:14px">'
+      +(v.title?'<div style="font-size:12px;font-weight:600;color:var(--mauve);margin-bottom:5px">'+v.title+'</div>':'')
+      +vidPreview(v.url,v.title)
+      +'<button onclick="deleteFlowVideo(\''+id+'\',\''+v.id+'\')" style="background:none;border:none;color:var(--rose);font-size:11px;cursor:pointer;font-family:var(--sans);margin-top:4px;padding:0">× Remove</button>'
+      +'</div>').join('');
+    return '<div class="slot-header '+cls+'">'
+      +'<div class="slot-icon-circle">'+icon+'</div>'
+      +'<div><div class="slot-title">'+label+'</div>'
+      +'<div class="slot-sub">'+(list.length?list.length+' video'+(list.length>1?'s':''):'No videos yet')+'</div>'
+      +'</div></div>'
+      +(items||'<p class="empty-state" style="font-size:11.5px;padding:4px 0 10px">Not added yet.</p>');
+  }
+  const mvs=(f.moves||[]).map(m=>'<span class="lesson-pill pill-moves">'+m+'</span>').join('');
+  const html='<div class="overlay-header">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
+    +'<button class="back-btn" style="margin-bottom:0" onclick="closeOv(\'flow-detail-ov\')">&#8592; Back</button>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button onclick="editFlow(\''+id+'\')" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);color:var(--parchment);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:var(--sans)">Edit</button>'
+    +'<button onclick="deleteFlow(\''+id+'\')" style="background:rgba(201,148,138,0.2);border:1px solid rgba(201,148,138,0.3);color:#ffb3a7;padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:var(--sans)">Delete</button>'
+    +'</div></div>'
+    +'<div class="overlay-title" style="font-style:italic">'+(f.title||'Untitled Flow')+'</div>'
+    +'<div style="margin-top:5px;font-size:10px;color:rgba(247,242,236,0.4)">'+fmtDate(f.date)+'</div>'
+    +'</div>'
+    +'<div class="overlay-body">'
+    +(mvs?'<div class="lesson-pills" style="margin-bottom:12px">'+mvs+'</div>':'')
+    +(f.notes?'<div class="card"><div class="card-body"><div class="sec" style="margin-top:0;margin-bottom:4px">Teacher\'s Notes</div><p style="font-size:13px;line-height:1.6;color:var(--mauve);white-space:pre-wrap">'+f.notes+'</p></div></div>':'')
+    +renderSlot('Instagram Inspiration','✦','slot-insp',iV)
+    +renderSlot('Teacher\'s Demo','🎬','slot-teacher',tV)
+    +renderSlot('My Attempt','📹','slot-attempt',aV)
+    +'<div class="sec" style="margin-top:18px">Add more videos</div>'
+    +'<div class="video-tip">📁 Film → Google Drive → Share → Copy link → paste below</div>'
+    +'<div style="margin-top:10px"><div class="sec" style="margin-top:0">Inspiration</div>'
+    +'<div id="fd-i-'+id+'"></div>'
+    +'<button class="add-video-btn" onclick="addFlowVideo(\'fd-i-'+id+'\')">+ Add inspiration</button></div>'
+    +'<div><div class="sec">Teacher\'s Demo</div>'
+    +'<div id="fd-t-'+id+'"></div>'
+    +'<button class="add-video-btn" onclick="addFlowVideo(\'fd-t-'+id+'\')">+ Add teacher video</button></div>'
+    +'<div><div class="sec">My Attempt</div>'
+    +'<div id="fd-a-'+id+'"></div>'
+    +'<button class="add-video-btn" onclick="addFlowVideo(\'fd-a-'+id+'\')">+ Add my video</button></div>'
+    +'<button class="btn-gold btn-full mt-8" onclick="saveFlowExtra(\''+id+'\',\'fd-i-'+id+'\',\'fd-t-'+id+'\',\'fd-a-'+id+'\')">Save new videos</button>'
+    +'<div class="spacer-80"></div></div>';
+  document.getElementById('flow-detail-content').innerHTML=html;
+  openOv('flow-detail-ov');
+}
+
+async function saveFlowExtra(fid,iCid,tCid,aCid){
+  const iV=collectVids(iCid),tV=collectVids(tCid),aV=collectVids(aCid);
+  const rows=iV.map(v=>({lesson_id:fid,type:'inspiration',title:v.title,url:v.url}))
+    .concat(tV.map(v=>({lesson_id:fid,type:'teacher_demo',title:v.title,url:v.url})))
+    .concat(aV.map(v=>({lesson_id:fid,type:'attempt',title:v.title,url:v.url})));
+  if(!rows.length){toast('No videos to add');return;}
+  const{data:nv}=await db.from('lesson_videos').insert(rows).select();
+  if(nv){const fl=_flows.find(x=>x.id===fid);if(fl)fl.lesson_videos=(fl.lesson_videos||[]).concat(nv);}
+  openFlowDetail(fid);toast('Videos saved ❆');
+}
+
+function editFlow(id){
+  const f=_flows.find(x=>x.id===id);if(!f)return;
+  _editingFlowId=id;
+  document.getElementById('fl-heading').textContent='Edit Flow';
+  document.getElementById('fl-name').value=f.title||'';
+  document.getElementById('fl-date').value=f.date||'';
+  document.getElementById('fl-notes').value=f.notes||'';
+  document.getElementById('fl-moves').value=(f.moves||[]).join(', ');
+  ['fl-insp-videos','fl-teacher-videos','fl-attempt-videos'].forEach(function(cid){
+    const e=document.getElementById(cid);if(e)e.innerHTML='';
+  });
+  const btn=document.getElementById('fl-save-btn');
+  btn.textContent='Update Flow';btn.onclick=saveFlow;
+  _vc=0;closeOv('flow-detail-ov');openOv('flow-form-ov');
+}
+
+async function deleteFlow(id){
+  if(!confirm('Delete this flow? This cannot be undone.'))return;
+  await db.from('lesson_videos').delete().eq('lesson_id',id);
+  await db.from('lessons').delete().eq('id',id);
+  _flows=_flows.filter(x=>x.id!==id);
+  closeOv('flow-detail-ov');renderFlows();toast('Flow deleted');
+}
+
+async function deleteFlowVideo(fid,vid){
+  if(!confirm('Remove this video?'))return;
+  await db.from('lesson_videos').delete().eq('id',vid);
+  const fl=_flows.find(x=>x.id===fid);
+  if(fl)fl.lesson_videos=(fl.lesson_videos||[]).filter(v=>String(v.id)!==String(vid));
+  openFlowDetail(fid);toast('Video removed');
 }
 
 /* ═══ TEACHER — STUDENTS ═══ */
@@ -992,7 +1094,7 @@ function lessonCard(l){
   </div>`;
 }
 function openLessonDetail(id){
-  const l=[..._lessons,..._myLessons].find(x=>x.id===id);if(!l)return;
+  const l=_lessons.concat(_flows).find(x=>x.id===id);if(!l)return;
   const tV=(l.lesson_videos||[]).filter(v=>v.type==='teacher');
   const sV=(l.lesson_videos||[]).filter(v=>v.type==='student');
   document.getElementById('lesson-detail-content').innerHTML=`
@@ -1087,81 +1189,6 @@ async function saveLesson(){
   _lessons.unshift(lesson);
   btn.disabled=false;btn.textContent='Save Lesson';
   closeOv('log-lesson-ov');openStudentDetail(_llStudentId);toast('Lesson saved ✦');
-}
-
-/* ═══ EDIT / DELETE LESSONS ═══ */
-async function deleteMyLesson(id){
-  if(!confirm('Delete this session? This cannot be undone.'))return;
-  await db.from('lesson_videos').delete().eq('lesson_id',id);
-  await db.from('lessons').delete().eq('id',id);
-  _myLessons=_myLessons.filter(x=>x.id!==id);
-  closeOv('my-lesson-detail-ov');
-  renderMyLessons();
-  toast('Session deleted');
-}
-
-function editMyLesson(id){
-  const l=_myLessons.find(x=>x.id===id);if(!l)return;
-  // Pre-fill the student log form with existing data
-  _slBestAdded=false;_vc=0;
-  document.getElementById('sl-date').value=l.date||'';
-  document.getElementById('sl-title').value=l.title||'';
-  document.getElementById('sl-moves').value=(l.moves||[]).join(', ');
-  document.getElementById('sl-notes').value=l.notes||'';
-  ['sl-teacher-videos','sl-student-videos','sl-best-video'].forEach(cid=>{const e=document.getElementById(cid);if(e)e.innerHTML='';});
-  document.getElementById('sl-best-btn').style.display='block';
-  // Show existing videos as read-only chips so they know what's there
-  const tV=(l.lesson_videos||[]).filter(v=>v.type==='teacher');
-  const sV=(l.lesson_videos||[]).filter(v=>v.type==='student');
-  if(tV.length){const el=document.getElementById('sl-teacher-videos');tV.forEach(v=>{const d=document.createElement('div');d.style.cssText='background:var(--surface2);border-radius:var(--r-xs);padding:8px 10px;margin-bottom:6px;font-size:11.5px;color:var(--mauve);display:flex;align-items:center;gap:8px';d.innerHTML=`<span>🎬</span><span style="flex:1">${v.title||'Teacher video'}</span><a href="${v.url}" target="_blank" style="color:var(--rose);font-size:10px">Open ↗</a>`;el.appendChild(d);});}
-  if(sV.length){const el=document.getElementById('sl-student-videos');sV.forEach(v=>{const d=document.createElement('div');d.style.cssText='background:var(--surface2);border-radius:var(--r-xs);padding:8px 10px;margin-bottom:6px;font-size:11.5px;color:var(--mauve);display:flex;align-items:center;gap:8px';d.innerHTML=`<span>📹</span><span style="flex:1">${v.title||'My video'}</span><a href="${v.url}" target="_blank" style="color:var(--rose);font-size:10px">Open ↗</a>`;el.appendChild(d);});}
-  // Change save button to update mode
-  const saveBtn=document.getElementById('sl-save-btn');
-  saveBtn.textContent='Update Session';
-  saveBtn.onclick=()=>updateMyLesson(id);
-  closeOv('my-lesson-detail-ov');
-  openOv('student-log-ov');
-}
-
-async function updateMyLesson(id){
-  const btn=document.getElementById('sl-save-btn');btn.disabled=true;btn.textContent='Saving...';
-  const movesRaw=document.getElementById('sl-moves').value.trim();
-  const updates={
-    title:document.getElementById('sl-title').value.trim()||'My session',
-    date:document.getElementById('sl-date').value,
-    moves:movesRaw?movesRaw.split(',').map(m=>m.trim()).filter(Boolean):[],
-    notes:document.getElementById('sl-notes').value.trim(),
-  };
-  // Add any new videos
-  const tV=collectVids('sl-teacher-videos').filter(v=>v.url&&!v.url.includes('existing'));
-  const sV=collectVids('sl-student-videos').filter(v=>v.url&&!v.url.includes('existing'));
-  const bestUrl=document.getElementById('sl-best-url')?.value?.trim()||'';
-  if(bestUrl)updates.best_video_url=bestUrl;
-  await db.from('lessons').update(updates).eq('id',id);
-  const newRows=[...tV.map(v=>({lesson_id:id,type:'teacher',title:v.title,url:v.url})),...sV.map(v=>({lesson_id:id,type:'student',title:v.title,url:v.url}))];
-  if(newRows.length){const{data:nv}=await db.from('lesson_videos').insert(newRows).select();const l=_myLessons.find(x=>x.id===id);if(l&&nv)l.lesson_videos=[...(l.lesson_videos||[]),...nv];}
-  // Update local cache
-  const l=_myLessons.find(x=>x.id===id);
-  if(l)Object.assign(l,updates);
-  // Reset save button
-  const saveBtn=document.getElementById('sl-save-btn');
-  saveBtn.textContent='Save Session';saveBtn.onclick=saveStudentLog;btn.disabled=false;
-  closeOv('student-log-ov');renderMyLessons();toast('Session updated ✦');
-}
-
-async function deleteVideo(lid,vid){
-  if(!confirm('Delete this video?'))return;
-  await db.from('lesson_videos').delete().eq('id',vid);
-  const l=_myLessons.find(x=>x.id===lid);
-  if(l)l.lesson_videos=(l.lesson_videos||[]).filter(v=>String(v.id)!==String(vid));
-  openMyLesson(lid);toast('Video removed');
-}
-
-async function deleteBestVideo(lid){
-  if(!confirm('Remove best of day video?'))return;
-  await db.from('lessons').update({best_video_url:null}).eq('id',lid);
-  const l=_myLessons.find(x=>x.id===lid);if(l)l.best_video_url=null;
-  openMyLesson(lid);toast('Removed');
 }
 
 /* ═══ INSPIRATION TABS ═══ */
@@ -1353,10 +1380,6 @@ function refreshVideoObserver(){
   setTimeout(()=>{_vidObs=setupVideoObserver();},300);
 }
 
-// Hook into existing functions
-const _origOpenMyLesson=window.openMyLesson;
-const _origOpenStudentDetail=window.openStudentDetail;
-const _origOpenLessonDetail=window.openLessonDetail;
 document.addEventListener('DOMContentLoaded',()=>{
   refreshVideoObserver();
 });
