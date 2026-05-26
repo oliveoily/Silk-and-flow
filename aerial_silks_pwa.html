@@ -583,7 +583,7 @@ async function signInWithGoogle(){
   const errEl=document.getElementById('auth-error');errEl.textContent='';
   const{error}=await db.auth.signInWithOAuth({
     provider:'google',
-    options:{redirectTo:window.location.origin,queryParams:{prompt:'select_account'}}
+    options:{redirectTo:'https://oliveoily.github.io/Silk-and-flow/aerial_silks_pwa.html',queryParams:{prompt:'select_account'}}
   });
   if(error)errEl.textContent=error.message;
 }
