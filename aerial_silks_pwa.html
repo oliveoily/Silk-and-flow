@@ -117,13 +117,13 @@ textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm)
 .video-url-entry{background:white;border:1px solid var(--border-med);border-radius:var(--r-sm);padding:12px;margin-bottom:8px;position:relative}
 .video-url-entry .remove-entry{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--rose);font-size:18px;cursor:pointer}
 .video-url-entry input{margin-bottom:6px}
-.video-url-preview{margin-top:8px;border-radius:var(--r-xs);overflow:hidden}
-.video-url-preview iframe{border:none;}
-.open-link{display:flex;align-items:center;gap:8px;background:var(--ink2);border-radius:var(--r-xs);padding:10px 12px;text-decoration:none;cursor:pointer}
-.open-link-text{font-size:12px;font-weight:500;color:var(--gold)}
-.open-link-sub{font-size:10px;color:rgba(247,242,236,0.45);margin-top:1px}
 .video-gallery{display:flex;flex-direction:column;gap:8px}
-.video-url-preview.vertical iframe{height:520px}
+.watch-card{display:flex;align-items:center;gap:12px;background:var(--ink);border-radius:var(--r-sm);padding:13px 15px;text-decoration:none;margin-top:6px;border:1px solid rgba(200,169,126,0.18);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.watch-card:active{opacity:0.8}
+.watch-card-info{flex:1;min-width:0}
+.watch-card-title{font-size:13px;font-weight:500;color:var(--parchment);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.watch-card-url{font-size:10px;color:rgba(247,242,236,0.38);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.watch-card-btn{font-size:12px;font-weight:600;color:var(--gold);flex-shrink:0;letter-spacing:0.3px}
 .video-entry{background:white;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;}
 .video-entry-head{padding:8px 12px;background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
 .video-entry-date{font-size:10.5px;font-weight:600;color:var(--ink)}
@@ -513,37 +513,17 @@ function showLoading(){document.getElementById('loading-screen').classList.remov
 function hideLoading(){document.getElementById('loading-screen').classList.add('hidden');}
 
 /* ═══ VIDEO ═══ */
-function vidEmbed(url){
-  if(!url)return null;
-  const yt=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
-  if(yt)return{type:'yt',src:`https://www.youtube.com/embed/${yt[1]}`};
-  const gd=url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
-  if(gd)return{type:'gd',src:`https://drive.google.com/file/d/${gd[1]}/preview`};
-  return{type:'link',url};
-}
 function vidPreview(url,title){
   if(!url)return '';
-  const e=vidEmbed(url);if(!e)return '';
-  if(e.type==='yt'||e.type==='gd'){
-    // 9:16 portrait container — Google Drive serves iPhone video at native ratio
-    return`<div class="vid-wrap" style="width:100%;border-radius:10px;overflow:hidden;background:#000;aspect-ratio:9/16;position:relative;">
-      <iframe src="${e.src}" allowfullscreen allow="autoplay" loading="lazy"
-        style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;pointer-events:auto;">
-      </iframe>
-    </div>`;
-  }
-  const isInsta=url.includes('instagram.com');
-  const isTikTok=url.includes('tiktok.com');
-  const platform=isInsta?'Instagram':isTikTok?'TikTok':'Video';
-  const icon=isInsta?`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="url(#ig)"/><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm0 5.75A2.25 2.25 0 1 1 12 9.75a2.25 2.25 0 0 1 0 4.5zM16.5 8.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0z" fill="white"/><path d="M12 5c-1.9 0-2.14.01-2.89.04-.74.03-1.25.15-1.7.32a3.4 3.4 0 0 0-1.23.8 3.4 3.4 0 0 0-.8 1.23c-.17.45-.29.96-.32 1.7C5.01 9.86 5 10.1 5 12s.01 2.14.04 2.89c.03.74.15 1.25.32 1.7.18.46.42.85.8 1.23.38.38.77.62 1.23.8.45.17.96.29 1.7.32C9.86 18.99 10.1 19 12 19s2.14-.01 2.89-.04c.74-.03 1.25-.15 1.7-.32a3.4 3.4 0 0 0 1.23-.8 3.4 3.4 0 0 0 .8-1.23c.17-.45.29-.96.32-1.7.03-.75.04-1 .04-2.89s-.01-2.14-.04-2.89c-.03-.74-.15-1.25-.32-1.7a3.4 3.4 0 0 0-.8-1.23 3.4 3.4 0 0 0-1.23-.8c-.45-.17-.96-.29-1.7-.32C14.14 5.01 13.9 5 12 5zm0 1.26c1.87 0 2.09.01 2.83.04.68.03 1.05.14 1.3.24.32.13.56.28.8.52.24.24.4.48.52.8.1.25.21.62.24 1.3.03.74.04.96.04 2.83s-.01 2.09-.04 2.83c-.03.68-.14 1.05-.24 1.3a2.17 2.17 0 0 1-.52.8c-.24.24-.48.4-.8.52-.25.1-.62.21-1.3.24-.74.03-.96.04-2.83.04s-2.09-.01-2.83-.04c-.68-.03-1.05-.14-1.3-.24a2.17 2.17 0 0 1-.8-.52 2.17 2.17 0 0 1-.52-.8c-.1-.25-.21-.62-.24-1.3C6.27 14.09 6.26 13.87 6.26 12s.01-2.09.04-2.83c.03-.68.14-1.05.24-1.3.13-.32.28-.56.52-.8.24-.24.48-.4.8-.52.25-.1.62-.21 1.3-.24.74-.03.96-.04 2.83-.04z" fill="white"/><defs><linearGradient id="ig" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#F58529"/><stop offset="0.5" stop-color="#DD2A7B"/><stop offset="1" stop-color="#8134AF"/></linearGradient></defs></svg>`:'🎬';
-  return`<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:10px;padding:14px 16px;text-decoration:none;margin-top:6px;border:1px solid rgba(255,255,255,0.08);">
-    <div style="flex-shrink:0">${icon}</div>
-    <div style="flex:1;min-width:0">
-      <div style="font-size:13px;font-weight:600;color:white;margin-bottom:2px">${title||platform+' Reel'}</div>
-      <div style="font-size:10px;color:rgba(255,255,255,0.45);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${url.slice(0,40)}…</div>
-    </div>
-    <div style="font-size:11px;color:rgba(255,255,255,0.4);flex-shrink:0">Open ↗</div>
-  </a>`;
+  const label=title||'Watch video';
+  const short=url.length>50?url.slice(0,50)+'…':url;
+  return '<a href="'+url+'" target="_blank" rel="noopener" class="watch-card">'
+    +'<div class="watch-card-info">'
+    +'<div class="watch-card-title">'+label+'</div>'
+    +'<div class="watch-card-url">'+short+'</div>'
+    +'</div>'
+    +'<div class="watch-card-btn">Watch &#8594;</div>'
+    +'</a>';
 }
 function addVideoField(cid){
   _vc++;const n=_vc,id=`v${n}`;
@@ -551,8 +531,7 @@ function addVideoField(cid){
   div.innerHTML=`<button class="remove-entry" onclick="document.getElementById('${id}-wrap').remove()">×</button>
     <label class="field-label">Title / label</label><input type="text" id="${id}-t" placeholder="e.g. Hip key entry demo" style="margin-bottom:6px">
     <label class="field-label">Video URL</label>
-    <input type="url" id="${id}-u" placeholder="Paste Google Drive, YouTube, or shareable URL..." oninput="document.getElementById('${id}-p').innerHTML=vidPreview(this.value,document.getElementById('${id}-t').value)">
-    <div id="${id}-p"></div>`;
+    <input type="url" id="${id}-u" placeholder="Paste Google Drive link or any video URL">`;
   document.getElementById(cid).appendChild(div);
 }
 function addBestVideo(){
@@ -561,8 +540,7 @@ function addBestVideo(){
   const div=document.createElement('div');div.className='video-url-entry';
   div.innerHTML=`<button class="remove-entry" onclick="this.parentElement.remove();_bestAdded=false;document.getElementById('ll-best-add-btn').style.display='block'">×</button>
     <label class="field-label">Best of day — Video URL</label>
-    <input type="url" id="ll-best-url" placeholder="Paste Google Drive, YouTube, or shareable URL..." oninput="document.getElementById('ll-best-p').innerHTML=vidPreview(this.value,'Best of day')">
-    <div id="ll-best-p"></div>`;
+    <input type="url" id="ll-best-url" placeholder="Paste Google Drive link or any video URL">`;
   document.getElementById('ll-best-video').appendChild(div);
 }
 function collectVids(cid){
@@ -629,11 +607,7 @@ async function loadAll(){
 }
 
 /* ═══ MODE / TAB ═══ */
-function stopAllVideos(){
-  document.querySelectorAll('iframe').forEach(f=>{
-    try{const s=f.src;f.src='';f.src=s;}catch(e){}
-  });
-}
+function stopAllVideos(){}
 
 function setMode(m){
   stopAllVideos();
@@ -892,8 +866,7 @@ function addFlowVideo(cid){
     +'<label class="field-label">Label (optional)</label>'
     +'<input type="text" id="'+vid+'-t" placeholder="e.g. Right foot entry" style="margin-bottom:6px">'
     +'<label class="field-label">Google Drive link</label>'
-    +'<input type="url" id="'+vid+'-u" placeholder="https://drive.google.com/file/d/..." oninput="document.getElementById(\''+vid+'-p\').innerHTML=vidPreview(this.value,document.getElementById(\''+vid+'-t\').value)">'
-    +'<div id="'+vid+'-p"></div>';
+    +'<input type="url" id="'+vid+'-u" placeholder="Paste Google Drive link or any video URL">';
   document.getElementById(cid).appendChild(div);
 }
 
@@ -1336,58 +1309,6 @@ db.auth.onAuthStateChange(async(event,session)=>{
     await initApp(session.user);
   }
 })();
-</script>
-
-<script>
-// Autoplay videos when scrolled into view, pause when out of view
-function setupVideoObserver(){
-  const obs = new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      const iframe = entry.target.querySelector('iframe');
-      if(!iframe)return;
-      if(entry.isIntersecting){
-        // Reload with autoplay+mute when entering view
-        if(!iframe.dataset.autoplayed){
-          iframe.dataset.autoplayed='1';
-          const sep=iframe.src.includes('?')?'&':'?';
-          if(!iframe.src.includes('autoplay=1')){
-            iframe.src=iframe.src+sep+'autoplay=1&mute=1';
-          }
-        }
-      } else {
-        // Stop by reloading without autoplay
-        if(iframe.dataset.autoplayed){
-          iframe.src=iframe.src.replace('autoplay=1&mute=1','autoplay=0&mute=1')
-            .replace('&autoplay=1','').replace('?autoplay=1','?')
-            .replace('autoplay=1','');
-          // For Google Drive, just clear and reset
-          const s=iframe.src;iframe.src='';iframe.src=s;
-          delete iframe.dataset.autoplayed;
-        }
-      }
-    });
-  },{threshold:0.6});
-
-  // Observe all video wrappers
-  document.querySelectorAll('.vid-wrap').forEach(v=>obs.observe(v));
-  return obs;
-}
-
-// Re-run observer whenever content changes (overlays open, tabs switch)
-let _vidObs=null;
-function refreshVideoObserver(){
-  if(_vidObs){_vidObs.disconnect();}
-  setTimeout(()=>{_vidObs=setupVideoObserver();},300);
-}
-
-document.addEventListener('DOMContentLoaded',()=>{
-  refreshVideoObserver();
-});
-// Refresh observer on overlay open
-const _origOpenOv=window.openOv;
-if(_origOpenOv){
-  window.openOv=function(id){_origOpenOv(id);refreshVideoObserver();};
-}
 </script>
 </body>
 </html>
