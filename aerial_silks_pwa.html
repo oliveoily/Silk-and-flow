@@ -884,25 +884,34 @@ async function saveFlow(){
   const tV=collectVids('fl-teacher-videos');
   const aV=collectVids('fl-attempt-videos');
   if(_editingFlowId){
-    const upd={title:name,date,notes,moves};
+    const upd={title:name,date,notes};
     await db.from('lessons').update(upd).eq('id',_editingFlowId);
     const newRows=iV.map(v=>({lesson_id:_editingFlowId,type:'inspiration',title:v.title,url:v.url}))
       .concat(tV.map(v=>({lesson_id:_editingFlowId,type:'teacher_demo',title:v.title,url:v.url})))
       .concat(aV.map(v=>({lesson_id:_editingFlowId,type:'attempt',title:v.title,url:v.url})));
-    if(newRows.length){const{data:nv}=await db.from('lesson_videos').insert(newRows).select();const fl=_flows.find(x=>x.id===_editingFlowId);if(fl&&nv)fl.lesson_videos=(fl.lesson_videos||[]).concat(nv);}
+    if(newRows.length){
+      const{data:nv,error:ve}=await db.from('lesson_videos').insert(newRows).select();
+      if(ve){toast('Videos not saved: '+ve.message);}
+      const fl=_flows.find(x=>x.id===_editingFlowId);
+      if(fl&&nv)fl.lesson_videos=(fl.lesson_videos||[]).concat(nv);
+    }
     const fl=_flows.find(x=>x.id===_editingFlowId);if(fl)Object.assign(fl,upd);
     btn.disabled=false;btn.textContent='Save Flow';
     closeOv('flow-form-ov');renderFlows();toast('Flow updated ❆');
     return;
   }
   const{data:lesson,error}=await db.from('lessons').insert({
-    teacher_id:CU.id,student_id:CU.id,date,title:name,notes,moves,achievements:[],help_needed:[]
+    teacher_id:CU.id,student_id:CU.id,date,title:name,notes
   }).select().single();
   if(error){btn.disabled=false;btn.textContent='Save Flow';toast('Error: '+error.message);return;}
   const newRows=iV.map(v=>({lesson_id:lesson.id,type:'inspiration',title:v.title,url:v.url}))
     .concat(tV.map(v=>({lesson_id:lesson.id,type:'teacher_demo',title:v.title,url:v.url})))
     .concat(aV.map(v=>({lesson_id:lesson.id,type:'attempt',title:v.title,url:v.url})));
-  if(newRows.length){const{data:nv}=await db.from('lesson_videos').insert(newRows).select();lesson.lesson_videos=nv||[];}
+  if(newRows.length){
+    const{data:nv,error:ve}=await db.from('lesson_videos').insert(newRows).select();
+    if(ve){toast('Videos not saved: '+ve.message);}
+    lesson.lesson_videos=nv||[];
+  }
   else{lesson.lesson_videos=[];}
   _flows.unshift(lesson);
   btn.disabled=false;btn.textContent='Save Flow';
