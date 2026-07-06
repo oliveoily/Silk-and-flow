@@ -6,72 +6,43 @@
 <meta name="theme-color" content="#120d10">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Silk &amp; Flow</title>
+<title>Silk & Flow</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 :root {
-  --ink:#3a2030;--ink2:#6e4e60;--parchment:#fef6f8;
+  --ink:#3a2030;--ink2:#6e4e60;--parchment:#fef6f8;--warm:#f0e8df;
   --blush:#fce8ee;--rose:#d4a0b4;--deep-rose:#8a3e58;--gold:#f0bcc8;
-  --mauve:#8a6070;--surface:#fefafb;--surface2:#fdf0f4;
+  --gold-pale:#fce8ee;--sage:#a07888;--mauve:#8a6070;
+  --surface:#fefafb;--surface2:#fdf0f4;
   --border:rgba(180,100,130,0.13);--border-med:rgba(180,100,130,0.25);
   --r:14px;--r-sm:8px;--r-xs:6px;
-  --shadow:0 2px 16px rgba(18,13,16,0.07);
-  --serif:'Cormorant Garamond',Georgia,serif;
-  --sans:'DM Sans',system-ui,sans-serif;
+  --shadow:0 2px 16px rgba(18,13,16,0.07);--shadow-lg:0 8px 32px rgba(18,13,16,0.13);
+  --serif:'Cormorant Garamond',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{font-family:var(--sans);background:var(--surface2);color:var(--ink);overflow-x:hidden;min-height:100vh}
+.app-shell{display:flex;flex-direction:column;height:100dvh;max-width:480px;margin:0 auto;background:var(--parchment);box-shadow:0 0 60px rgba(58,32,48,0.12)}
 
-/* ── SHELL ── */
-.app-shell{
-  display:flex;flex-direction:column;height:100dvh;
-  max-width:480px;margin:0 auto;
-  background:var(--parchment);
-  box-shadow:0 0 60px rgba(58,32,48,0.12);
-  position:relative;
-}
-
-/* ── AUTH ── */
-.auth-screen{
-  display:flex;flex-direction:column;min-height:100dvh;
-  background:#3a2030;position:fixed;inset:0;z-index:1000;
-  max-width:430px;margin:0 auto;
-}
+/* AUTH SCREEN */
+.auth-screen{display:flex;flex-direction:column;min-height:100dvh;background:#3a2030;position:fixed;inset:0;z-index:1000;max-width:430px;margin:0 auto}
 .auth-screen.hidden{display:none}
-.auth-hero{
-  flex:1;display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  padding:40px 24px 24px;position:relative;overflow:hidden;
-}
-.auth-hero::before{
-  content:'';position:absolute;top:-80px;right:-80px;
-  width:300px;height:300px;border-radius:50%;
-  background:radial-gradient(circle,rgba(200,169,126,0.12) 0%,transparent 70%);
-}
+.auth-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px 24px;position:relative;overflow:hidden}
+.auth-hero::before{content:'';position:absolute;top:-80px;right:-80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(200,169,126,0.12) 0%,transparent 70%)}
+.auth-hero::after{content:'';position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(201,148,138,0.1) 0%,transparent 70%)}
 .auth-eyebrow{font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:8px}
 .auth-title{font-family:var(--serif);font-size:48px;font-weight:300;color:var(--parchment);font-style:italic;text-align:center;line-height:1;margin-bottom:6px}
 .auth-tagline{font-size:12px;color:rgba(254,246,248,0.45);letter-spacing:1px;text-align:center;margin-bottom:40px}
 .auth-form{background:rgba(255,255,255,0.06);border:1px solid rgba(240,188,200,0.2);border-radius:var(--r);padding:24px;width:100%;backdrop-filter:blur(10px)}
 .auth-error{font-size:11.5px;color:#e88;margin-top:10px;text-align:center;line-height:1.4}
-.google-btn{
-  width:100%;padding:13px 16px;background:white;border:none;
-  border-radius:var(--r-sm);font-family:var(--sans);font-size:14px;
-  font-weight:500;color:#3c4043;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;gap:10px;
-  transition:box-shadow 0.2s;letter-spacing:0.2px;
-}
+.google-btn{width:100%;padding:13px 16px;background:white;border:none;border-radius:var(--r-sm);font-family:var(--sans);font-size:14px;font-weight:500;color:#3c4043;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:box-shadow 0.2s;letter-spacing:0.2px}
 .google-btn:hover{box-shadow:0 2px 12px rgba(200,120,150,0.2)}
+.google-btn:active{opacity:0.9}
 .auth-footer{padding:20px 24px;text-align:center;font-size:10px;color:rgba(247,242,236,0.2);letter-spacing:0.5px}
 
-/* ── LOADING ── */
-.loading-screen{
-  display:flex;align-items:center;justify-content:center;
-  height:100dvh;background:var(--parchment);
-  position:fixed;inset:0;z-index:999;
-  max-width:480px;margin:0 auto;
-}
+/* LOADING */
+.loading-screen{display:flex;align-items:center;justify-content:center;height:100dvh;background:var(--parchment);position:fixed;inset:0;z-index:999;max-width:480px;margin:0 auto}
 .loading-screen.hidden{display:none}
 .loading-dots{display:flex;gap:6px}
 .loading-dot{width:8px;height:8px;border-radius:50%;background:var(--rose);animation:ldot 1.2s ease-in-out infinite}
@@ -79,665 +50,1344 @@ body{font-family:var(--sans);background:var(--surface2);color:var(--ink);overflo
 .loading-dot:nth-child(3){animation-delay:0.4s;background:var(--mauve)}
 @keyframes ldot{0%,80%,100%{opacity:0.2;transform:scale(0.7)}40%{opacity:1;transform:scale(1)}}
 
-/* ── HEADER ── */
-.app-header{background:var(--ink);padding:14px 18px 12px;flex-shrink:0}
+/* HEADER */
+.app-header{background:var(--ink);padding:14px 18px 10px;flex-shrink:0;position:relative;z-index:50}
 .header-row{display:flex;align-items:center;justify-content:space-between}
 .app-eyebrow{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:2px}
 .app-title{font-family:var(--serif);font-size:22px;font-weight:300;color:var(--parchment);font-style:italic}
-.user-chip{font-size:9px;color:rgba(247,242,236,0.38);letter-spacing:0.5px;margin-top:3px}
-.signout-btn{
-  background:none;border:1px solid rgba(200,169,126,0.2);
-  border-radius:20px;padding:5px 10px;font-size:9px;
-  color:rgba(247,242,236,0.35);cursor:pointer;
-  font-family:var(--sans);letter-spacing:0.5px;text-transform:uppercase;
-}
+.header-right{display:flex;align-items:center;gap:8px}
+.mode-toggle{display:flex;background:rgba(255,255,255,0.07);border-radius:20px;border:1px solid rgba(200,169,126,0.2);overflow:hidden}
+.mode-btn{padding:5px 12px;background:none;border:none;font-size:10px;font-family:var(--sans);color:rgba(247,242,236,0.45);cursor:pointer;letter-spacing:0.8px;text-transform:uppercase;transition:all 0.2s}
+.mode-btn.active{background:var(--gold);color:var(--ink);font-weight:600}
+.signout-btn{background:none;border:1px solid rgba(200,169,126,0.2);border-radius:20px;padding:5px 10px;font-size:9px;color:rgba(247,242,236,0.35);cursor:pointer;font-family:var(--sans);letter-spacing:0.5px;text-transform:uppercase}
+.user-chip{font-size:9px;color:var(--gold);letter-spacing:0.5px;margin-top:3px}
 
-/* ── SCROLL ── */
-.main-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:14px 14px 96px}
+/* TABS */
+.tab-bar{background:var(--ink2);display:flex;border-bottom:1px solid rgba(200,169,126,0.12);overflow-x:auto;scrollbar-width:none;flex-shrink:0}
+.tab-bar::-webkit-scrollbar{display:none}
+.tab-btn{flex-shrink:0;padding:9px 14px;background:none;border:none;border-bottom:2px solid transparent;color:rgba(247,242,236,0.38);font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;font-family:var(--sans);cursor:pointer;white-space:nowrap;transition:all 0.2s}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold)}
+.main-scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch}
+.screen{display:none;padding:15px 15px 100px}
+.screen.active{display:block}
 
-/* ── FLOW CARDS ── */
-.flow-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:var(--r);margin-bottom:10px;
-  overflow:hidden;box-shadow:var(--shadow);
-  cursor:pointer;transition:transform 0.12s;
-}
-.flow-card:active{transform:scale(0.984)}
-.flow-card-head{padding:14px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.flow-name{font-family:var(--serif);font-size:19px;font-weight:400;font-style:italic;color:var(--ink);line-height:1.2;margin-bottom:4px}
-.flow-meta{font-size:10.5px;color:var(--mauve)}
-.flow-chips{display:flex;gap:6px;padding:0 16px 12px;flex-wrap:wrap}
-.chip{padding:3px 9px;border-radius:20px;font-size:10px;font-weight:500}
-.chip-i{background:#f6e8f8;color:#7a3490}
-.chip-t{background:var(--blush);color:var(--deep-rose)}
-.chip-a{background:#e8f4e8;color:#3d6b42}
-.arrow{color:var(--rose);font-size:18px;flex-shrink:0;margin-top:2px}
-
-/* ── SLOT HEADERS ── */
-.slot-header{display:flex;align-items:center;gap:12px;padding:14px 0 8px;margin-top:4px}
-.slot-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
-.s-insp .slot-icon{background:#f6e8f8;color:#7a3490}
-.s-teach .slot-icon{background:var(--blush);color:var(--deep-rose)}
-.s-att .slot-icon{background:#e8f4e8;color:#3d6b42}
-.slot-label{font-size:13px;font-weight:600;color:var(--ink)}
-.slot-sub{font-size:10.5px;color:var(--mauve);margin-top:1px}
-
-/* ── WATCH CARD ── */
-.watch-card{
-  display:flex;align-items:center;gap:12px;
-  background:var(--ink);border-radius:var(--r-sm);
-  padding:13px 15px;text-decoration:none;
-  margin-top:6px;margin-bottom:4px;
-  border:1px solid rgba(200,169,126,0.18);
-}
-.watch-card:active{opacity:0.8}
-.wc-info{flex:1;min-width:0}
-.wc-title{font-size:13px;font-weight:500;color:var(--parchment);margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wc-url{font-size:10px;color:rgba(247,242,236,0.35);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.wc-btn{font-size:12px;font-weight:600;color:var(--gold);flex-shrink:0;letter-spacing:0.3px}
-
-/* ── FORMS ── */
+/* ATOMS */
+.sec{font-size:8.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--rose);font-weight:600;margin:20px 0 9px}
 .field-label{display:block;font-size:8.5px;text-transform:uppercase;letter-spacing:1.5px;color:var(--mauve);margin-bottom:5px;font-weight:500}
-.sec{font-size:8.5px;letter-spacing:2.5px;text-transform:uppercase;color:var(--rose);font-weight:600;margin:18px 0 8px}
-input[type="text"],input[type="url"],input[type="date"]{
-  width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm);
-  padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--ink);
-  background:white;outline:none;margin-bottom:10px;
-  appearance:none;-webkit-appearance:none;
-}
-input:focus,textarea:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,148,138,0.12)}
-textarea{
-  width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm);
-  padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--ink);
-  background:white;outline:none;resize:vertical;min-height:80px;margin-bottom:10px;
-}
-.video-tip{
-  background:var(--surface2);border:1px solid var(--border-med);
-  border-radius:var(--r-sm);padding:10px 12px;margin-bottom:10px;
-  font-size:11.5px;line-height:1.7;color:var(--mauve);
-}
-.video-entry{background:white;border:1px solid var(--border-med);border-radius:var(--r-sm);padding:12px;margin-bottom:8px;position:relative}
-.video-entry input{margin-bottom:6px}
-.remove-entry{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--rose);font-size:20px;cursor:pointer;line-height:1;padding:0}
-.add-btn{
-  width:100%;padding:9px;background:var(--surface2);
-  border:1.5px dashed var(--blush);border-radius:var(--r-sm);
-  font-family:var(--sans);font-size:11px;color:var(--mauve);
-  cursor:pointer;text-align:center;transition:all 0.15s;margin-bottom:8px;
-}
-.add-btn:hover{border-color:var(--rose);color:var(--deep-rose)}
-.rm-video-btn{background:none;border:none;color:var(--rose);font-size:11px;cursor:pointer;font-family:var(--sans);padding:2px 0 0;display:block}
-.btn-save{
-  background:var(--deep-rose);color:white;border:none;
-  border-radius:var(--r-sm);padding:12px 20px;
-  font-family:var(--sans);font-size:13px;font-weight:600;
-  cursor:pointer;width:100%;transition:opacity 0.15s;
-}
-.btn-save:active,.btn-save:disabled{opacity:0.7}
-.btn-gold{
-  background:var(--gold);color:var(--ink);border:none;
-  border-radius:var(--r-sm);padding:12px 20px;
-  font-family:var(--sans);font-size:13px;font-weight:600;
-  cursor:pointer;width:100%;
-}
-
-/* ── OVERLAY ── */
-.overlay{display:none;position:fixed;inset:0;background:var(--parchment);z-index:200;overflow-y:auto;max-width:480px;margin:0 auto;animation:sUp 0.22s ease}
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:9px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase}
+.badge-beginner{background:#e5f0e5;color:#3d6b42}
+.badge-intermediate{background:#f6ede0;color:#8a5520}
+.badge-advanced{background:#f0e3e3;color:#8a3030}
+.badge-gold{background:#f0bcc8;color:#3a2030}
+.badge-teacher{background:var(--blush);color:var(--deep-rose)}
+.badge-student{background:#e2ede3;color:#3d6b42}
+input[type="text"],input[type="url"],input[type="date"],input[type="email"],select{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm);padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--ink);background:white;outline:none;margin-bottom:10px;appearance:none;-webkit-appearance:none}
+input:focus,select:focus,textarea:focus{border-color:var(--rose);box-shadow:0 0 0 3px rgba(201,148,138,0.12)}
+textarea{width:100%;border:1px solid var(--border-med);border-radius:var(--r-sm);padding:9px 12px;font-family:var(--sans);font-size:13px;color:var(--ink);background:white;outline:none;resize:vertical;min-height:72px;margin-bottom:10px}
+.btn-primary{background:var(--deep-rose);color:white;border:none;border-radius:var(--r-sm);padding:10px 20px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer;letter-spacing:0.3px;transition:opacity 0.15s}
+.btn-primary:active,.btn-primary:disabled{opacity:0.7}
+.btn-secondary{background:none;border:1px solid var(--border-med);border-radius:var(--r-sm);padding:9px 16px;font-size:12px;font-family:var(--sans);color:var(--mauve);cursor:pointer}
+.btn-gold{background:var(--gold);color:var(--ink);border:none;border-radius:var(--r-sm);padding:10px 20px;font-family:var(--sans);font-size:12px;font-weight:600;cursor:pointer}
+.btn-row{display:flex;gap:8px;margin-top:6px}
+.btn-full{width:100%;text-align:center;display:block}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
+.card-body{padding:14px 16px}
+.filter-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.filter-btn{padding:5px 12px;border-radius:20px;border:1px solid var(--border-med);background:var(--surface);font-size:10px;font-family:var(--sans);cursor:pointer;color:var(--mauve);transition:all 0.15s}
+.filter-btn.active{background:var(--deep-rose);border-color:var(--deep-rose);color:white;font-weight:600}
+.move-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:8px;cursor:pointer;box-shadow:var(--shadow);transition:transform 0.13s}
+.move-card:active{transform:scale(0.985)}
+.move-card-inner{padding:12px 14px;display:flex;align-items:center;gap:12px}
+.move-icon{width:38px;height:38px;border-radius:50%;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.move-info{flex:1;min-width:0}
+.move-name{font-size:14px;font-weight:500}
+.move-meta{font-size:10.5px;color:var(--mauve);margin-top:2px}
+.move-check{width:22px;height:22px;border-radius:50%;border:1.5px solid var(--blush);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:11px;color:transparent;transition:all 0.2s;cursor:pointer}
+.move-check.done{background:var(--sage);border-color:var(--sage);color:white}
+.overlay{display:none;position:fixed;inset:0;background:var(--parchment);z-index:200;overflow-y:auto;max-width:480px;margin:0 auto;animation:slideUp 0.22s ease}
 .overlay.open{display:block}
-@keyframes sUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
-.ov-head{background:var(--ink);padding:16px 18px;position:sticky;top:0;z-index:10}
-.back-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);color:var(--parchment);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;margin-bottom:10px;display:inline-flex;align-items:center;gap:5px;font-family:var(--sans)}
-.ov-title{font-family:var(--serif);font-size:26px;font-weight:300;font-style:italic;color:var(--parchment);line-height:1.2}
-.ov-body{padding:16px}
-
-/* ── FAB ── */
-.fab{
-  position:fixed;bottom:24px;right:16px;
-  width:52px;height:52px;border-radius:50%;
-  background:var(--deep-rose);color:white;border:none;
-  font-size:26px;cursor:pointer;
-  box-shadow:0 4px 20px rgba(138,62,88,0.45);
-  display:flex;align-items:center;justify-content:center;
-  z-index:150;line-height:1;
-}
-@media(min-width:512px){.fab{right:calc(50% - 224px)}}
-
-/* ── MISC ── */
-.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--parchment);padding:8px 18px;border-radius:20px;font-size:12px;z-index:400;opacity:0;transition:opacity 0.25s;pointer-events:none;white-space:nowrap;border:1px solid rgba(200,169,126,0.25)}
+@keyframes slideUp{from{transform:translateY(18px);opacity:0}to{transform:translateY(0);opacity:1}}
+.overlay-header{background:var(--ink);padding:18px;position:sticky;top:0;z-index:10}
+.back-btn{background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);color:var(--parchment);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;margin-bottom:12px;display:inline-flex;align-items:center;gap:5px;font-family:var(--sans)}
+.overlay-title{font-family:var(--serif);font-size:26px;font-weight:300;font-style:italic;color:var(--parchment);line-height:1.2}
+.overlay-body{padding:16px}
+.video-tip{background:var(--surface2);border:1px solid var(--border-med);border-radius:var(--r-sm);padding:10px 12px;margin-bottom:12px;font-size:11.5px;line-height:1.7;color:var(--mauve)}
+.add-video-btn{width:100%;padding:9px;background:var(--surface2);border:1.5px dashed var(--blush);border-radius:var(--r-sm);font-family:var(--sans);font-size:11px;color:var(--mauve);cursor:pointer;text-align:center;transition:all 0.15s;margin-bottom:8px}
+.add-video-btn:hover{border-color:var(--rose);color:var(--deep-rose)}
+.video-url-entry{background:white;border:1px solid var(--border-med);border-radius:var(--r-sm);padding:12px;margin-bottom:8px;position:relative}
+.video-url-entry .remove-entry{position:absolute;top:8px;right:8px;background:none;border:none;color:var(--rose);font-size:18px;cursor:pointer}
+.video-url-entry input{margin-bottom:6px}
+.video-url-preview{margin-top:8px;border-radius:var(--r-xs);overflow:hidden}
+.video-url-preview iframe{border:none;}
+.open-link{display:flex;align-items:center;gap:8px;background:var(--ink2);border-radius:var(--r-xs);padding:10px 12px;text-decoration:none;cursor:pointer}
+.open-link-text{font-size:12px;font-weight:500;color:var(--gold)}
+.open-link-sub{font-size:10px;color:rgba(247,242,236,0.45);margin-top:1px}
+.video-gallery{display:flex;flex-direction:column;gap:8px}
+.video-url-preview.vertical iframe{height:520px}
+.video-entry{background:white;border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;}
+.video-entry-head{padding:8px 12px;background:var(--surface2);display:flex;align-items:center;justify-content:space-between}
+.video-entry-date{font-size:10.5px;font-weight:600;color:var(--ink)}
+.video-entry-tag{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600}
+.tag-teacher{background:#fce8ee;color:#7a3050}
+.tag-student{background:#e2ede3;color:#3d6b42}
+.tag-best{background:#f0bcc8;color:#3a2030}
+.video-entry-body{padding:10px 12px}
+.video-entry-title{font-size:12px;font-weight:600;margin-bottom:3px}
+.video-entry-sub{font-size:10.5px;color:var(--mauve);margin-bottom:6px}
+.sort-row{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.sort-label{font-size:9px;text-transform:uppercase;letter-spacing:1px;color:var(--mauve)}
+.sort-btn{padding:4px 10px;border-radius:20px;border:1px solid var(--border-med);background:var(--surface);font-size:10px;font-family:var(--sans);cursor:pointer;color:var(--mauve)}
+.sort-btn.active{background:var(--ink2);border-color:var(--ink2);color:var(--gold)}
+.steps-list{list-style:none}
+.step-item{display:flex;gap:11px;padding:9px 0;border-bottom:1px solid var(--border)}
+.step-num{width:22px;height:22px;border-radius:50%;background:var(--blush);color:var(--deep-rose);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0}
+.step-text{font-size:12.5px;color:var(--ink);padding-top:2px;line-height:1.55}
+.next-move-btn{background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-xs);padding:10px 13px;margin-bottom:6px;cursor:pointer;width:100%;text-align:left;display:flex;align-items:center;justify-content:space-between;transition:background 0.15s}
+.next-move-btn:hover{background:var(--blush)}
+.next-move-name{font-size:13px;font-weight:500}
+.next-move-hint{font-size:10px;color:var(--mauve);margin-top:2px}
+.adv-card{background:var(--ink);border-radius:var(--r);padding:20px;margin-bottom:12px;position:relative;overflow:hidden}
+.adv-card::after{content:'';position:absolute;bottom:-40px;right:-40px;width:130px;height:130px;border-radius:50%;background:rgba(200,169,126,0.07);pointer-events:none}
+.adv-label{font-size:8px;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);margin-bottom:5px}
+.adv-title{font-family:var(--serif);font-size:21px;font-weight:300;color:var(--parchment);font-style:italic;margin-bottom:14px;line-height:1.3}
+.adv-choice{background:rgba(247,242,236,0.07);border:1px solid rgba(200,169,126,0.18);border-radius:var(--r-sm);padding:10px 13px;margin-bottom:7px;cursor:pointer;width:100%;text-align:left;transition:background 0.15s}
+.adv-choice:hover{background:rgba(200,169,126,0.15)}
+.adv-choice-name{font-size:13px;font-weight:500;color:var(--parchment)}
+.adv-choice-hint{font-size:10px;color:rgba(200,169,126,0.65);margin-top:2px}
+.adv-crumbs{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+.adv-crumb{background:rgba(247,242,236,0.1);padding:2px 8px;border-radius:20px;font-size:9px;color:rgba(247,242,236,0.55)}
+.seq-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
+.seq-head{padding:12px 14px;background:var(--surface2);display:flex;align-items:flex-start;justify-content:space-between}
+.seq-name{font-size:14px;font-weight:600;margin-bottom:3px}
+.seq-flow{padding:10px 14px;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.flow-pill{background:var(--blush);color:var(--deep-rose);padding:3px 9px;border-radius:20px;font-size:10px;font-weight:500}
+.flow-arrow{color:var(--rose);font-size:11px}
+.seq-note-text{padding:0 14px 12px;font-size:11.5px;color:var(--mauve);font-style:italic}
+.insp-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);margin-bottom:6px;cursor:pointer;display:flex;align-items:center;gap:10px;padding:10px 12px}
+.insp-card:active{opacity:0.85}
+.insp-thumb{display:none}
+.insp-thumb-glyph{display:none}
+.insp-info{flex:1;min-width:0}
+.insp-title{font-size:13px;font-weight:500;margin-bottom:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.insp-url{display:none}
+.insp-parsed-line{font-size:10.5px;color:var(--mauve)}
+.insp-actions{display:flex;gap:6px;flex-shrink:0;align-items:center}
+.insp-action{padding:5px 10px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r-xs);font-size:10px;font-weight:600;color:var(--deep-rose);cursor:pointer;text-align:center;white-space:nowrap}
+.ai-parse-wrap{background:linear-gradient(135deg,#2a1020 0%,#4a2840 100%);border-radius:var(--r);padding:16px;margin-top:10px}
+.ai-parse-title{font-family:var(--serif);font-size:16px;font-style:italic;color:var(--parchment);margin-bottom:3px}
+.ai-parse-sub{font-size:9.5px;color:var(--gold);letter-spacing:0.5px;margin-bottom:12px}
+.ai-move-card{background:rgba(247,242,236,0.05);border:1px solid rgba(200,169,126,0.13);border-radius:var(--r-xs);padding:11px;margin-bottom:7px}
+.ai-move-name{font-size:13px;font-weight:500;color:var(--parchment)}
+.ai-move-detail{font-size:11px;color:rgba(200,169,126,0.75);margin-top:3px;line-height:1.5}
+.ai-tip{font-size:10.5px;color:var(--gold);margin-top:4px}
+.ai-dot{width:6px;height:6px;border-radius:50%;background:var(--gold);animation:aipulse 1.2s ease-in-out infinite;display:inline-block;margin-right:3px}
+.ai-dot:nth-child(2){animation-delay:0.2s}
+.ai-dot:nth-child(3){animation-delay:0.4s}
+@keyframes aipulse{0%,80%,100%{opacity:0.25;transform:scale(0.75)}40%{opacity:1;transform:scale(1)}}
+.teacher-hero{background:linear-gradient(135deg,#3a2030 0%,#5c4050 100%);border-radius:var(--r);padding:18px;margin-bottom:14px;position:relative;overflow:hidden}
+.teacher-hero::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(200,169,126,0.08)}
+.teacher-hero-title{font-family:var(--serif);font-size:20px;font-style:italic;font-weight:300;color:var(--parchment);margin-bottom:4px}
+.teacher-hero-sub{font-size:10px;color:var(--gold);letter-spacing:0.5px}
+.class-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow)}
+.class-card-head{background:#5c4050;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;cursor:pointer}
+.class-card-title{font-size:14px;font-weight:600;color:var(--parchment)}
+.class-card-meta{font-size:10px;color:rgba(247,242,236,0.45);margin-top:2px}
+.class-expand-icon{color:rgba(247,242,236,0.4);font-size:12px;transition:transform 0.2s}
+.class-expand-icon.open{transform:rotate(180deg)}
+.class-card-body{padding:12px 15px;display:none}
+.class-card-body.open{display:block}
+.student-row{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer}
+.student-row:last-child{border-bottom:none}
+.student-avatar{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#f0c8d8,#c47898);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:16px;color:white;font-style:italic;flex-shrink:0}
+.student-row-name{font-size:13px;font-weight:500}
+.student-row-meta{font-size:10.5px;color:var(--mauve);margin-top:1px}
+.lesson-entry{border-left:2px solid var(--blush);padding:10px 14px;margin-bottom:10px;position:relative;cursor:pointer}
+.lesson-entry::before{content:'';position:absolute;left:-5px;top:14px;width:8px;height:8px;border-radius:50%;background:var(--rose)}
+.lesson-date-label{font-size:9.5px;font-weight:600;color:var(--deep-rose);letter-spacing:0.5px;text-transform:uppercase;margin-bottom:3px}
+.lesson-title-text{font-size:13px;font-weight:600;margin-bottom:4px}
+.lesson-pills{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:5px}
+.lesson-pill{padding:2px 8px;border-radius:20px;font-size:9.5px;font-weight:500}
+.pill-moves{background:var(--blush);color:var(--deep-rose)}
+.pill-achieve{background:#e2ede3;color:#3d6b42}
+.pill-help{background:#f6ede0;color:#8a5520}
+.lesson-notes-text{font-size:11.5px;color:var(--mauve);margin-bottom:6px;line-height:1.5}
+.lesson-video-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.lesson-video-chip{display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:4px 10px;font-size:10.5px;cursor:pointer;text-decoration:none;color:var(--ink)}
+.fab{position:fixed;bottom:20px;right:16px;width:50px;height:50px;border-radius:50%;background:var(--deep-rose);color:white;border:none;font-size:22px;cursor:pointer;box-shadow:0 4px 18px rgba(158,94,84,0.42);display:flex;align-items:center;justify-content:center;z-index:150}
+.toast{position:fixed;bottom:84px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--parchment);padding:8px 18px;border-radius:20px;font-size:12px;z-index:400;opacity:0;transition:opacity 0.25s;pointer-events:none;white-space:nowrap;border:1px solid rgba(200,169,126,0.25)}
 .toast.show{opacity:1}
-.empty-state{text-align:center;padding:48px 24px;color:var(--mauve);font-size:14px;font-style:italic;line-height:1.7}
-.spacer{height:80px}
-.notes-block{background:var(--surface2);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:4px}
-.notes-label{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;color:var(--rose);font-weight:600;margin-bottom:6px}
-.notes-text{font-size:13px;line-height:1.65;color:var(--mauve);white-space:pre-wrap}
+.spacer-80{height:80px}
+.mt-4{margin-top:4px}.mt-8{margin-top:8px}.mt-12{margin-top:12px}
+.empty-state{font-size:13px;color:var(--mauve);font-style:italic;padding:8px 0}
+.slot-header{display:flex;align-items:center;gap:12px;padding:14px 0 8px;margin-top:6px}
+.slot-icon-circle{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.slot-insp .slot-icon-circle{background:#f6e8f8;color:#7a3490}
+.slot-teacher .slot-icon-circle{background:var(--blush);color:var(--deep-rose)}
+.slot-attempt .slot-icon-circle{background:#e8f4e8;color:#3d6b42}
+.slot-title{font-size:13px;font-weight:600;color:var(--ink)}
+.slot-sub{font-size:10.5px;color:var(--mauve);margin-top:1px}
+.flow-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);margin-bottom:10px;overflow:hidden;box-shadow:var(--shadow);cursor:pointer;transition:transform 0.13s}
+.flow-card:active{transform:scale(0.985)}
+.flow-card-head{padding:14px 16px;display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.flow-card-name{font-family:var(--serif);font-size:18px;font-weight:400;font-style:italic;color:var(--ink);margin-bottom:3px;line-height:1.2}
+.flow-card-date{font-size:10.5px;color:var(--mauve)}
+.flow-card-slots{display:flex;gap:6px;padding:0 16px 12px;flex-wrap:wrap}
+.slot-chip{display:flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:500}
+.slot-chip-insp{background:#f6e8f8;color:#7a3490}
+.slot-chip-teacher{background:var(--blush);color:var(--deep-rose)}
+.slot-chip-attempt{background:#e8f4e8;color:#3d6b42}
 </style>
 </head>
 <body>
 
-<!-- LOADING -->
+<!-- LOADING — hidden by default, shown only when needed -->
 <div id="loading-screen" class="loading-screen hidden">
-  <div class="loading-dots">
-    <div class="loading-dot"></div>
-    <div class="loading-dot"></div>
-    <div class="loading-dot"></div>
-  </div>
+  <div class="loading-dots"><div class="loading-dot"></div><div class="loading-dot"></div><div class="loading-dot"></div></div>
 </div>
 
-<!-- AUTH -->
+<!-- AUTH — visible by default -->
 <div id="auth-screen" class="auth-screen">
   <div class="auth-hero">
     <div class="auth-eyebrow">Aerial Silks</div>
-    <div class="auth-title">Silk &amp; Flow</div>
-    <div class="auth-tagline">Your flow journal</div>
+    <div class="auth-title">Silk & Flow</div>
+    <div class="auth-tagline">Learn · Teach · Ascend</div>
     <div class="auth-form">
       <button class="google-btn" onclick="signInWithGoogle()">
-        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
-          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
-          <path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/>
-          <path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z" fill="#FBBC05"/>
-          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z" fill="#EA4335"/>
-        </svg>
+        <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg"><path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/><path d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z" fill="#34A853"/><path d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z" fill="#FBBC05"/><path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z" fill="#EA4335"/></svg>
         Continue with Google
       </button>
       <div id="auth-error" class="auth-error"></div>
     </div>
   </div>
-  <div class="auth-footer">Private &amp; secure &middot; Synced across all your devices</div>
+  <div class="auth-footer">Private & secure · Synced across all your devices</div>
 </div>
 
-<!-- APP -->
+<!-- MAIN APP -->
 <div id="app-shell" class="app-shell" style="display:none">
   <div class="app-header">
     <div class="app-eyebrow">Aerial Silks</div>
     <div class="header-row">
       <div>
-        <div class="app-title">Silk &amp; Flow</div>
+        <div class="app-title">Silk & Flow</div>
         <div class="user-chip" id="user-chip"></div>
       </div>
-      <button class="signout-btn" onclick="doSignOut()">Sign out</button>
+      <div class="header-right">
+        <div class="mode-toggle">
+          <button class="mode-btn active" id="mode-student" onclick="setMode('student')">Student</button>
+          <button class="mode-btn" id="mode-teacher" onclick="setMode('teacher')">Teacher</button>
+        </div>
+        <button class="signout-btn" onclick="doSignOut()">Sign out</button>
+      </div>
     </div>
   </div>
+
+  <div id="student-tabs" class="tab-bar">
+    <button class="tab-btn active" onclick="showTab('moves',this,'student-tabs')">Moves</button>
+    <button class="tab-btn" onclick="showTab('adventure',this,'student-tabs')">Adventure</button>
+    <button class="tab-btn" onclick="showTab('sequences',this,'student-tabs')">Sequences</button>
+    <button class="tab-btn" onclick="showTab('inspiration',this,'student-tabs')">Inspiration ✦</button>
+    <button class="tab-btn" onclick="showTab('flows',this,'student-tabs')">Flow Journal</button>
+  </div>
+  <div id="teacher-tabs" class="tab-bar" style="display:none">
+    <button class="tab-btn active" onclick="showTab('t-classes',this,'teacher-tabs')">Classes</button>
+    <button class="tab-btn" onclick="showTab('t-students',this,'teacher-tabs')">Students</button>
+  </div>
+
   <div class="main-scroll">
-    <div id="flows-list"></div>
+    <div id="screen-moves" class="screen active">
+      <div class="filter-row">
+        <button class="filter-btn active" onclick="filterMoves('all',this)">All</button>
+        <button class="filter-btn" onclick="filterMoves('beginner',this)">Beginner</button>
+        <button class="filter-btn" onclick="filterMoves('intermediate',this)">Intermediate</button>
+        <button class="filter-btn" onclick="filterMoves('advanced',this)">Advanced</button>
+      </div>
+      <div id="moves-list"></div>
+    </div>
+    <div id="screen-adventure" class="screen"><div id="adventure-container"></div></div>
+    <div id="screen-sequences" class="screen">
+      <div id="sequences-list"></div>
+      <button class="fab" onclick="openOv('add-seq-ov')">+</button>
+    </div>
+    <div id="screen-inspiration" class="screen">
+      <!-- Toggle between reel and account -->
+      <div style="display:flex;gap:0;margin-bottom:14px;border-radius:var(--r-sm);overflow:hidden;border:1px solid var(--border-med)">
+        <button id="insp-tab-reel" onclick="switchInspTab('reel')" style="flex:1;padding:9px;background:var(--deep-rose);color:white;border:none;font-size:11px;font-family:var(--sans);font-weight:600;cursor:pointer;letter-spacing:0.5px">🎬 Save a Reel</button>
+        <button id="insp-tab-account" onclick="switchInspTab('account')" style="flex:1;padding:9px;background:var(--surface);color:var(--mauve);border:none;font-size:11px;font-family:var(--sans);font-weight:500;cursor:pointer;letter-spacing:0.5px">👤 Save an Account</button>
+      </div>
+
+      <!-- Reel form -->
+      <div id="insp-reel-form" class="card"><div class="card-body">
+        <label class="field-label">Instagram / Video URL</label><input type="url" id="reel-url" placeholder="https://www.instagram.com/reel/...">
+        <label class="field-label">Title</label><input type="text" id="reel-title" placeholder="e.g. Cross Back Straddle entries">
+        <label class="field-label">Your notes</label><textarea id="reel-notes" rows="2" placeholder="What to try, what you noticed, why you saved it..."></textarea>
+        <label class="field-label">Moves in this reel</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px" id="reel-moves-wrap"></div>
+        <button class="btn-primary btn-full" onclick="saveReel()">Save Reel</button>
+      </div></div>
+
+      <!-- Account form -->
+      <div id="insp-account-form" style="display:none" class="card"><div class="card-body">
+        <label class="field-label">Instagram handle or profile URL</label><input type="text" id="acct-handle" placeholder="@flybydre or https://www.instagram.com/flybydre">
+        <label class="field-label">Why follow them?</label><textarea id="acct-why" rows="3" placeholder="e.g. Best cross back straddle tutorials, always explains the mechanics clearly..."></textarea>
+        <label class="field-label">Content type</label>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px" id="acct-tags-wrap">
+          <button class="filter-btn" onclick="toggleAcctTag(this,'Tutorials')">Tutorials</button>
+          <button class="filter-btn" onclick="toggleAcctTag(this,'Flows')">Flows</button>
+          <button class="filter-btn" onclick="toggleAcctTag(this,'Conditioning')">Conditioning</button>
+          <button class="filter-btn" onclick="toggleAcctTag(this,'Beginner-friendly')">Beginner-friendly</button>
+          <button class="filter-btn" onclick="toggleAcctTag(this,'Advanced')">Advanced</button>
+          <button class="filter-btn" onclick="toggleAcctTag(this,'Inspiration')">Inspiration</button>
+        </div>
+        <button class="btn-primary btn-full" onclick="saveAccount()">Save Account</button>
+      </div></div>
+
+      <div class="sec">Saved Reels</div><div id="inspiration-list"></div>
+      <div class="sec">Accounts to Follow</div><div id="accounts-list"></div>
+    </div>
+    <div id="screen-flows" class="screen">
+      <div class="teacher-hero" style="margin-bottom:12px"><div class="teacher-hero-title">Flow Journal</div><div class="teacher-hero-sub">Your flows from class · tap to view videos</div></div>
+      <button class="btn-gold btn-full" onclick="openNewFlow()" style="margin-bottom:14px">+ Add flow</button>
+      <div id="flows-list"></div>
+    </div>
+    <div id="screen-t-classes" class="screen" style="display:none">
+      <div class="teacher-hero"><div class="teacher-hero-title">Classes</div><div class="teacher-hero-sub">Tap to expand · tap a student to view their record</div></div>
+      <div id="classes-list"></div>
+      <button class="btn-primary btn-full mt-8" onclick="openAddClassOv()">+ New Class</button>
+    </div>
+    <div id="screen-t-students" class="screen" style="display:none">
+      <div class="teacher-hero"><div class="teacher-hero-title">Students</div><div class="teacher-hero-sub">Tap any student to view lessons & log new ones</div></div>
+      <div id="students-list"></div>
+      <button class="btn-primary btn-full mt-8" onclick="openOv('add-student-ov')">+ Add Student</button>
+    </div>
   </div>
-  <button class="fab" onclick="openNewFlow()" aria-label="Add flow">+</button>
 </div>
 
-<!-- NEW / EDIT FLOW OVERLAY -->
+<!-- OVERLAYS -->
+<div id="move-detail-ov" class="overlay"><div id="move-detail-content"></div></div>
+<div id="insp-detail-ov" class="overlay"><div id="insp-detail-content"></div></div>
+<div id="student-detail-ov" class="overlay"><div id="student-detail-content"></div></div>
+<div id="lesson-detail-ov" class="overlay"><div id="lesson-detail-content"></div></div>
+<div id="flow-detail-ov" class="overlay"><div id="flow-detail-content"></div></div>
+
+<div id="add-seq-ov" class="overlay">
+  <div class="overlay-header"><button class="back-btn" onclick="closeOv('add-seq-ov')">← Back</button><div class="overlay-title">New Sequence</div></div>
+  <div class="overlay-body">
+    <label class="field-label">Name</label><input type="text" id="sq-name" placeholder="e.g. Opening Blossom">
+    <label class="field-label">Moves (comma-separated)</label><input type="text" id="sq-moves" placeholder="Climb, Hip Key, Mermaid, Drop">
+    <label class="field-label">Exit move</label><input type="text" id="sq-exit" placeholder="Controlled descent">
+    <div class="filter-row mt-4">
+      <button class="filter-btn active" onclick="setSeqLvl('beginner',this)">Beginner</button>
+      <button class="filter-btn" onclick="setSeqLvl('intermediate',this)">Intermediate</button>
+      <button class="filter-btn" onclick="setSeqLvl('advanced',this)">Advanced</button>
+    </div>
+    <label class="field-label">Notes</label><textarea id="sq-notes" placeholder="Flow notes, tips..."></textarea>
+    <button class="btn-primary btn-full" onclick="saveSeq()">Save Sequence</button>
+    <div class="spacer-80"></div>
+  </div>
+</div>
+
+<div id="add-class-ov" class="overlay">
+  <div class="overlay-header"><button class="back-btn" onclick="closeOv('add-class-ov')">← Back</button><div class="overlay-title">New Class</div></div>
+  <div class="overlay-body">
+    <label class="field-label">Class name</label><input type="text" id="cls-name" placeholder="e.g. Tuesday Beginners">
+    <label class="field-label">Date</label><input type="date" id="cls-date">
+    <label class="field-label">What did we cover?</label><textarea id="cls-notes" placeholder="Moves, themes, focus areas..."></textarea>
+    <div class="sec" style="margin-top:0">Students in this class</div>
+    <div id="cls-student-checklist"></div>
+    <button class="btn-primary btn-full mt-8" onclick="saveClass()">Save Class</button>
+    <div class="spacer-80"></div>
+  </div>
+</div>
+
+<div id="add-student-ov" class="overlay">
+  <div class="overlay-header"><button class="back-btn" onclick="closeOv('add-student-ov')">← Back</button><div class="overlay-title">Add Student</div></div>
+  <div class="overlay-body">
+    <p style="font-size:13px;color:var(--mauve);line-height:1.6;margin-bottom:16px">Enter the student's email — they need to have already signed into Silk & Flow with Google first.</p>
+    <label class="field-label">Student's email</label><input type="email" id="st-email" placeholder="student@gmail.com">
+    <label class="field-label">Level</label>
+    <select id="st-level"><option value="beginner">Beginner</option><option value="intermediate">Intermediate</option><option value="advanced">Advanced</option></select>
+    <label class="field-label">Notes (injuries, goals, background)</label><textarea id="st-notes" placeholder="e.g. Tight hamstrings, working on inversions..."></textarea>
+    <button class="btn-primary btn-full" onclick="addStudent()">Add Student</button>
+    <div id="add-student-error" style="font-size:12px;color:var(--rose);margin-top:8px"></div>
+    <div class="spacer-80"></div>
+  </div>
+</div>
+
+<div id="log-lesson-ov" class="overlay">
+  <div class="overlay-header"><button class="back-btn" onclick="closeOv('log-lesson-ov')">← Back</button><div class="overlay-title" id="ll-title-heading">Log Lesson</div></div>
+  <div class="overlay-body">
+    <label class="field-label">Date</label><input type="date" id="ll-date">
+    <label class="field-label">Lesson title / focus</label><input type="text" id="ll-title" placeholder="e.g. Hip Key entries & mermaid">
+    <label class="field-label">Moves covered (comma-separated)</label><input type="text" id="ll-moves" placeholder="Hip Key, Mermaid, S-Wrap">
+    <label class="field-label">Achievements this session</label><input type="text" id="ll-achieve" placeholder="First inversion, held mermaid for 5s...">
+    <label class="field-label">Needs help with</label><input type="text" id="ll-help" placeholder="Foot lock timing, straddle flexibility...">
+    <label class="field-label">Notes</label><textarea id="ll-notes" placeholder="Observations, what clicked, what to revisit..."></textarea>
+    <div class="sec">Teacher Videos</div>
+    <div class="video-tip">📁 <strong>Google Drive:</strong> film → Drive app → Upload → ⋯ → Share → Copy link → set "Anyone with the link" → paste below.</div>
+    <div id="ll-teacher-videos"></div>
+    <button class="add-video-btn" onclick="addVideoField('ll-teacher-videos')">+ Add teacher video</button>
+    <div class="sec">Student Videos</div>
+    <div id="ll-student-videos"></div>
+    <button class="add-video-btn" onclick="addVideoField('ll-student-videos')">+ Add student video</button>
+    <div class="sec">Best of Day ✦</div>
+    <div id="ll-best-video"></div>
+    <button class="add-video-btn" id="ll-best-add-btn" onclick="addBestVideo()">+ Add best of day video</button>
+    <div class="sec">Parse moves from caption</div>
+    <textarea id="ll-caption" rows="3" placeholder="Paste instructor video caption or describe moves taught..."></textarea>
+    <button class="btn-gold btn-full" onclick="parseLessonCaption()">✦ Identify moves with AI</button>
+    <div id="ll-parse-result" class="mt-8"></div>
+    <div class="mt-12"></div>
+    <button class="btn-primary btn-full" id="ll-save-btn" onclick="saveLesson()" style="padding:12px">Save Lesson</button>
+    <div class="spacer-80"></div>
+  </div>
+</div>
+
 <div id="flow-form-ov" class="overlay">
-  <div class="ov-head">
-    <button class="back-btn" onclick="closeOv('flow-form-ov')">&#8592; Back</button>
-    <div class="ov-title" id="fl-heading">New Flow</div>
+  <div class="overlay-header"><button class="back-btn" onclick="closeOv('flow-form-ov')">← Back</button><div class="overlay-title" id="fl-heading">New Flow</div></div>
+  <div class="overlay-body">
+    <label class="field-label">Flow name</label><input type="text" id="fl-name" placeholder="e.g. Hip Key to Mermaid">
+    <label class="field-label">Date</label><input type="date" id="fl-date">
+    <label class="field-label">Teacher's notes &amp; cues</label><textarea id="fl-notes" rows="4" placeholder="Key cues, corrections, things to remember from class..."></textarea>
+    <label class="field-label">Move list (comma-separated)</label><input type="text" id="fl-moves" placeholder="Hip Key, Mermaid, S-Wrap">
+    <div class="slot-header slot-insp"><div class="slot-icon-circle">✦</div><div><div class="slot-title">Instagram Inspiration</div><div class="slot-sub">Reel or reference the teacher was inspired by</div></div></div>
+    <div class="video-tip">📁 Google Drive: film → Drive app → Upload → Share → Copy link → paste below.</div>
+    <div id="fl-insp-videos"></div>
+    <button class="add-video-btn" onclick="addFlowVideo('fl-insp-videos')">+ Add inspiration video</button>
+    <div class="slot-header slot-teacher"><div class="slot-icon-circle">🎬</div><div><div class="slot-title">Teacher's Demo</div><div class="slot-sub">Her demonstration of the flow</div></div></div>
+    <div id="fl-teacher-videos"></div>
+    <button class="add-video-btn" onclick="addFlowVideo('fl-teacher-videos')">+ Add teacher video</button>
+    <div class="slot-header slot-attempt"><div class="slot-icon-circle">📹</div><div><div class="slot-title">My Attempt</div><div class="slot-sub">Your practice videos — add more over time</div></div></div>
+    <div id="fl-attempt-videos"></div>
+    <button class="add-video-btn" onclick="addFlowVideo('fl-attempt-videos')">+ Add my video</button>
+    <div class="mt-12"></div>
+    <button class="btn-primary btn-full" id="fl-save-btn" onclick="saveFlow()" style="padding:12px">Save Flow</button>
+    <div class="spacer-80"></div>
   </div>
-  <div class="ov-body">
-    <label class="field-label">Flow name</label>
-    <input type="text" id="fl-name" placeholder="e.g. Hip Key to Mermaid">
-
-    <label class="field-label">Date</label>
-    <input type="date" id="fl-date">
-
-    <label class="field-label">Notes &amp; cues</label>
-    <textarea id="fl-notes" rows="4" placeholder="Key cues, corrections, things to remember from class&#8230;"></textarea>
-
-    <!-- Inspiration slot -->
-    <div class="slot-header s-insp">
-      <div class="slot-icon">&#10022;</div>
-      <div>
-        <div class="slot-label">Instagram Inspiration</div>
-        <div class="slot-sub">Reel or reference the teacher was inspired by</div>
-      </div>
-    </div>
-    <div class="video-tip">&#128193; Google Drive: film &#8594; Drive &#8594; Share &#8594; Copy link &#8594; paste below.</div>
-    <div id="fl-insp-vids"></div>
-    <button class="add-btn" onclick="addVid('fl-insp-vids')">+ Add inspiration video</button>
-
-    <!-- Teacher slot -->
-    <div class="slot-header s-teach">
-      <div class="slot-icon">&#127916;</div>
-      <div>
-        <div class="slot-label">Teacher&#8217;s Demo</div>
-        <div class="slot-sub">Her demonstration of the flow</div>
-      </div>
-    </div>
-    <div id="fl-teach-vids"></div>
-    <button class="add-btn" onclick="addVid('fl-teach-vids')">+ Add teacher video</button>
-
-    <!-- Attempt slot -->
-    <div class="slot-header s-att">
-      <div class="slot-icon">&#128249;</div>
-      <div>
-        <div class="slot-label">My Attempt</div>
-        <div class="slot-sub">Your practice videos &#8212; add more over time</div>
-      </div>
-    </div>
-    <div id="fl-att-vids"></div>
-    <button class="add-btn" onclick="addVid('fl-att-vids')">+ Add my video</button>
-
-    <div style="margin-top:18px"></div>
-    <button class="btn-save" id="fl-save-btn" onclick="saveFlow()">Save Flow</button>
-    <div class="spacer"></div>
-  </div>
-</div>
-
-<!-- FLOW DETAIL OVERLAY -->
-<div id="flow-detail-ov" class="overlay">
-  <div id="flow-detail-content"></div>
 </div>
 
 <div id="toast" class="toast"></div>
 
 <script>
 /* ═══ SUPABASE ═══ */
-var _sb = supabase.createClient(
+const {createClient} = supabase;
+const db = createClient(
   'https://tywveppjkvxyungiocyw.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5d3ZlcHBqa3Z4eXVuZ2lvY3l3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNzE4ODgsImV4cCI6MjA5Mzg0Nzg4OH0.MVCuejf3-jpdhXgKVbRxf2vnHjBI0rCkOUPVrEcQr4Q'
 );
 
+/* ═══ MOVES ═══ */
+const MOVES=[
+  {id:'climb',name:'Basic Climb',level:'beginner',icon:'🧗',category:'Foundational',description:'The essential skill for all aerial work.',steps:['Stand between silks, grip at shoulder height thumbs up.','Step one foot onto the silk, wrap outside of foot.','Place second foot on top, pinch silk between feet.','Press through legs to rise, re-grip higher.','Repeat to ascend.'],nextMoves:['s-wrap','hip-key','foot-lock'],exitMoves:['controlled-descent'],conditioning:['Pull-up negatives','Dead hang holds']},
+  {id:'foot-lock',name:'Foot Lock',level:'beginner',icon:'🦶',category:'Foundational',description:'A secure foot configuration for transitions.',steps:['Bring one silk across top of foot.','Step same foot down, catching silk under arch.','Pinch silk securely.','Test weight gradually.','Ankle relaxed, grip firm.'],nextMoves:['climb','mermaid'],exitMoves:['controlled-descent'],conditioning:['Calf raises','Ankle mobility']},
+  {id:'s-wrap',name:'S-Wrap',level:'beginner',icon:'〰️',category:'Wraps',description:'One of the first inversions.',steps:['Hold both silks, step one fabric behind hip.','Reach same-side arm through to grab silk.','Tuck head, roll hips up.','Extend legs toward ceiling.','Lower with control, unwrap in reverse.'],nextMoves:['hip-key','star','mermaid'],exitMoves:['forward-roll-out','controlled-descent'],conditioning:['Hollow body holds','Pike stretches']},
+  {id:'hip-key',name:'Hip Key',level:'beginner',icon:'🔑',category:'Locks',description:'A versatile hip-lock opening countless pathways.',steps:['Pass one silk across hip from front to back.','Hook silk in crease of hip joint.','Settle weight into the key.','Release hands to test balance.','Transition by releasing or tilting pelvis.'],nextMoves:['mermaid','scorpion','cross-back-straddle'],exitMoves:['caterpillar-walk-down','controlled-descent'],conditioning:['Hip flexor stretches','Lat strengthening']},
+  {id:'cross-back-straddle',name:'Cross Back Straddle',level:'intermediate',icon:'✕',category:'Inversions',description:'A foundational inverted straddle with multiple entries.',steps:['Entry 1 (Knee Tangle): Egg beater wraps → reach arm through → knee tangle → Flamenco grip → invert.','Entry 2 (Hip Key): Hip key → toss free silk over top leg → X above bum → egg beat and invert.','Entry 3 (Flamenco Grip): Practice on ground → squeeze feet → Flamenco grip → pull up → invert.','Exit: grab silk closest to back.'],nextMoves:['star','mermaid','scorpion'],exitMoves:['grab-back-silk-exit','hip-key'],conditioning:['Side leg kicks','Shoulder mobility']},
+  {id:'mermaid',name:'Mermaid',level:'intermediate',icon:'🧜',category:'Poses',description:'An elegant side-lying pose.',steps:['Begin in hip key.','Extend lower leg down, point toes.','Arch upper body back, reach top arm overhead.','Silk wraps around hip and thigh.','Find balance where silk holds you.'],nextMoves:['mermaid-spin','back-balance'],exitMoves:['hip-key','controlled-descent'],conditioning:['Side stretches','Back extension']},
+  {id:'star',name:'Star / Straddle',level:'intermediate',icon:'⭐',category:'Inversions',description:'An inverted straddle — radiant and striking.',steps:['From S-wrap or hip key, enter inversion.','Open both legs wide to the sides.','Silk supports through hips and lower back.','Arms extend to sides or overhead.','Fully invert, straddle, release upper body.'],nextMoves:['star-drop','twisted-star'],exitMoves:['pike-out','controlled-descent'],conditioning:['Straddle flexibility','Core stability']},
+  {id:'scorpion',name:'Scorpion',level:'intermediate',icon:'🦂',category:'Backbends',description:'Legs curving overhead — requires openness and trust.',steps:['Begin from secure hip key.','Allow upper body to drop back.','Bend both knees, draw heels toward head.','Silk wraps around hips and lower back.','Breathe through the back extension.'],nextMoves:['scorpion-drop','back-balance'],exitMoves:['tuck-out','hip-key'],conditioning:['Backbend stretches','Quad stretches']},
+  {id:'hip-key-drop',name:'Hip Key Drop',level:'intermediate',icon:'💫',category:'Drops',description:'A controlled fall from hip key.',steps:['Ensure proper hip key wrap verified.','Take both silks in hands.','Confirm drop will unravel correctly.','Release weight in controlled manner.','Keep body in set shape throughout.'],nextMoves:['pencil-drop','star-drop'],exitMoves:['land-and-stand'],conditioning:['Trust exercises']},
+  {id:'back-balance',name:'Back Balance',level:'advanced',icon:'🌙',category:'Balance',description:'A serene floating position.',steps:['Enter from hip key.','Shift weight back, lower spine meets silk.','Find exact sacrum support point.','Let legs float upward.','Breathe slowly — movement disrupts balance.'],nextMoves:['shooting-star'],exitMoves:['pike-up'],conditioning:['Core hollowing','Spinal flexibility']},
+];
+
+const DEFAULT_SEQS=[
+  {id:'ds1',name:'Opening Blossom',level:'beginner',moves:['Climb','Foot Lock','S-Wrap','Hip Key'],exit_move:'Controlled Descent',notes:'Gentle warm-up to find confidence at height.'},
+  {id:'ds2',name:'The Mermaid Flow',level:'intermediate',moves:['Climb','Hip Key','Mermaid','Drop'],exit_move:'Seated Landing',notes:'Fluid and feminine — each transition like water.'},
+  {id:'ds3',name:'Star & Sky',level:'intermediate',moves:['Climb','S-Wrap','Star','Scorpion','Back Balance'],exit_move:'Pike Out',notes:'Three dramatic poses — hold each for 4 counts.'},
+];
+
 /* ═══ STATE ═══ */
-var CU = null;
-var _flows = [];
-var _editingFlowId = null;
-var _vc = 0;
+let CU=null,CP=null;
+let _filter='all',_seqLvl='beginner',_vsort='date';
+let _adv={move:MOVES[0],history:[]};
+let _mastered=[],_seqs=[],_insps=[],_accts=[],_students=[],_classes=[],_lessons=[],_flows=[];
+let _llStudentId=null,_bestAdded=false,_editingFlowId=null;
+let _vc=0;
 
 /* ═══ HELPERS ═══ */
-function fmtDate(d) {
-  if (!d) return '';
-  try {
-    return new Date(d + 'T00:00:00').toLocaleDateString('en-AU', {day: 'numeric', month: 'short', year: 'numeric'});
-  } catch (e) { return d; }
-}
-
-function toast(m) {
-  var t = document.getElementById('toast');
-  t.textContent = m;
-  t.classList.add('show');
-  setTimeout(function () { t.classList.remove('show'); }, 2500);
-}
-
-function openOv(id) { document.getElementById(id).classList.add('open'); }
-function closeOv(id) { document.getElementById(id).classList.remove('open'); }
-function showLoading() { document.getElementById('loading-screen').classList.remove('hidden'); }
-function hideLoading() { document.getElementById('loading-screen').classList.add('hidden'); }
+function fmtId(s){return s.replace(/-/g,' ').replace(/\b\w/g,c=>c.toUpperCase());}
+function fmtDate(d){if(!d)return '';try{return new Date(d+'T00:00:00').toLocaleDateString('en-AU',{day:'numeric',month:'short',year:'numeric'});}catch(e){return d;}}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function openOv(id){document.getElementById(id).classList.add('open');}
+function closeOv(id){stopAllVideos();document.getElementById(id).classList.remove('open');}
+function showLoading(){document.getElementById('loading-screen').classList.remove('hidden');}
+function hideLoading(){document.getElementById('loading-screen').classList.add('hidden');}
 
 /* ═══ VIDEO ═══ */
-function vidCard(url, title) {
-  if (!url) return '';
-  var label = title || 'Watch video';
-  var short = url.length > 52 ? url.slice(0, 52) + '…' : url;
-  return '<a href="' + url + '" target="_blank" rel="noopener" class="watch-card">'
-    + '<div class="wc-info">'
-    + '<div class="wc-title">' + label + '</div>'
-    + '<div class="wc-url">' + short + '</div>'
-    + '</div>'
-    + '<div class="wc-btn">Watch &#8594;</div>'
-    + '</a>';
+function vidEmbed(url){
+  if(!url)return null;
+  const yt=url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
+  if(yt)return{type:'yt',src:`https://www.youtube.com/embed/${yt[1]}`};
+  const gd=url.match(/drive\.google\.com\/file\/d\/([^/]+)/);
+  if(gd)return{type:'gd',src:`https://drive.google.com/file/d/${gd[1]}/preview`};
+  return{type:'link',url};
 }
-
-function collectVids(cid) {
-  var vids = [];
-  var container = document.getElementById(cid);
-  if (!container) return vids;
-  container.querySelectorAll('.video-entry').forEach(function (w) {
-    var t = '', u = '';
-    w.querySelectorAll('input').forEach(function (inp) {
-      if (inp.type === 'text') t = inp.value.trim();
-      if (inp.type === 'url') u = inp.value.trim();
-    });
-    if (u) vids.push({ title: t, url: u });
+function vidPreview(url,title){
+  if(!url)return '';
+  const e=vidEmbed(url);if(!e)return '';
+  if(e.type==='yt'||e.type==='gd'){
+    // 9:16 portrait container — Google Drive serves iPhone video at native ratio
+    return`<div class="vid-wrap" style="width:100%;border-radius:10px;overflow:hidden;background:#000;aspect-ratio:9/16;position:relative;">
+      <iframe src="${e.src}" allowfullscreen allow="autoplay" loading="lazy"
+        style="position:absolute;top:0;left:0;width:100%;height:100%;border:none;pointer-events:auto;">
+      </iframe>
+    </div>`;
+  }
+  const isInsta=url.includes('instagram.com');
+  const isTikTok=url.includes('tiktok.com');
+  const platform=isInsta?'Instagram':isTikTok?'TikTok':'Video';
+  const icon=isInsta?`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="24" height="24" rx="6" fill="url(#ig)"/><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7zm0 5.75A2.25 2.25 0 1 1 12 9.75a2.25 2.25 0 0 1 0 4.5zM16.5 8.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0z" fill="white"/><path d="M12 5c-1.9 0-2.14.01-2.89.04-.74.03-1.25.15-1.7.32a3.4 3.4 0 0 0-1.23.8 3.4 3.4 0 0 0-.8 1.23c-.17.45-.29.96-.32 1.7C5.01 9.86 5 10.1 5 12s.01 2.14.04 2.89c.03.74.15 1.25.32 1.7.18.46.42.85.8 1.23.38.38.77.62 1.23.8.45.17.96.29 1.7.32C9.86 18.99 10.1 19 12 19s2.14-.01 2.89-.04c.74-.03 1.25-.15 1.7-.32a3.4 3.4 0 0 0 1.23-.8 3.4 3.4 0 0 0 .8-1.23c.17-.45.29-.96.32-1.7.03-.75.04-1 .04-2.89s-.01-2.14-.04-2.89c-.03-.74-.15-1.25-.32-1.7a3.4 3.4 0 0 0-.8-1.23 3.4 3.4 0 0 0-1.23-.8c-.45-.17-.96-.29-1.7-.32C14.14 5.01 13.9 5 12 5zm0 1.26c1.87 0 2.09.01 2.83.04.68.03 1.05.14 1.3.24.32.13.56.28.8.52.24.24.4.48.52.8.1.25.21.62.24 1.3.03.74.04.96.04 2.83s-.01 2.09-.04 2.83c-.03.68-.14 1.05-.24 1.3a2.17 2.17 0 0 1-.52.8c-.24.24-.48.4-.8.52-.25.1-.62.21-1.3.24-.74.03-.96.04-2.83.04s-2.09-.01-2.83-.04c-.68-.03-1.05-.14-1.3-.24a2.17 2.17 0 0 1-.8-.52 2.17 2.17 0 0 1-.52-.8c-.1-.25-.21-.62-.24-1.3C6.27 14.09 6.26 13.87 6.26 12s.01-2.09.04-2.83c.03-.68.14-1.05.24-1.3.13-.32.28-.56.52-.8.24-.24.48-.4.8-.52.25-.1.62-.21 1.3-.24.74-.03.96-.04 2.83-.04z" fill="white"/><defs><linearGradient id="ig" x1="0" y1="24" x2="24" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#F58529"/><stop offset="0.5" stop-color="#DD2A7B"/><stop offset="1" stop-color="#8134AF"/></linearGradient></defs></svg>`:'🎬';
+  return`<a href="${url}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:10px;padding:14px 16px;text-decoration:none;margin-top:6px;border:1px solid rgba(255,255,255,0.08);">
+    <div style="flex-shrink:0">${icon}</div>
+    <div style="flex:1;min-width:0">
+      <div style="font-size:13px;font-weight:600;color:white;margin-bottom:2px">${title||platform+' Reel'}</div>
+      <div style="font-size:10px;color:rgba(255,255,255,0.45);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${url.slice(0,40)}…</div>
+    </div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.4);flex-shrink:0">Open ↗</div>
+  </a>`;
+}
+function addVideoField(cid){
+  _vc++;const n=_vc,id=`v${n}`;
+  const div=document.createElement('div');div.className='video-url-entry';div.id=`${id}-wrap`;
+  div.innerHTML=`<button class="remove-entry" onclick="document.getElementById('${id}-wrap').remove()">×</button>
+    <label class="field-label">Title / label</label><input type="text" id="${id}-t" placeholder="e.g. Hip key entry demo" style="margin-bottom:6px">
+    <label class="field-label">Video URL</label>
+    <input type="url" id="${id}-u" placeholder="Paste Google Drive, YouTube, or shareable URL..." oninput="document.getElementById('${id}-p').innerHTML=vidPreview(this.value,document.getElementById('${id}-t').value)">
+    <div id="${id}-p"></div>`;
+  document.getElementById(cid).appendChild(div);
+}
+function addBestVideo(){
+  if(_bestAdded)return;_bestAdded=true;
+  document.getElementById('ll-best-add-btn').style.display='none';
+  const div=document.createElement('div');div.className='video-url-entry';
+  div.innerHTML=`<button class="remove-entry" onclick="this.parentElement.remove();_bestAdded=false;document.getElementById('ll-best-add-btn').style.display='block'">×</button>
+    <label class="field-label">Best of day — Video URL</label>
+    <input type="url" id="ll-best-url" placeholder="Paste Google Drive, YouTube, or shareable URL..." oninput="document.getElementById('ll-best-p').innerHTML=vidPreview(this.value,'Best of day')">
+    <div id="ll-best-p"></div>`;
+  document.getElementById('ll-best-video').appendChild(div);
+}
+function collectVids(cid){
+  const vids=[];
+  document.getElementById(cid).querySelectorAll('.video-url-entry').forEach(w=>{
+    let t='',u='';
+    w.querySelectorAll('input').forEach(i=>{if(i.type==='text')t=i.value.trim();if(i.type==='url')u=i.value.trim();});
+    if(u)vids.push({title:t,url:u});
   });
   return vids;
 }
-
-function addVid(cid) {
-  _vc++;
-  var n = _vc;
-  var vid = 'v' + n;
-  var div = document.createElement('div');
-  div.className = 'video-entry';
-  div.id = vid + '-w';
-  div.innerHTML = '<button class="remove-entry" onclick="document.getElementById(\'' + vid + '-w\').remove()">&#215;</button>'
-    + '<label class="field-label">Label (optional)</label>'
-    + '<input type="text" id="' + vid + '-t" placeholder="e.g. Right foot entry">'
-    + '<label class="field-label">Video URL</label>'
-    + '<input type="url" id="' + vid + '-u" placeholder="Paste Google Drive link or any video URL">';
-  document.getElementById(cid).appendChild(div);
+function videoChips(vids,tag,cls){
+  return(vids||[]).filter(v=>v.url).map(v=>`<a class="lesson-video-chip" href="${v.url}" target="_blank">🎬 <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${v.title||tag}</span><span class="badge ${cls}">${tag}</span></a>`).join('');
 }
 
 /* ═══ AUTH ═══ */
-async function signInWithGoogle() {
-  var errEl = document.getElementById('auth-error');
-  errEl.textContent = '';
-  var result = await _sb.auth.signInWithOAuth({
-    provider: 'google',
-    options: { redirectTo: window.location.origin, queryParams: { prompt: 'select_account' } }
+async function signInWithGoogle(){
+  const errEl=document.getElementById('auth-error');errEl.textContent='';
+  const{error}=await db.auth.signInWithOAuth({
+    provider:'google',
+    options:{redirectTo:window.location.origin,queryParams:{prompt:'select_account'}}
   });
-  if (result.error) errEl.textContent = result.error.message;
+  if(error)errEl.textContent=error.message;
 }
 
-async function doSignOut() {
-  await _sb.auth.signOut();
+async function doSignOut(){
+  await db.auth.signOut();
   location.reload();
 }
 
-async function ensureProfile(user) {
-  var r = await _sb.from('profiles').select('*').eq('id', user.id).single();
-  if (r.data) return r.data;
-  var name = (user.user_metadata && (user.user_metadata.full_name || user.user_metadata.name)) || user.email || 'User';
-  var r2 = await _sb.from('profiles').insert({ id: user.id, full_name: name, role: 'student' }).select().single();
-  return r2.data;
+async function ensureProfile(user){
+  const{data}=await db.from('profiles').select('*').eq('id',user.id).single();
+  if(data)return data;
+  const name=user.user_metadata?.full_name||user.user_metadata?.name||user.email||'User';
+  const{data:newP}=await db.from('profiles').insert({id:user.id,full_name:name,role:'teacher'}).select().single();
+  return newP;
 }
 
-async function initApp(user) {
-  CU = user;
+async function initApp(user){
+  CU=user;
   showLoading();
-  var profile = await ensureProfile(user);
+  CP=await ensureProfile(user);
+  if(!CP){hideLoading();return;}
   document.getElementById('auth-screen').classList.add('hidden');
-  document.getElementById('app-shell').style.display = 'flex';
-  if (profile) document.getElementById('user-chip').textContent = profile.full_name || '';
-  await loadFlows();
+  document.getElementById('app-shell').style.display='flex';
+  document.getElementById('user-chip').textContent=CP.full_name||'';
+  await loadAll();
   hideLoading();
+  setMode('student');
 }
 
 /* ═══ DATA ═══ */
-async function loadFlows() {
-  var r = await _sb.from('lessons')
-    .select('*,lesson_videos(*)')
-    .eq('student_id', CU.id)
-    .order('date', { ascending: false });
-  _flows = r.data || [];
-  renderFlows();
+async function loadAll(){
+  await Promise.all([
+    db.from('move_progress').select('move_id').eq('student_id',CU.id).eq('mastered',true).then(r=>{_mastered=(r.data||[]).map(x=>x.move_id);}),
+    db.from('sequences').select('*').eq('created_by',CU.id).order('created_at',{ascending:false}).then(r=>{_seqs=r.data||[];}),
+    db.from('inspirations').select('*').eq('created_by',CU.id).order('created_at',{ascending:false}).then(r=>{_insps=r.data||[];}),
+    db.from('insp_accounts').select('*').eq('created_by',CU.id).order('created_at',{ascending:false}).then(r=>{_accts=r.data||[];}).catch(()=>{_accts=[];}),
+    db.from('teacher_students').select('*,student:student_id(id,full_name)').eq('teacher_id',CU.id).then(r=>{_students=(r.data||[]).map(x=>({id:x.student_id,name:x.student?.full_name||'?',level:x.level,notes:x.notes}));}),
+    db.from('classes').select('*,class_students(student_id)').eq('teacher_id',CU.id).order('date',{ascending:false}).then(r=>{_classes=r.data||[];}),
+    db.from('lessons').select('*,lesson_videos(*)').eq('teacher_id',CU.id).order('date',{ascending:false}).then(r=>{_lessons=r.data||[];}),
+    db.from('lessons').select('*,lesson_videos(*)').eq('teacher_id',CU.id).eq('student_id',CU.id).order('date',{ascending:false}).then(r=>{_flows=r.data||[];}),
+  ]);
 }
 
-/* ═══ RENDER ═══ */
-function renderFlows() {
-  var el = document.getElementById('flows-list');
-  if (!el) return;
-  if (!_flows.length) {
-    el.innerHTML = '<div class="empty-state">No flows yet.<br>Tap + to log your first.</div>';
-    return;
-  }
-  var html = '';
-  for (var i = 0; i < _flows.length; i++) {
-    html += flowCard(_flows[i]);
-  }
-  html += '<div class="spacer"></div>';
-  el.innerHTML = html;
-}
-
-function flowCard(f) {
-  var vids = f.lesson_videos || [];
-  var nI = 0, nT = 0, nA = 0;
-  for (var i = 0; i < vids.length; i++) {
-    if (vids[i].type === 'inspiration') nI++;
-    else if (vids[i].type === 'teacher_demo') nT++;
-    else if (vids[i].type === 'attempt') nA++;
-  }
-  var total = nI + nT + nA;
-  var metaStr = fmtDate(f.date);
-  if (total) metaStr += ' · ' + total + ' video' + (total !== 1 ? 's' : '');
-  var chips = (nI ? '<span class="chip chip-i">✦ ' + nI + (nI > 1 ? ' reels' : ' reel') + '</span>' : '')
-    + (nT ? '<span class="chip chip-t">🎬 ' + nT + (nT > 1 ? ' demos' : ' demo') + '</span>' : '')
-    + (nA ? '<span class="chip chip-a">📹 ' + nA + (nA > 1 ? ' attempts' : ' attempt') + '</span>' : '');
-  return '<div class="flow-card" onclick="openFlowDetail(\'' + f.id + '\')">'
-    + '<div class="flow-card-head">'
-    + '<div>'
-    + '<div class="flow-name">' + (f.title || 'Untitled Flow') + '</div>'
-    + '<div class="flow-meta">' + metaStr + '</div>'
-    + '</div>'
-    + '<div class="arrow">&#8250;</div>'
-    + '</div>'
-    + (chips ? '<div class="flow-chips">' + chips + '</div>' : '')
-    + '</div>';
-}
-
-/* ═══ NEW / EDIT FLOW FORM ═══ */
-function openNewFlow() {
-  _editingFlowId = null;
-  document.getElementById('fl-heading').textContent = 'New Flow';
-  document.getElementById('fl-name').value = '';
-  document.getElementById('fl-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('fl-notes').value = '';
-  ['fl-insp-vids', 'fl-teach-vids', 'fl-att-vids'].forEach(function (cid) {
-    var el = document.getElementById(cid);
-    if (el) el.innerHTML = '';
+/* ═══ MODE / TAB ═══ */
+function stopAllVideos(){
+  document.querySelectorAll('iframe').forEach(f=>{
+    try{const s=f.src;f.src='';f.src=s;}catch(e){}
   });
-  var btn = document.getElementById('fl-save-btn');
-  btn.textContent = 'Save Flow';
-  btn.onclick = saveFlow;
-  _vc = 0;
-  openOv('flow-form-ov');
 }
 
-async function saveFlow() {
-  var name = document.getElementById('fl-name').value.trim();
-  if (!name) { toast('Add a flow name'); return; }
-  var date = document.getElementById('fl-date').value;
-  if (!date) { toast('Add a date'); return; }
-
-  var btn = document.getElementById('fl-save-btn');
-  btn.disabled = true;
-  btn.textContent = 'Saving…';
-
-  var notes = document.getElementById('fl-notes').value.trim();
-  var iV = collectVids('fl-insp-vids');
-  var tV = collectVids('fl-teach-vids');
-  var aV = collectVids('fl-att-vids');
-
-  if (_editingFlowId) {
-    await _sb.from('lessons')
-      .update({ title: name, date: date, notes: notes })
-      .eq('id', _editingFlowId);
-
-    var editRows = [];
-    for (var i = 0; i < iV.length; i++) editRows.push({ lesson_id: _editingFlowId, type: 'inspiration', title: iV[i].title, url: iV[i].url });
-    for (var i = 0; i < tV.length; i++) editRows.push({ lesson_id: _editingFlowId, type: 'teacher_demo', title: tV[i].title, url: tV[i].url });
-    for (var i = 0; i < aV.length; i++) editRows.push({ lesson_id: _editingFlowId, type: 'attempt', title: aV[i].title, url: aV[i].url });
-
-    if (editRows.length) {
-      var er = await _sb.from('lesson_videos').insert(editRows).select();
-      if (er.error) toast('Videos not saved: ' + er.error.message);
-      var fl = _flows.find(function (x) { return x.id === _editingFlowId; });
-      if (fl && er.data) fl.lesson_videos = (fl.lesson_videos || []).concat(er.data);
-    }
-    var fl = _flows.find(function (x) { return x.id === _editingFlowId; });
-    if (fl) { fl.title = name; fl.date = date; fl.notes = notes; }
-
-    btn.disabled = false;
-    btn.textContent = 'Save Flow';
-    closeOv('flow-form-ov');
-    renderFlows();
-    toast('Flow updated ✶');
-    return;
-  }
-
-  var ins = await _sb.from('lessons').insert({
-    teacher_id: CU.id,
-    student_id: CU.id,
-    date: date,
-    title: name,
-    notes: notes
-  }).select().single();
-
-  if (ins.error) {
-    btn.disabled = false;
-    btn.textContent = 'Save Flow';
-    toast('Error: ' + ins.error.message);
-    return;
-  }
-
-  var lesson = ins.data;
-  var newRows = [];
-  for (var i = 0; i < iV.length; i++) newRows.push({ lesson_id: lesson.id, type: 'inspiration', title: iV[i].title, url: iV[i].url });
-  for (var i = 0; i < tV.length; i++) newRows.push({ lesson_id: lesson.id, type: 'teacher_demo', title: tV[i].title, url: tV[i].url });
-  for (var i = 0; i < aV.length; i++) newRows.push({ lesson_id: lesson.id, type: 'attempt', title: aV[i].title, url: aV[i].url });
-
-  if (newRows.length) {
-    var vr = await _sb.from('lesson_videos').insert(newRows).select();
-    if (vr.error) toast('Videos not saved: ' + vr.error.message);
-    lesson.lesson_videos = vr.data || [];
+function setMode(m){
+  stopAllVideos();
+  document.getElementById('mode-student').classList.toggle('active',m==='student');
+  document.getElementById('mode-teacher').classList.toggle('active',m==='teacher');
+  document.getElementById('student-tabs').style.display=m==='student'?'flex':'none';
+  document.getElementById('teacher-tabs').style.display=m==='teacher'?'flex':'none';
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+  if(m==='student'){
+    const el=document.getElementById('screen-moves');el.style.display='block';el.classList.add('active');
+    document.querySelectorAll('#student-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+    renderMoves();
   } else {
-    lesson.lesson_videos = [];
+    const el=document.getElementById('screen-t-classes');el.style.display='block';el.classList.add('active');
+    document.querySelectorAll('#teacher-tabs .tab-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+    renderClasses();
   }
-
-  _flows.unshift(lesson);
-  btn.disabled = false;
-  btn.textContent = 'Save Flow';
-  closeOv('flow-form-ov');
-  renderFlows();
-  toast('Flow saved ✶');
+}
+function showTab(tab,btn,bar){
+  stopAllVideos();
+  const isT=tab.startsWith('t-');
+  document.querySelectorAll('.screen').forEach(s=>{const t=s.id.replace('screen-','');if(t.startsWith('t-')===isT){s.classList.remove('active');s.style.display='none';}});
+  document.querySelectorAll('#'+bar+' .tab-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  const el=document.getElementById('screen-'+tab);el.style.display='block';el.classList.add('active');
+  if(tab==='adventure')renderAdv();
+  if(tab==='sequences')renderSeqs();
+  if(tab==='inspiration')renderInsps();
+  if(tab==='flows')renderFlows();
+  if(tab==='t-classes')renderClasses();
+  if(tab==='t-students')renderStudents();
 }
 
-/* ═══ FLOW DETAIL ═══ */
-function openFlowDetail(id) {
-  var f = null;
-  for (var i = 0; i < _flows.length; i++) {
-    if (_flows[i].id === id) { f = _flows[i]; break; }
-  }
-  if (!f) return;
+/* ═══ MOVES ═══ */
+function filterMoves(l,btn){_filter=l;document.querySelectorAll('#screen-moves .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderMoves();}
+function renderMoves(){
+  const list=_filter==='all'?MOVES:MOVES.filter(m=>m.level===_filter);
+  document.getElementById('moves-list').innerHTML=list.map(m=>`
+    <div class="move-card" onclick="openMoveDetail('${m.id}')">
+      <div class="move-card-inner">
+        <div class="move-icon">${m.icon}</div>
+        <div class="move-info"><div class="move-name">${m.name}</div><div class="move-meta"><span class="badge badge-${m.level}">${m.level}</span> · ${m.category}</div></div>
+        <div class="move-check ${_mastered.includes(m.id)?'done':''}" onclick="toggleMastered(event,'${m.id}')">${_mastered.includes(m.id)?'✓':''}</div>
+      </div>
+    </div>`).join('');
+}
+async function toggleMastered(e,id){
+  e.stopPropagation();
+  if(_mastered.includes(id)){await db.from('move_progress').delete().eq('student_id',CU.id).eq('move_id',id);_mastered=_mastered.filter(x=>x!==id);}
+  else{await db.from('move_progress').upsert({student_id:CU.id,move_id:id,mastered:true,updated_at:new Date().toISOString()});_mastered.push(id);toast('Mastered! ✦');}
+  renderMoves();
+}
+function openMoveDetail(id){
+  const m=MOVES.find(x=>x.id===id);if(!m)return;
+  const src=_lessons.concat(_flows);
+  const allV=[];
+  src.forEach(l=>{
+    const mn=(l.moves||[]).map(x=>x.toLowerCase());
+    const hit=mn.some(n=>n.includes(m.name.split(' ')[0].toLowerCase()));
+    (l.lesson_videos||[]).filter(v=>(v.type==='teacher'||v.type==='teacher_demo')&&v.url).forEach(v=>allV.push({title:v.title,url:v.url,date:l.date,tag:'Teacher',tagClass:'tag-teacher',lessonTitle:l.title}));
+    if(hit)(l.lesson_videos||[]).filter(v=>(v.type==='student'||v.type==='attempt')&&v.url).forEach(v=>allV.push({title:v.title,url:v.url,date:l.date,tag:'My Video',tagClass:'tag-student',lessonTitle:l.title}));
+    if(hit)(l.lesson_videos||[]).filter(v=>v.type==='inspiration'&&v.url).forEach(v=>allV.push({title:v.title,url:v.url,date:l.date,tag:'Inspiration',tagClass:'tag-teacher',lessonTitle:l.title}));
+    if(hit&&l.best_video_url)allV.push({title:'Best of day',url:l.best_video_url,date:l.date,tag:'Best ✦',tagClass:'tag-best',lessonTitle:l.title});
+  });
+  const stepsH=m.steps.map((s,i)=>`<li class="step-item"><div class="step-num">${i+1}</div><div class="step-text">${s}</div></li>`).join('');
+  const nextH=m.nextMoves.map(n=>`<button class="next-move-btn" onclick="openMoveDetail('${n}')"><div><div class="next-move-name">${fmtId(n)}</div><div class="next-move-hint">Explore this path</div></div><span style="color:var(--rose)">→</span></button>`).join('');
+  const exitH=m.exitMoves.map(e=>`<button class="next-move-btn" style="border-color:rgba(200,169,126,0.3)"><div><div class="next-move-name" style="color:var(--gold)">${fmtId(e)}</div><div class="next-move-hint">Exit strategy</div></div><span style="color:var(--gold)">↙</span></button>`).join('');
+  const galH=allV.length?`<div class="sec">Video History (${allV.length})</div>
+    <div class="sort-row"><span class="sort-label">Sort</span>
+      <button class="sort-btn ${_vsort==='date'?'active':''}" onclick="_vsort='date';openMoveDetail('${id}')">Date</button>
+      <button class="sort-btn ${_vsort==='title'?'active':''}" onclick="_vsort='title';openMoveDetail('${id}')">Title</button>
+    </div>
+    <div class="video-gallery">${[...allV].sort((a,b)=>_vsort==='title'?(a.title||'').localeCompare(b.title||''):(b.date||'').localeCompare(a.date||'')).map(v=>`<div class="video-entry"><div class="video-entry-head"><span class="video-entry-date">${fmtDate(v.date)}</span><span class="video-entry-tag ${v.tagClass}">${v.tag}</span></div><div class="video-entry-body">${v.title?`<div class="video-entry-title">${v.title}</div>`:''}${v.lessonTitle?`<div class="video-entry-sub">${v.lessonTitle}</div>`:''}${vidPreview(v.url,v.title)}</div></div>`).join('')}</div>`:'';
+  document.getElementById('move-detail-content').innerHTML=`
+    <div class="overlay-header"><button class="back-btn" onclick="closeOv('move-detail-ov')">← Back</button>
+      <div style="display:flex;align-items:center;gap:12px"><span style="font-size:28px">${m.icon}</span><div><div class="overlay-title">${m.name}</div><span class="badge badge-${m.level}">${m.level}</span><span style="margin-left:6px;font-size:10px;color:rgba(247,242,236,0.45)">${m.category}</span></div></div>
+    </div>
+    <div class="overlay-body">
+      <p style="font-size:13px;line-height:1.6;color:var(--mauve);margin-bottom:16px">${m.description}</p>
+      <div class="sec" style="margin-top:0">Technique</div><ul class="steps-list">${stepsH}</ul>
+      <div class="sec">Next Moves →</div>${nextH}
+      <div class="sec">Exits ↙</div>${exitH}
+      <div class="sec">Conditioning</div>
+      <div class="card"><div class="card-body" style="padding:8px 14px">${m.conditioning.map(c=>`<div style="padding:5px 0;font-size:12.5px;border-bottom:1px solid var(--border);color:var(--mauve)">${c}</div>`).join('')}</div></div>
+      ${galH}<div class="spacer-80"></div>
+    </div>`;
+  openOv('move-detail-ov');
+}
 
-  var vids = f.lesson_videos || [];
-  var iV = [], tV = [], aV = [];
-  for (var i = 0; i < vids.length; i++) {
-    if (vids[i].type === 'inspiration') iV.push(vids[i]);
-    else if (vids[i].type === 'teacher_demo') tV.push(vids[i]);
-    else if (vids[i].type === 'attempt') aV.push(vids[i]);
-  }
+/* ═══ ADVENTURE ═══ */
+function renderAdv(){
+  const m=_adv.move;
+  const opts=m.nextMoves.slice(0,3).map(n=>{const f=MOVES.find(x=>x.id===n);return{id:n,name:fmtId(n),found:f};});
+  const crumbs=_adv.history.length?`<div class="adv-crumbs">${_adv.history.map(h=>`<span class="adv-crumb">${h}</span>`).join('<span style="color:rgba(200,169,126,0.3);padding:0 2px">→</span>')}</div>`:'';
+  document.getElementById('adventure-container').innerHTML=`
+    <div class="adv-card">
+      <div class="adv-label">Currently in</div><div class="adv-title">${m.icon} ${m.name}</div>${crumbs}
+      <p style="font-size:9.5px;color:rgba(200,169,126,0.55);letter-spacing:0.5px;margin-bottom:12px;text-transform:uppercase">Where do you flow next?</p>
+      ${opts.map(o=>`<button class="adv-choice" onclick="advGo('${o.id}')"><div class="adv-choice-name">${o.name}</div><div class="adv-choice-hint">${o.found?o.found.category+' · '+o.found.level:'Explore'}</div></button>`).join('')}
+      <button class="adv-choice" style="background:rgba(200,169,126,0.07);border-color:rgba(200,169,126,0.13);margin-top:3px" onclick="toast('Exits: ${m.exitMoves.map(fmtId).join(', ')}')">
+        <div class="adv-choice-name" style="color:var(--gold)">↙ Exit options</div><div class="adv-choice-hint">${m.exitMoves.map(fmtId).join(' · ')}</div>
+      </button>
+    </div>
+    <div class="card"><div class="card-body"><div class="sec" style="margin-top:0">About</div><p style="font-size:13px;line-height:1.6;color:var(--mauve)">${m.description}</p>
+      <button style="margin-top:10px;background:none;border:1px solid var(--border-med);border-radius:20px;padding:6px 14px;font-size:11px;color:var(--deep-rose);cursor:pointer;font-family:var(--sans)" onclick="openMoveDetail('${m.id}')">Full technique →</button>
+    </div></div>
+    <button style="background:none;border:none;color:var(--mauve);font-size:11px;cursor:pointer;padding:8px 0;font-family:var(--sans)" onclick="advReset()">↺ New adventure</button>`;
+}
+function advGo(id){_adv.history.push(_adv.move.name);if(_adv.history.length>4)_adv.history.shift();const f=MOVES.find(m=>m.id===id);if(f){_adv.move=f;renderAdv();}else toast('Path coming soon!');}
+function advReset(){_adv={move:MOVES[Math.floor(Math.random()*4)],history:[]};renderAdv();}
 
-  function slotHtml(label, icon, cls, list, key) {
-    var items = '';
-    for (var j = 0; j < list.length; j++) {
-      var v = list[j];
-      items += '<div style="margin-bottom:8px">'
-        + vidCard(v.url, v.title || label)
-        + '<button class="rm-video-btn" onclick="deleteFlowVideo(\'' + id + '\',\'' + v.id + '\')">&#215; Remove</button>'
-        + '</div>';
+/* ═══ SEQUENCES ═══ */
+function setSeqLvl(l,btn){_seqLvl=l;document.querySelectorAll('#add-seq-ov .filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function renderSeqs(){
+  let h='<div class="sec" style="margin-top:0">Curated</div>'+DEFAULT_SEQS.map(s=>seqCard(s,false)).join('');
+  if(_seqs.length)h+='<div class="sec">Mine</div>'+_seqs.map(s=>seqCard(s,true)).join('');
+  h+='<div class="spacer-80"></div>';
+  document.getElementById('sequences-list').innerHTML=h;
+}
+function seqCard(s,isUser){
+  const f=(s.moves||[]).map((m,i)=>`<span class="flow-pill">${m}</span>${i<s.moves.length-1?'<span class="flow-arrow">→</span>':''}`).join('');
+  return`<div class="seq-card"><div class="seq-head"><div><div class="seq-name">${s.name}</div><span class="badge badge-${s.level}">${s.level}</span></div>${isUser?`<button onclick="delSeq('${s.id}')" style="background:none;border:none;color:var(--rose);cursor:pointer;font-size:18px">×</button>`:''}</div><div class="seq-flow">${f}<span style="margin-left:5px;font-size:9.5px;color:var(--gold)">↙ ${s.exit_move||'Descent'}</span></div>${s.notes?`<div class="seq-note-text">"${s.notes}"</div>`:''}</div>`;
+}
+async function saveSeq(){
+  const name=document.getElementById('sq-name').value.trim(),movesRaw=document.getElementById('sq-moves').value.trim();
+  if(!name||!movesRaw){toast('Add name and moves');return;}
+  const{data}=await db.from('sequences').insert({created_by:CU.id,name,level:_seqLvl,moves:movesRaw.split(',').map(m=>m.trim()).filter(Boolean),exit_move:document.getElementById('sq-exit').value.trim()||'Descent',notes:document.getElementById('sq-notes').value.trim()}).select().single();
+  if(data){_seqs.unshift(data);closeOv('add-seq-ov');renderSeqs();toast('Sequence saved ✦');}
+  ['sq-name','sq-moves','sq-exit','sq-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+}
+async function delSeq(id){await db.from('sequences').delete().eq('id',id);_seqs=_seqs.filter(s=>s.id!==id);renderSeqs();toast('Removed');}
+
+/* ═══ INSPIRATION ═══ */
+const _reelMovesSel=new Set();
+function toggleReelMove(btn,name){
+  if(_reelMovesSel.has(name)){_reelMovesSel.delete(name);btn.classList.remove('active');}
+  else{_reelMovesSel.add(name);btn.classList.add('active');}
+}
+
+function renderInsps(){
+  // Build moves checklist if empty
+  const wrap=document.getElementById('reel-moves-wrap');
+  if(wrap&&!wrap.children.length){
+    MOVES.forEach(m=>{
+      const b=document.createElement('button');
+      b.className='filter-btn';
+      b.textContent=m.name;
+      b.addEventListener('click',function(){toggleReelMove(this,m.name);});
+      wrap.appendChild(b);
+    });
+  }
+  renderAccounts();
+  const el=document.getElementById('inspiration-list');
+  if(!_insps.length){el.innerHTML='<p class="empty-state">No reels saved yet.</p>';return;}
+  // Only show reels (not accounts)
+  const reels=_insps.filter(r=>r.parsed_meta?.type!=='account');
+  if(!reels.length){el.innerHTML='<p class="empty-state">No reels saved yet.</p>';return;}
+  // Use a lookup map for safe onclick references
+  window._inspReels=reels;
+  el.innerHTML=reels.map((r,ri)=>`<div class="insp-card">
+      <div style="width:28px;height:28px;border-radius:6px;background:var(--surface2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0">${r.parsed_moves&&r.parsed_moves.length?'✦':'🔗'}</div>
+      <div class="insp-info" onclick="openReelUrl(${ri})" style="cursor:pointer;flex:1;min-width:0">
+        <div class="insp-title">${r.title||'Untitled'}</div>
+        <div class="insp-parsed-line">${r.parsed_moves&&r.parsed_moves.length?r.parsed_moves.slice(0,4).map(p=>p.name).join(' · '):r.notes||'No moves tagged'}</div>
+      </div>
+      <div class="insp-actions" style="flex-shrink:0;display:flex;gap:4px;align-items:center">
+        ${r.parsed_moves&&r.parsed_moves.length||r.notes?`<button class="insp-action" onclick="openInspDetail(${ri})">Details</button>`:''}
+        <button onclick="deleteReel(${ri})" style="background:none;border:none;color:var(--mauve);cursor:pointer;font-size:18px;padding:4px 6px;line-height:1">×</button>
+      </div>
+    </div>`).join('');
+}
+async function saveReel(){
+  const url=document.getElementById('reel-url').value.trim();
+  if(!url){toast('Add a URL');return;}
+  const title=document.getElementById('reel-title').value.trim()||'Untitled';
+  const userNotes=document.getElementById('reel-notes').value.trim();
+  const moveNames=[..._reelMovesSel];
+  // Store moves in caption field (always existed) and parsed_moves if available
+  const notesWithMoves=moveNames.length?(userNotes?userNotes+'\nMoves: '+moveNames.join(', '):'Moves: '+moveNames.join(', ')):userNotes;
+  const row={created_by:CU.id,url,title,notes:userNotes,caption:notesWithMoves};
+  // Try to add parsed_moves and parsed_meta
+  try{
+    row.parsed_moves=moveNames.map(n=>({name:n}));
+    row.parsed_meta={type:'reel',moves:moveNames};
+  }catch(e){}
+  const{data,error}=await db.from('inspirations').insert(row).select().single();
+  if(error){
+    // Retry without parsed columns in case they don't exist
+    delete row.parsed_moves;delete row.parsed_meta;
+    const{data:d2,error:e2}=await db.from('inspirations').insert(row).select().single();
+    if(e2){toast('Error: '+e2.message);return;}
+    if(d2){
+      // Attach moves locally so they show
+      d2.parsed_moves=moveNames.map(n=>({name:n}));
+      d2.parsed_meta={type:'reel',moves:moveNames};
+      _insps.unshift(d2);
     }
-    var sub = list.length ? list.length + ' video' + (list.length > 1 ? 's' : '') : 'Nothing added yet';
-    return '<div class="slot-header ' + cls + '">'
-      + '<div class="slot-icon">' + icon + '</div>'
-      + '<div><div class="slot-label">' + label + '</div><div class="slot-sub">' + sub + '</div></div>'
-      + '</div>'
-      + items
-      + '<div id="fd-' + key + '-' + id + '"></div>'
-      + '<button class="add-btn" onclick="addVid(\'fd-' + key + '-' + id + '\')">+ Add video</button>';
+  } else {
+    _insps.unshift(data);
   }
+  clearReelForm();
+  renderInsps();
+  toast('Reel saved ✦');
+}
+function clearReelForm(){
+  ['reel-url','reel-title','reel-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  _reelMovesSel.clear();
+  document.querySelectorAll('#reel-moves-wrap .filter-btn').forEach(b=>b.classList.remove('active'));
+}
 
-  var saveBtn = '<button class="btn-gold" onclick="saveExtra(\'' + id + '\',\'fd-i-' + id + '\',\'fd-t-' + id + '\',\'fd-a-' + id + '\')">Save new videos</button>';
+/* ═══ FLOWS ═══ */
+function renderFlows(){
+  const list=document.getElementById('flows-list');if(!list)return;
+  if(!_flows.length){list.innerHTML='<p class="empty-state" style="padding-top:16px">No flows yet. Tap + to log your first.</p>';return;}
+  list.innerHTML=_flows.map(f=>flowCard(f)).join('')+'<div class="spacer-80"></div>';
+}
 
-  var html = '<div class="ov-head">'
-    + '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">'
-    + '<button class="back-btn" style="margin-bottom:0" onclick="closeOv(\'flow-detail-ov\')">&#8592; Back</button>'
-    + '<div style="display:flex;gap:8px">'
-    + '<button onclick="editFlow(\'' + id + '\')" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);color:var(--parchment);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:var(--sans)">Edit</button>'
-    + '<button onclick="deleteFlow(\'' + id + '\')" style="background:rgba(201,148,138,0.2);border:1px solid rgba(201,148,138,0.3);color:#ffb3a7;padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:var(--sans)">Delete</button>'
-    + '</div></div>'
-    + '<div class="ov-title">' + (f.title || 'Untitled Flow') + '</div>'
-    + '<div style="margin-top:4px;font-size:10px;color:rgba(247,242,236,0.4)">' + fmtDate(f.date) + '</div>'
-    + '</div>'
-    + '<div class="ov-body">'
-    + (f.notes ? '<div class="notes-block"><div class="notes-label">Notes</div><div class="notes-text">' + f.notes + '</div></div>' : '')
-    + slotHtml('Instagram Inspiration', '&#10022;', 's-insp', iV, 'i')
-    + slotHtml('Teacher\'s Demo', '&#127916;', 's-teach', tV, 't')
-    + slotHtml('My Attempt', '&#128249;', 's-att', aV, 'a')
-    + '<div style="margin-top:18px"></div>'
-    + saveBtn
-    + '<div class="spacer"></div>'
-    + '</div>';
+function flowCard(f){
+  const vids=f.lesson_videos||[];
+  const nI=vids.filter(v=>v.type==='inspiration').length;
+  const nT=vids.filter(v=>v.type==='teacher_demo').length;
+  const nA=vids.filter(v=>v.type==='attempt').length;
+  const chips=(nI?'<span class="slot-chip slot-chip-insp">✦ '+nI+(nI>1?' reels':' reel')+'</span>':'')
+    +(nT?'<span class="slot-chip slot-chip-teacher">🎬 '+nT+(nT>1?' demos':' demo')+'</span>':'')
+    +(nA?'<span class="slot-chip slot-chip-attempt">📹 '+nA+(nA>1?' attempts':' attempt')+'</span>':'');
+  const mvs=(f.moves||[]).map(m=>'<span class="lesson-pill pill-moves">'+m+'</span>').join('');
+  return '<div class="flow-card" onclick="openFlowDetail(\''+f.id+'\')">'
+    +'<div class="flow-card-head">'
+    +'<div><div class="flow-card-name">'+(f.title||'Untitled Flow')+'</div>'
+    +'<div class="flow-card-date">'+fmtDate(f.date)+'</div>'
+    +(mvs?'<div class="lesson-pills" style="margin-top:6px">'+mvs+'</div>':'')
+    +'</div><span style="color:var(--rose);font-size:18px;flex-shrink:0">›</span></div>'
+    +(chips?'<div class="flow-card-slots">'+chips+'</div>':'')
+    +'</div>';
+}
 
-  document.getElementById('flow-detail-content').innerHTML = html;
+function openNewFlow(){
+  _editingFlowId=null;
+  document.getElementById('fl-heading').textContent='New Flow';
+  document.getElementById('fl-name').value='';
+  document.getElementById('fl-date').value=new Date().toISOString().split('T')[0];
+  document.getElementById('fl-notes').value='';
+  document.getElementById('fl-moves').value='';
+  ['fl-insp-videos','fl-teacher-videos','fl-attempt-videos'].forEach(function(cid){
+    const e=document.getElementById(cid);if(e)e.innerHTML='';
+  });
+  const btn=document.getElementById('fl-save-btn');
+  btn.textContent='Save Flow';btn.onclick=saveFlow;
+  _vc=0;openOv('flow-form-ov');
+}
+
+function addFlowVideo(cid){
+  _vc++;const n=_vc,vid='fv'+n;
+  const div=document.createElement('div');
+  div.className='video-url-entry';div.id=vid+'-wrap';
+  div.innerHTML='<button class="remove-entry" onclick="document.getElementById(\''+vid+'-wrap\').remove()">×</button>'
+    +'<label class="field-label">Label (optional)</label>'
+    +'<input type="text" id="'+vid+'-t" placeholder="e.g. Right foot entry" style="margin-bottom:6px">'
+    +'<label class="field-label">Google Drive link</label>'
+    +'<input type="url" id="'+vid+'-u" placeholder="https://drive.google.com/file/d/..." oninput="document.getElementById(\''+vid+'-p\').innerHTML=vidPreview(this.value,document.getElementById(\''+vid+'-t\').value)">'
+    +'<div id="'+vid+'-p"></div>';
+  document.getElementById(cid).appendChild(div);
+}
+
+async function saveFlow(){
+  const name=document.getElementById('fl-name').value.trim();
+  if(!name){toast('Add a flow name');return;}
+  const date=document.getElementById('fl-date').value;
+  if(!date){toast('Add a date');return;}
+  const btn=document.getElementById('fl-save-btn');
+  btn.disabled=true;btn.textContent='Saving...';
+  const notes=document.getElementById('fl-notes').value.trim();
+  const movesRaw=document.getElementById('fl-moves').value.trim();
+  const moves=movesRaw?movesRaw.split(',').map(m=>m.trim()).filter(Boolean):[];
+  const iV=collectVids('fl-insp-videos');
+  const tV=collectVids('fl-teacher-videos');
+  const aV=collectVids('fl-attempt-videos');
+  if(_editingFlowId){
+    const upd={title:name,date,notes,moves};
+    await db.from('lessons').update(upd).eq('id',_editingFlowId);
+    const newRows=iV.map(v=>({lesson_id:_editingFlowId,type:'inspiration',title:v.title,url:v.url}))
+      .concat(tV.map(v=>({lesson_id:_editingFlowId,type:'teacher_demo',title:v.title,url:v.url})))
+      .concat(aV.map(v=>({lesson_id:_editingFlowId,type:'attempt',title:v.title,url:v.url})));
+    if(newRows.length){const{data:nv}=await db.from('lesson_videos').insert(newRows).select();const fl=_flows.find(x=>x.id===_editingFlowId);if(fl&&nv)fl.lesson_videos=(fl.lesson_videos||[]).concat(nv);}
+    const fl=_flows.find(x=>x.id===_editingFlowId);if(fl)Object.assign(fl,upd);
+    btn.disabled=false;btn.textContent='Save Flow';
+    closeOv('flow-form-ov');renderFlows();toast('Flow updated ❆');
+    return;
+  }
+  const{data:lesson,error}=await db.from('lessons').insert({
+    teacher_id:CU.id,student_id:CU.id,date,title:name,notes,moves,achievements:[],help_needed:[]
+  }).select().single();
+  if(error){btn.disabled=false;btn.textContent='Save Flow';toast('Error: '+error.message);return;}
+  const newRows=iV.map(v=>({lesson_id:lesson.id,type:'inspiration',title:v.title,url:v.url}))
+    .concat(tV.map(v=>({lesson_id:lesson.id,type:'teacher_demo',title:v.title,url:v.url})))
+    .concat(aV.map(v=>({lesson_id:lesson.id,type:'attempt',title:v.title,url:v.url})));
+  if(newRows.length){const{data:nv}=await db.from('lesson_videos').insert(newRows).select();lesson.lesson_videos=nv||[];}
+  else{lesson.lesson_videos=[];}
+  _flows.unshift(lesson);
+  btn.disabled=false;btn.textContent='Save Flow';
+  closeOv('flow-form-ov');renderFlows();toast('Flow saved ❆');
+}
+
+function openFlowDetail(id){
+  const f=_flows.find(x=>x.id===id);if(!f)return;
+  const vids=f.lesson_videos||[];
+  const iV=vids.filter(v=>v.type==='inspiration');
+  const tV=vids.filter(v=>v.type==='teacher_demo');
+  const aV=vids.filter(v=>v.type==='attempt');
+  function renderSlot(label,icon,cls,list){
+    const items=list.map(v=>'<div style="margin-bottom:14px">'
+      +(v.title?'<div style="font-size:12px;font-weight:600;color:var(--mauve);margin-bottom:5px">'+v.title+'</div>':'')
+      +vidPreview(v.url,v.title)
+      +'<button onclick="deleteFlowVideo(\''+id+'\',\''+v.id+'\')" style="background:none;border:none;color:var(--rose);font-size:11px;cursor:pointer;font-family:var(--sans);margin-top:4px;padding:0">× Remove</button>'
+      +'</div>').join('');
+    return '<div class="slot-header '+cls+'">'
+      +'<div class="slot-icon-circle">'+icon+'</div>'
+      +'<div><div class="slot-title">'+label+'</div>'
+      +'<div class="slot-sub">'+(list.length?list.length+' video'+(list.length>1?'s':''):'No videos yet')+'</div>'
+      +'</div></div>'
+      +(items||'<p class="empty-state" style="font-size:11.5px;padding:4px 0 10px">Not added yet.</p>');
+  }
+  const mvs=(f.moves||[]).map(m=>'<span class="lesson-pill pill-moves">'+m+'</span>').join('');
+  const html='<div class="overlay-header">'
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">'
+    +'<button class="back-btn" style="margin-bottom:0" onclick="closeOv(\'flow-detail-ov\')">&#8592; Back</button>'
+    +'<div style="display:flex;gap:8px">'
+    +'<button onclick="editFlow(\''+id+'\')" style="background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);color:var(--parchment);padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:var(--sans)">Edit</button>'
+    +'<button onclick="deleteFlow(\''+id+'\')" style="background:rgba(201,148,138,0.2);border:1px solid rgba(201,148,138,0.3);color:#ffb3a7;padding:5px 12px;border-radius:20px;font-size:11px;cursor:pointer;font-family:var(--sans)">Delete</button>'
+    +'</div></div>'
+    +'<div class="overlay-title" style="font-style:italic">'+(f.title||'Untitled Flow')+'</div>'
+    +'<div style="margin-top:5px;font-size:10px;color:rgba(247,242,236,0.4)">'+fmtDate(f.date)+'</div>'
+    +'</div>'
+    +'<div class="overlay-body">'
+    +(mvs?'<div class="lesson-pills" style="margin-bottom:12px">'+mvs+'</div>':'')
+    +(f.notes?'<div class="card"><div class="card-body"><div class="sec" style="margin-top:0;margin-bottom:4px">Teacher\'s Notes</div><p style="font-size:13px;line-height:1.6;color:var(--mauve);white-space:pre-wrap">'+f.notes+'</p></div></div>':'')
+    +renderSlot('Instagram Inspiration','✦','slot-insp',iV)
+    +renderSlot('Teacher\'s Demo','🎬','slot-teacher',tV)
+    +renderSlot('My Attempt','📹','slot-attempt',aV)
+    +'<div class="sec" style="margin-top:18px">Add more videos</div>'
+    +'<div class="video-tip">📁 Film → Google Drive → Share → Copy link → paste below</div>'
+    +'<div style="margin-top:10px"><div class="sec" style="margin-top:0">Inspiration</div>'
+    +'<div id="fd-i-'+id+'"></div>'
+    +'<button class="add-video-btn" onclick="addFlowVideo(\'fd-i-'+id+'\')">+ Add inspiration</button></div>'
+    +'<div><div class="sec">Teacher\'s Demo</div>'
+    +'<div id="fd-t-'+id+'"></div>'
+    +'<button class="add-video-btn" onclick="addFlowVideo(\'fd-t-'+id+'\')">+ Add teacher video</button></div>'
+    +'<div><div class="sec">My Attempt</div>'
+    +'<div id="fd-a-'+id+'"></div>'
+    +'<button class="add-video-btn" onclick="addFlowVideo(\'fd-a-'+id+'\')">+ Add my video</button></div>'
+    +'<button class="btn-gold btn-full mt-8" onclick="saveFlowExtra(\''+id+'\',\'fd-i-'+id+'\',\'fd-t-'+id+'\',\'fd-a-'+id+'\')">Save new videos</button>'
+    +'<div class="spacer-80"></div></div>';
+  document.getElementById('flow-detail-content').innerHTML=html;
   openOv('flow-detail-ov');
 }
 
-async function saveExtra(fid, iCid, tCid, aCid) {
-  var iV = collectVids(iCid);
-  var tV = collectVids(tCid);
-  var aV = collectVids(aCid);
-  var rows = [];
-  for (var i = 0; i < iV.length; i++) rows.push({ lesson_id: fid, type: 'inspiration', title: iV[i].title, url: iV[i].url });
-  for (var i = 0; i < tV.length; i++) rows.push({ lesson_id: fid, type: 'teacher_demo', title: tV[i].title, url: tV[i].url });
-  for (var i = 0; i < aV.length; i++) rows.push({ lesson_id: fid, type: 'attempt', title: aV[i].title, url: aV[i].url });
-  if (!rows.length) { toast('No videos to add'); return; }
-  var r = await _sb.from('lesson_videos').insert(rows).select();
-  if (r.error) { toast('Error: ' + r.error.message); return; }
-  var fl = null;
-  for (var i = 0; i < _flows.length; i++) {
-    if (_flows[i].id === fid) { fl = _flows[i]; break; }
-  }
-  if (fl && r.data) fl.lesson_videos = (fl.lesson_videos || []).concat(r.data);
-  openFlowDetail(fid);
-  toast('Videos saved ✶');
+async function saveFlowExtra(fid,iCid,tCid,aCid){
+  const iV=collectVids(iCid),tV=collectVids(tCid),aV=collectVids(aCid);
+  const rows=iV.map(v=>({lesson_id:fid,type:'inspiration',title:v.title,url:v.url}))
+    .concat(tV.map(v=>({lesson_id:fid,type:'teacher_demo',title:v.title,url:v.url})))
+    .concat(aV.map(v=>({lesson_id:fid,type:'attempt',title:v.title,url:v.url})));
+  if(!rows.length){toast('No videos to add');return;}
+  const{data:nv}=await db.from('lesson_videos').insert(rows).select();
+  if(nv){const fl=_flows.find(x=>x.id===fid);if(fl)fl.lesson_videos=(fl.lesson_videos||[]).concat(nv);}
+  openFlowDetail(fid);toast('Videos saved ❆');
 }
 
-function editFlow(id) {
-  var f = null;
-  for (var i = 0; i < _flows.length; i++) {
-    if (_flows[i].id === id) { f = _flows[i]; break; }
-  }
-  if (!f) return;
-  _editingFlowId = id;
-  document.getElementById('fl-heading').textContent = 'Edit Flow';
-  document.getElementById('fl-name').value = f.title || '';
-  document.getElementById('fl-date').value = f.date || '';
-  document.getElementById('fl-notes').value = f.notes || '';
-  ['fl-insp-vids', 'fl-teach-vids', 'fl-att-vids'].forEach(function (cid) {
-    var el = document.getElementById(cid);
-    if (el) el.innerHTML = '';
+function editFlow(id){
+  const f=_flows.find(x=>x.id===id);if(!f)return;
+  _editingFlowId=id;
+  document.getElementById('fl-heading').textContent='Edit Flow';
+  document.getElementById('fl-name').value=f.title||'';
+  document.getElementById('fl-date').value=f.date||'';
+  document.getElementById('fl-notes').value=f.notes||'';
+  document.getElementById('fl-moves').value=(f.moves||[]).join(', ');
+  ['fl-insp-videos','fl-teacher-videos','fl-attempt-videos'].forEach(function(cid){
+    const e=document.getElementById(cid);if(e)e.innerHTML='';
   });
-  var btn = document.getElementById('fl-save-btn');
-  btn.textContent = 'Update Flow';
-  btn.onclick = saveFlow;
-  _vc = 0;
-  closeOv('flow-detail-ov');
-  openOv('flow-form-ov');
+  const btn=document.getElementById('fl-save-btn');
+  btn.textContent='Update Flow';btn.onclick=saveFlow;
+  _vc=0;closeOv('flow-detail-ov');openOv('flow-form-ov');
 }
 
-async function deleteFlow(id) {
-  if (!confirm('Delete this flow? This cannot be undone.')) return;
-  await _sb.from('lesson_videos').delete().eq('lesson_id', id);
-  await _sb.from('lessons').delete().eq('id', id);
-  var next = [];
-  for (var i = 0; i < _flows.length; i++) {
-    if (_flows[i].id !== id) next.push(_flows[i]);
-  }
-  _flows = next;
-  closeOv('flow-detail-ov');
-  renderFlows();
-  toast('Flow deleted');
+async function deleteFlow(id){
+  if(!confirm('Delete this flow? This cannot be undone.'))return;
+  await db.from('lesson_videos').delete().eq('lesson_id',id);
+  await db.from('lessons').delete().eq('id',id);
+  _flows=_flows.filter(x=>x.id!==id);
+  closeOv('flow-detail-ov');renderFlows();toast('Flow deleted');
 }
 
-async function deleteFlowVideo(fid, vid) {
-  if (!confirm('Remove this video?')) return;
-  await _sb.from('lesson_videos').delete().eq('id', vid);
-  var fl = null;
-  for (var i = 0; i < _flows.length; i++) {
-    if (_flows[i].id === fid) { fl = _flows[i]; break; }
+async function deleteFlowVideo(fid,vid){
+  if(!confirm('Remove this video?'))return;
+  await db.from('lesson_videos').delete().eq('id',vid);
+  const fl=_flows.find(x=>x.id===fid);
+  if(fl)fl.lesson_videos=(fl.lesson_videos||[]).filter(v=>String(v.id)!==String(vid));
+  openFlowDetail(fid);toast('Video removed');
+}
+
+/* ═══ TEACHER — STUDENTS ═══ */
+function renderStudents(){
+  const el=document.getElementById('students-list');if(!el)return;
+  if(!_students.length){el.innerHTML='<p class="empty-state">No students yet. Add a student by their email.</p>';return;}
+  el.innerHTML=_students.map(s=>{
+    const n=_lessons.filter(l=>l.student_id===s.id).length;
+    return`<div class="move-card" onclick="openStudentDetail('${s.id}')"><div class="move-card-inner"><div class="student-avatar">${(s.name||'?')[0]}</div><div class="move-info"><div class="move-name">${s.name}</div><div class="move-meta"><span class="badge badge-${s.level}">${s.level}</span> · ${n} lesson${n!==1?'s':''}</div></div><span style="color:var(--rose);font-size:16px">›</span></div></div>`;
+  }).join('');
+}
+async function addStudent(){
+  const email=document.getElementById('st-email').value.trim().toLowerCase();
+  const errEl=document.getElementById('add-student-error');errEl.textContent='';
+  if(!email){errEl.textContent='Enter the student\'s email.';return;}
+  const{data:found}=await db.rpc('get_profile_by_email',{email_input:email});
+  if(!found||!found.length){errEl.textContent='Student not found. Make sure they have signed in with Google first.';return;}
+  const sp=found[0];
+  const{error}=await db.from('teacher_students').insert({teacher_id:CU.id,student_id:sp.id,level:document.getElementById('st-level').value,notes:document.getElementById('st-notes').value.trim()});
+  if(error){errEl.textContent='Could not add — they may already be added.';return;}
+  _students.push({id:sp.id,name:sp.full_name,level:document.getElementById('st-level').value,notes:document.getElementById('st-notes').value.trim()});
+  closeOv('add-student-ov');renderStudents();toast('Student added ✦');
+  ['st-email','st-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+}
+function openStudentDetail(sid){
+  const s=_students.find(x=>x.id===sid);if(!s)return;
+  const sL=_lessons.filter(l=>l.student_id===sid).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const allV=[];
+  sL.forEach(l=>{
+    (l.lesson_videos||[]).filter(v=>v.type==='teacher'&&v.url).forEach(v=>allV.push({title:v.title,url:v.url,date:l.date,tag:'Teacher',tagClass:'tag-teacher',lessonTitle:l.title}));
+    (l.lesson_videos||[]).filter(v=>v.type==='student'&&v.url).forEach(v=>allV.push({title:v.title,url:v.url,date:l.date,tag:'Student',tagClass:'tag-student',lessonTitle:l.title}));
+    if(l.best_video_url)allV.push({title:'Best of day',url:l.best_video_url,date:l.date,tag:'Best ✦',tagClass:'tag-best',lessonTitle:l.title});
+  });
+  const galH=allV.length?`<div class="sec">All Videos (${allV.length})</div>
+    <div class="sort-row"><span class="sort-label">Sort</span>
+      <button class="sort-btn ${_vsort==='date'?'active':''}" onclick="_vsort='date';openStudentDetail('${sid}')">Date</button>
+      <button class="sort-btn ${_vsort==='title'?'active':''}" onclick="_vsort='title';openStudentDetail('${sid}')">Title</button>
+    </div>
+    <div class="video-gallery">${[...allV].sort((a,b)=>_vsort==='title'?(a.title||'').localeCompare(b.title||''):(b.date||'').localeCompare(a.date||'')).map(v=>`<div class="video-entry"><div class="video-entry-head"><span class="video-entry-date">${fmtDate(v.date)}</span><span class="video-entry-tag ${v.tagClass}">${v.tag}</span></div><div class="video-entry-body">${v.title?`<div class="video-entry-title">${v.title}</div>`:''}${v.lessonTitle?`<div class="video-entry-sub">${v.lessonTitle}</div>`:''}${vidPreview(v.url,v.title)}</div></div>`).join('')}</div>`:'';
+  document.getElementById('student-detail-content').innerHTML=`
+    <div class="overlay-header"><button class="back-btn" onclick="closeOv('student-detail-ov')">← Back</button>
+      <div style="display:flex;align-items:center;gap:12px;margin-top:4px"><div class="student-avatar" style="width:46px;height:46px;font-size:20px">${(s.name||'?')[0]}</div><div><div class="overlay-title">${s.name}</div><span class="badge badge-${s.level}">${s.level}</span></div></div>
+    </div>
+    <div class="overlay-body">
+      ${s.notes?`<div class="card"><div class="card-body"><p style="font-size:12.5px;color:var(--mauve);line-height:1.5">${s.notes}</p></div></div>`:''}
+      <button class="btn-gold btn-full" onclick="openLogLesson('${sid}','${s.name.replace(/'/g,"\\'")}')">+ Log a new lesson</button>
+      ${galH}
+      <div class="sec">Lesson History (${sL.length})</div>
+      ${sL.length?sL.map(l=>lessonCard(l)).join(''):'<p class="empty-state">No lessons yet.</p>'}
+      <div class="spacer-80"></div>
+    </div>`;
+  openOv('student-detail-ov');
+}
+function lessonCard(l){
+  const tV=(l.lesson_videos||[]).filter(v=>v.type==='teacher');
+  const sV=(l.lesson_videos||[]).filter(v=>v.type==='student');
+  return`<div class="lesson-entry" onclick="openLessonDetail('${l.id}')">
+    <div class="lesson-date-label">${fmtDate(l.date)}</div><div class="lesson-title-text">${l.title||'Lesson'}</div>
+    <div class="lesson-pills">${(l.moves||[]).map(m=>`<span class="lesson-pill pill-moves">${m}</span>`).join('')}${(l.achievements||[]).map(a=>`<span class="lesson-pill pill-achieve">✓ ${a}</span>`).join('')}${(l.help_needed||[]).map(h=>`<span class="lesson-pill pill-help">⚑ ${h}</span>`).join('')}</div>
+    ${l.notes?`<div class="lesson-notes-text">${l.notes}</div>`:''}
+    ${tV.length||sV.length||l.best_video_url?`<div class="lesson-video-chips">${videoChips(tV,'Teacher','tag-teacher')}${videoChips(sV,'Student','tag-student')}${l.best_video_url?`<a class="lesson-video-chip" href="${l.best_video_url}" target="_blank">⭐ Best of day</a>`:''}</div>`:''}
+  </div>`;
+}
+function openLessonDetail(id){
+  const l=_lessons.concat(_flows).find(x=>x.id===id);if(!l)return;
+  const tV=(l.lesson_videos||[]).filter(v=>v.type==='teacher');
+  const sV=(l.lesson_videos||[]).filter(v=>v.type==='student');
+  document.getElementById('lesson-detail-content').innerHTML=`
+    <div class="overlay-header"><button class="back-btn" onclick="closeOv('lesson-detail-ov')">← Back</button><div class="overlay-title">${l.title||'Lesson'}</div><div style="margin-top:5px;font-size:10px;color:rgba(247,242,236,0.4)">${fmtDate(l.date)}</div></div>
+    <div class="overlay-body">
+      <div class="lesson-pills" style="margin-bottom:12px">${(l.moves||[]).map(m=>`<span class="lesson-pill pill-moves">${m}</span>`).join('')}${(l.achievements||[]).map(a=>`<span class="lesson-pill pill-achieve">✓ ${a}</span>`).join('')}${(l.help_needed||[]).map(h=>`<span class="lesson-pill pill-help">⚑ ${h}</span>`).join('')}</div>
+      ${l.notes?`<div class="card"><div class="card-body"><p style="font-size:13px;line-height:1.6;color:var(--mauve)">${l.notes}</p></div></div>`:''}
+      ${tV.length?`<div class="sec">Teacher Videos</div><div class="video-gallery">${tV.map(v=>`<div class="video-entry"><div class="video-entry-body"><div class="video-entry-title">${v.title||'Teacher video'}</div>${vidPreview(v.url,v.title)}</div></div>`).join('')}</div>`:''}
+      ${sV.length?`<div class="sec">Student Videos</div><div class="video-gallery">${sV.map(v=>`<div class="video-entry"><div class="video-entry-body"><div class="video-entry-title">${v.title||'Student video'}</div>${vidPreview(v.url,v.title)}</div></div>`).join('')}</div>`:''}
+      ${l.best_video_url?`<div class="sec">Best of Day ✦</div><div class="video-entry"><div class="video-entry-body">${vidPreview(l.best_video_url,'Best of day')}</div></div>`:''}
+      <div class="spacer-80"></div>
+    </div>`;
+  openOv('lesson-detail-ov');
+}
+
+/* ═══ TEACHER — CLASSES ═══ */
+function renderClasses(){
+  const el=document.getElementById('classes-list');if(!el)return;
+  if(!_classes.length){el.innerHTML='<p class="empty-state">No classes yet.</p>';return;}
+  el.innerHTML=_classes.map(c=>{
+    const csIds=(c.class_students||[]).map(x=>x.student_id);
+    const cs=_students.filter(s=>csIds.includes(s.id));
+    return`<div class="class-card">
+      <div class="class-card-head" onclick="toggleClass('${c.id}')">
+        <div><div class="class-card-title">${c.name}</div><div class="class-card-meta">${fmtDate(c.date)} · ${cs.length} student${cs.length!==1?'s':''}</div></div>
+        <span class="class-expand-icon" id="cei-${c.id}">▼</span>
+      </div>
+      <div class="class-card-body" id="ceb-${c.id}">
+        ${c.notes?`<p style="font-size:12.5px;color:var(--mauve);margin-bottom:10px;line-height:1.5">${c.notes}</p>`:''}
+        <div class="sec" style="margin-top:0">Students</div>
+        ${cs.length?cs.map(s=>`<div class="student-row" onclick="openStudentDetail('${s.id}')"><div class="student-avatar">${(s.name||'?')[0]}</div><div style="flex:1"><div class="student-row-name">${s.name}</div><div class="student-row-meta"><span class="badge badge-${s.level}">${s.level}</span></div></div><span style="color:var(--rose)">›</span></div>`).join(''):'<p class="empty-state">No students.</p>'}
+      </div>
+    </div>`;
+  }).join('');
+}
+function toggleClass(id){const b=document.getElementById('ceb-'+id),i=document.getElementById('cei-'+id);if(!b)return;const o=b.classList.toggle('open');i.classList.toggle('open',o);}
+function openAddClassOv(){
+  const el=document.getElementById('cls-student-checklist');
+  el.innerHTML=_students.length?_students.map(s=>`<label style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);cursor:pointer"><input type="checkbox" value="${s.id}" style="width:16px;height:16px;accent-color:var(--deep-rose)"><span style="font-size:13px;flex:1">${s.name}</span><span class="badge badge-${s.level}">${s.level}</span></label>`).join(''):'<p class="empty-state">Add students first.</p>';
+  openOv('add-class-ov');
+}
+async function saveClass(){
+  const name=document.getElementById('cls-name').value.trim();if(!name){toast('Add a class name');return;}
+  const sids=[];document.getElementById('cls-student-checklist').querySelectorAll('input:checked').forEach(cb=>sids.push(cb.value));
+  const{data}=await db.from('classes').insert({teacher_id:CU.id,name,date:document.getElementById('cls-date').value,notes:document.getElementById('cls-notes').value.trim()}).select().single();
+  if(data){
+    if(sids.length){await db.from('class_students').insert(sids.map(sid=>({class_id:data.id,student_id:sid})));data.class_students=sids.map(sid=>({student_id:sid}));}
+    _classes.unshift(data);closeOv('add-class-ov');renderClasses();toast('Class saved ✦');
+    ['cls-name','cls-date','cls-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
   }
-  if (fl) {
-    var next = [];
-    for (var i = 0; i < (fl.lesson_videos || []).length; i++) {
-      if (String(fl.lesson_videos[i].id) !== String(vid)) next.push(fl.lesson_videos[i]);
-    }
-    fl.lesson_videos = next;
-  }
-  openFlowDetail(fid);
-  toast('Video removed');
+}
+
+/* ═══ LOG LESSON ═══ */
+function openLogLesson(sid,sname){
+  _llStudentId=sid;_bestAdded=false;_vc=0;
+  document.getElementById('ll-title-heading').textContent='Log lesson — '+sname;
+  document.getElementById('ll-date').value=new Date().toISOString().split('T')[0];
+  ['ll-teacher-videos','ll-student-videos','ll-best-video'].forEach(id=>{const e=document.getElementById(id);if(e)e.innerHTML='';});
+  document.getElementById('ll-best-add-btn').style.display='block';
+  document.getElementById('ll-parse-result').innerHTML='';
+  document.getElementById('ll-caption').value='';
+  ['ll-title','ll-moves','ll-achieve','ll-help','ll-notes'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
+  closeOv('student-detail-ov');openOv('log-lesson-ov');
+}
+async function parseLessonCaption(){
+  const cap=document.getElementById('ll-caption').value.trim();if(!cap){toast('Add a caption');return;}
+  const rEl=document.getElementById('ll-parse-result');
+  rEl.innerHTML=`<div class="ai-parse-wrap"><div style="display:flex;align-items:center;gap:8px;padding:8px 0"><div class="ai-dot"></div><div class="ai-dot"></div><div class="ai-dot"></div><span style="font-size:12px;color:rgba(200,169,126,0.6)">Identifying moves…</span></div></div>`;
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:800,messages:[{role:'user',content:`Aerial silks. Extract moves.\nText: ${cap}\nJSON only:\n{"moves":[{"name":"Move name","description":"1 sentence","tips":"tip"}],"summary":"1-2 sentences"}`}]})});
+    const data=await res.json();
+    const p=JSON.parse(data.content?.find(b=>b.type==='text')?.text?.replace(/```json|```/g,'').trim()||'{}');
+    const moves=p.moves||[];
+    rEl.innerHTML=`<div class="ai-parse-wrap"><div class="ai-parse-title">Moves identified</div><div class="ai-parse-sub">${moves.length} skills</div>${moves.map(m=>`<div class="ai-move-card"><div class="ai-move-name">${m.name}</div>${m.description?`<div class="ai-move-detail">${m.description}</div>`:''}${m.tips?`<div class="ai-tip">💡 ${m.tips}</div>`:''}</div>`).join('')}<button class="btn-gold btn-full" style="margin-top:10px" onclick="document.getElementById('ll-moves').value=${JSON.stringify(moves.map(m=>m.name).join(', '))};toast('Moves filled ✓')">Fill into lesson →</button></div>`;
+  }catch(e){rEl.innerHTML='<p style="font-size:12px;color:var(--rose)">Parse error</p>';}
+}
+async function saveLesson(){
+  if(!_llStudentId){toast('No student selected');return;}
+  const date=document.getElementById('ll-date').value;if(!date){toast('Add a date');return;}
+  const btn=document.getElementById('ll-save-btn');btn.disabled=true;btn.textContent='Saving...';
+  const tV=collectVids('ll-teacher-videos'),sV=collectVids('ll-student-videos');
+  const bestUrl=document.getElementById('ll-best-url')?.value?.trim()||'';
+  const movesRaw=document.getElementById('ll-moves').value.trim();
+  const achRaw=document.getElementById('ll-achieve').value.trim();
+  const helpRaw=document.getElementById('ll-help').value.trim();
+  const{data:csData}=await db.from('class_students').select('class_id').eq('student_id',_llStudentId).limit(1);
+  const classId=csData&&csData.length?csData[0].class_id:null;
+  const{data:lesson,error}=await db.from('lessons').insert({teacher_id:CU.id,student_id:_llStudentId,class_id:classId,date,title:document.getElementById('ll-title').value.trim()||`Lesson ${fmtDate(date)}`,moves:movesRaw?movesRaw.split(',').map(m=>m.trim()).filter(Boolean):[],achievements:achRaw?achRaw.split(',').map(a=>a.trim()).filter(Boolean):[],help_needed:helpRaw?helpRaw.split(',').map(h=>h.trim()).filter(Boolean):[],notes:document.getElementById('ll-notes').value.trim(),best_video_url:bestUrl}).select().single();
+  if(error){btn.disabled=false;btn.textContent='Save Lesson';toast('Error saving');return;}
+  const rows=[...tV.map(v=>({lesson_id:lesson.id,type:'teacher',title:v.title,url:v.url})),...sV.map(v=>({lesson_id:lesson.id,type:'student',title:v.title,url:v.url}))];
+  if(rows.length){const{data:nv}=await db.from('lesson_videos').insert(rows).select();lesson.lesson_videos=nv||[];}else lesson.lesson_videos=[];
+  _lessons.unshift(lesson);
+  btn.disabled=false;btn.textContent='Save Lesson';
+  closeOv('log-lesson-ov');openStudentDetail(_llStudentId);toast('Lesson saved ✦');
+}
+
+/* ═══ INSPIRATION TABS ═══ */
+function switchInspTab(tab){
+  const isReel=tab==='reel';
+  document.getElementById('insp-reel-form').style.display=isReel?'block':'none';
+  document.getElementById('insp-account-form').style.display=isReel?'none':'block';
+  document.getElementById('insp-tab-reel').style.background=isReel?'var(--deep-rose)':'var(--surface)';
+  document.getElementById('insp-tab-reel').style.color=isReel?'white':'var(--mauve)';
+  document.getElementById('insp-tab-account').style.background=isReel?'var(--surface)':'var(--deep-rose)';
+  document.getElementById('insp-tab-account').style.color=isReel?'var(--mauve)':'white';
+}
+
+const _acctTagsSel=new Set();
+function toggleAcctTag(btn,tag){
+  if(_acctTagsSel.has(tag)){_acctTagsSel.delete(tag);btn.classList.remove('active');}
+  else{_acctTagsSel.add(tag);btn.classList.add('active');}
+}
+
+async function saveAccount(){
+  let handle=document.getElementById('acct-handle').value.trim();
+  if(!handle){toast('Add an Instagram handle or URL');return;}
+  // normalise to @handle
+  const m=handle.match(/instagram\.com\/([A-Za-z0-9_.]+)/);
+  if(m)handle='@'+m[1];
+  else if(!handle.startsWith('@'))handle='@'+handle;
+  const why=document.getElementById('acct-why').value.trim();
+  const tags=[..._acctTagsSel];
+  const url=`https://www.instagram.com/${handle.replace('@','')}`;
+  // Save to inspirations table with type='account'
+  // Check not already saved
+  if(_insps.some(r=>r.title===handle&&r.parsed_meta?.type==='account')){toast('Already saved');return;}
+  const{data,error}=await db.from('inspirations').insert({
+    created_by:CU.id,url,title:handle,
+    notes:why,caption:tags.join(', '),
+    parsed_meta:{type:'account',tags,why}
+  }).select().single();
+  if(error){toast('Error: '+error.message);console.error(error);return;}
+  // Remove any duplicates just added
+  _insps=_insps.filter(r=>r.id!==data.id);
+  _insps.unshift(data);
+  document.getElementById('acct-handle').value='';
+  document.getElementById('acct-why').value='';
+  _acctTagsSel.clear();
+  document.querySelectorAll('#acct-tags-wrap .filter-btn').forEach(b=>b.classList.remove('active'));
+  renderInsps();toast('Account saved ✦');
+}
+
+function renderAccounts(){
+  const el=document.getElementById('accounts-list');if(!el)return;
+  // Filter inspirations that are accounts
+  const accts=_insps.filter(r=>r.parsed_meta?.type==='account');
+  if(!accts.length){el.innerHTML='<p class="empty-state">No accounts saved yet.</p>';return;}
+  el.innerHTML=accts.map((r,i)=>{
+    const handle=r.title||r.url;
+    const tags=(r.parsed_meta?.tags||[]);
+    const why=r.parsed_meta?.why||r.notes||'';
+    return`<div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px;margin-bottom:8px;display:flex;align-items:flex-start;gap:10px">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#833ab4,#fd1d1d,#f56040);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">📸</div>
+      <div style="flex:1;min-width:0">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px">
+          <a href="${r.url}" target="_blank" style="font-size:14px;font-weight:600;color:var(--deep-rose);text-decoration:none">${handle}</a>
+          <button onclick="deleteAcct('${r.id}')" style="background:none;border:none;color:var(--mauve);cursor:pointer;font-size:18px;padding:4px 6px;line-height:1">×</button>
+        </div>
+        ${tags.length?`<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">${tags.map(t=>`<span style="background:var(--blush);color:var(--deep-rose);padding:1px 7px;border-radius:20px;font-size:9px;font-weight:600">${t}</span>`).join('')}</div>`:''}
+        ${why?`<div style="font-size:12px;color:var(--mauve);line-height:1.5">${why}</div>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+async function delInsp(id, idx, type){return doDelInsp(id);}
+
+async function doDelInsp(id){
+  if(!confirm('Remove this?'))return;
+  await db.from('inspirations').delete().eq('id',id);
+  _insps=_insps.filter(r=>r.id!==id);
+  renderInsps();
+  toast('Removed');
+}
+
+async function _delInspOld(id, idx, type){
+  if(!confirm('Remove this '+(type==='account'?'account':'reel')+'?'))return;
+  await db.from('inspirations').delete().eq('id',id);
+  _insps=_insps.filter(r=>r.id!==id);
+  renderInsps();
+  closeOv('insp-detail-ov');
+  toast('Removed');
+}
+
+
+/* ═══ REEL HELPERS ═══ */
+function openReelUrl(ri){
+  const r=(window._inspReels||[])[ri];
+  if(r&&r.url)window.open(r.url,'_blank');
+}
+
+function openInspDetail(ri){
+  const r=(window._inspReels||[])[ri];
+  if(!r)return;
+  const moves=r.parsed_moves||[];
+  const movesH=moves.length?`<div class="sec" style="margin-top:0">Moves in this reel</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px">${moves.map(m=>`<span class="lesson-pill pill-moves">${m.name}</span>`).join('')}</div>`:'';
+  const notesH=r.notes?`<div class="card"><div class="card-body"><p style="font-size:13px;line-height:1.6;color:var(--mauve)">${r.notes}</p></div></div>`:'';
+  document.getElementById('insp-detail-content').innerHTML=`
+    <div class="overlay-header"><button class="back-btn" onclick="closeOv('insp-detail-ov')">← Back</button><div class="overlay-title">${r.title||'Untitled'}</div></div>
+    <div class="overlay-body">
+      <button class="btn-secondary btn-full" onclick="window.open('${r.url}','_blank')" style="margin-bottom:12px">Open reel ↗</button>
+      ${movesH}${notesH}
+      <div class="spacer-80"></div>
+    </div>`;
+  openOv('insp-detail-ov');
+}
+
+async function deleteReel(ri){
+  const r=(window._inspReels||[])[ri];
+  if(!r)return;
+  if(!confirm('Remove this reel?'))return;
+  await db.from('inspirations').delete().eq('id',r.id);
+  _insps=_insps.filter(x=>x.id!==r.id);
+  renderInsps();
+  toast('Removed');
+}
+
+async function deleteAcct(id){
+  if(!confirm('Remove this account?'))return;
+  await db.from('inspirations').delete().eq('id',id);
+  _insps=_insps.filter(x=>x.id!==id);
+  renderInsps();
+  toast('Removed');
 }
 
 /* ═══ AUTH BOOT ═══ */
-_sb.auth.onAuthStateChange(async function (event, session) {
-  if (event === 'SIGNED_IN' && session && session.user && !CU) {
+db.auth.onAuthStateChange(async(event,session)=>{
+  if(event==='SIGNED_IN'&&session?.user&&!CU){
     await initApp(session.user);
-  } else if (event === 'SIGNED_OUT') {
+  }else if(event==='SIGNED_OUT'){
     location.reload();
   }
 });
 
-(async function () {
-  var s = await _sb.auth.getSession();
-  if (s.data && s.data.session && s.data.session.user) {
-    await initApp(s.data.session.user);
+(async()=>{
+  const{data:{session}}=await db.auth.getSession();
+  if(session?.user){
+    await initApp(session.user);
   }
-}());
+})();
+</script>
+
+<script>
+// Autoplay videos when scrolled into view, pause when out of view
+function setupVideoObserver(){
+  const obs = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const iframe = entry.target.querySelector('iframe');
+      if(!iframe)return;
+      if(entry.isIntersecting){
+        // Reload with autoplay+mute when entering view
+        if(!iframe.dataset.autoplayed){
+          iframe.dataset.autoplayed='1';
+          const sep=iframe.src.includes('?')?'&':'?';
+          if(!iframe.src.includes('autoplay=1')){
+            iframe.src=iframe.src+sep+'autoplay=1&mute=1';
+          }
+        }
+      } else {
+        // Stop by reloading without autoplay
+        if(iframe.dataset.autoplayed){
+          iframe.src=iframe.src.replace('autoplay=1&mute=1','autoplay=0&mute=1')
+            .replace('&autoplay=1','').replace('?autoplay=1','?')
+            .replace('autoplay=1','');
+          // For Google Drive, just clear and reset
+          const s=iframe.src;iframe.src='';iframe.src=s;
+          delete iframe.dataset.autoplayed;
+        }
+      }
+    });
+  },{threshold:0.6});
+
+  // Observe all video wrappers
+  document.querySelectorAll('.vid-wrap').forEach(v=>obs.observe(v));
+  return obs;
+}
+
+// Re-run observer whenever content changes (overlays open, tabs switch)
+let _vidObs=null;
+function refreshVideoObserver(){
+  if(_vidObs){_vidObs.disconnect();}
+  setTimeout(()=>{_vidObs=setupVideoObserver();},300);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  refreshVideoObserver();
+});
+// Refresh observer on overlay open
+const _origOpenOv=window.openOv;
+if(_origOpenOv){
+  window.openOv=function(id){_origOpenOv(id);refreshVideoObserver();};
+}
 </script>
 </body>
 </html>
