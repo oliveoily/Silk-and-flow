@@ -717,10 +717,15 @@ async function saveFlow(){
   const aV=collectVids('fl-attempt-videos');
   if(_editingFlowId){
     const upd={title:name,date,notes,moves};
-    await db.from('lessons').update(upd).eq('id',_editingFlowId);
+    const{error:updErr}=await db.from('lessons').update(upd).eq('id',_editingFlowId);
+    if(updErr){btn.disabled=false;btn.textContent='Save Flow';toast('Error: '+updErr.message);console.error('lessons update failed',updErr);return;}
     const newRows=tV.map(v=>({lesson_id:_editingFlowId,type:'teacher_demo',title:v.title,url:v.url}))
       .concat(aV.map(v=>({lesson_id:_editingFlowId,type:'attempt',title:v.title,url:v.url})));
-    if(newRows.length){const{data:nv}=await db.from('lesson_videos').insert(newRows).select();const fl=_flows.find(x=>x.id===_editingFlowId);if(fl&&nv)fl.lesson_videos=(fl.lesson_videos||[]).concat(nv);}
+    if(newRows.length){
+      const{data:nv,error:vidErr}=await db.from('lesson_videos').insert(newRows).select();
+      if(vidErr){btn.disabled=false;btn.textContent='Save Flow';toast('Video save failed: '+vidErr.message);console.error('lesson_videos insert failed',vidErr);return;}
+      const fl=_flows.find(x=>x.id===_editingFlowId);if(fl)fl.lesson_videos=(fl.lesson_videos||[]).concat(nv||[]);
+    }
     const fl=_flows.find(x=>x.id===_editingFlowId);if(fl)Object.assign(fl,upd);
     btn.disabled=false;btn.textContent='Save Flow';
     closeOv('flow-form-ov');renderFlows();toast('Flow updated ❆');
@@ -729,11 +734,21 @@ async function saveFlow(){
   const{data:lesson,error}=await db.from('lessons').insert({
     teacher_id:CU.id,student_id:CU.id,date,title:name,notes,moves,achievements:[],help_needed:[]
   }).select().single();
-  if(error){btn.disabled=false;btn.textContent='Save Flow';toast('Error: '+error.message);return;}
+  if(error){btn.disabled=false;btn.textContent='Save Flow';toast('Error: '+error.message);console.error('lessons insert failed',error);return;}
   const newRows=tV.map(v=>({lesson_id:lesson.id,type:'teacher_demo',title:v.title,url:v.url}))
     .concat(aV.map(v=>({lesson_id:lesson.id,type:'attempt',title:v.title,url:v.url})));
-  if(newRows.length){const{data:nv}=await db.from('lesson_videos').insert(newRows).select();lesson.lesson_videos=nv||[];}
-  else{lesson.lesson_videos=[];}
+  lesson.lesson_videos=[];
+  if(newRows.length){
+    const{data:nv,error:vidErr}=await db.from('lesson_videos').insert(newRows).select();
+    if(vidErr){
+      _flows.unshift(lesson);
+      btn.disabled=false;btn.textContent='Save Flow';
+      closeOv('flow-form-ov');renderFlows();toast('Flow saved, but videos failed: '+vidErr.message);
+      console.error('lesson_videos insert failed',vidErr);
+      return;
+    }
+    lesson.lesson_videos=nv||[];
+  }
   _flows.unshift(lesson);
   btn.disabled=false;btn.textContent='Save Flow';
   closeOv('flow-form-ov');renderFlows();toast('Flow saved ❆');
@@ -792,8 +807,9 @@ async function saveFlowExtra(fid,tCid,aCid){
   const rows=tV.map(v=>({lesson_id:fid,type:'teacher_demo',title:v.title,url:v.url}))
     .concat(aV.map(v=>({lesson_id:fid,type:'attempt',title:v.title,url:v.url})));
   if(!rows.length){toast('No videos to add');return;}
-  const{data:nv}=await db.from('lesson_videos').insert(rows).select();
-  if(nv){const fl=_flows.find(x=>x.id===fid);if(fl)fl.lesson_videos=(fl.lesson_videos||[]).concat(nv);}
+  const{data:nv,error}=await db.from('lesson_videos').insert(rows).select();
+  if(error){toast('Video save failed: '+error.message);console.error('lesson_videos insert failed',error);return;}
+  const fl=_flows.find(x=>x.id===fid);if(fl)fl.lesson_videos=(fl.lesson_videos||[]).concat(nv||[]);
   openFlowDetail(fid);toast('Videos saved ❆');
 }
 
